@@ -20,8 +20,57 @@ else:
 cookies = ''
 player_id = binascii.b2a_hex(os.urandom(16))
 http = httplib2.Http()
+media_dir = os.path.join(
+    xbmc.translatePath("special://home/" ), 
+    "addons", "plugin.video.nba",
+    "resources", "media"
+)
+
+# the default fanart image
+fanart_image = os.path.join(media_dir, "fanart1.jpg")
 http.disable_ssl_certificate_validation=True
 ############################################################################
+
+def getFeed():
+    global fanart_image
+
+    # get the feed url
+    feed_url = "http://smb.cdnak.neulion.com/fs/nba/feeds/common/dl.js"
+    req = urllib2.Request(feed_url, None);
+    response = str(urllib2.urlopen(req).read())
+
+    # Get the info from the feed
+    # js.dl is an array with entries like this:
+    #   {
+    #   "geoAllow": "",
+    #   "template": "",
+    #   "id": 666,
+    #   "subTitle": "",
+    #   "title": "Pacers vs. Bulls",
+    #   "description": "Derek Rose makes his long-awaited return",
+    #   "link": "",
+    #   "geoDeny": "",
+    #   "game": {
+    #     "id": "0011300002",
+    #     "home": "IND",
+    #     "status": 3,
+    #     "gameDate": "2013-10-05T23:27:02.000",
+    #     "visitor": "CHI"
+    #   },
+    #   "type": 1
+    # }
+    try:
+        # Parse
+        js = json.loads(response[response.find("{"):])
+        dl = js["dl"]
+
+        # for now only chose the first fanart
+        first_id = dl[0]["id"]
+        fanart_image = ("http://smb.cdnllnwnl.neulion.com/u/nba/nba/thumbs/dl/%s_pc.jpg" % first_id)
+        settings.setSetting("fanart_image", fanart_image)
+    except:
+        print "Failed to parse the dl output!!!"
+        return ''
 
 def getDate( default= '', heading='Please enter date (YYYY/MM/DD)', hidden=False ):
     now = datetime.datetime.now()
@@ -63,9 +112,10 @@ def get_archive_game_url(video_id):
             'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:12.0) Gecko/20100101 Firefox/12.0',
         }
         body = urllib.urlencode({ 
-            'id' : str(video_id), 'isFlex':'true',
-            'gt': full_or_condensed, 'type':'game',
-            # 'plid': 'acc3e4d5cf56d9d464617da638b763fe'
+            'id': str(video_id), 
+            'isFlex': 'true',
+            'gt': full_or_condensed, 
+            'type': 'game',
             'plid': player_id
         })
         response, content = http.request(url, 'POST', body=body, headers=headers)
@@ -117,28 +167,6 @@ def get_archive_game_url(video_id):
     except:
         # raise
         return 'ERROR!'
-
-def encrypt(args):
-    try:
-        url = 'http://watch.nba.com/nba/servlets/encryptvideopath?'
-        headers = { 'Host': 'www.nba.tv',
-                    'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:12.0) Gecko/20100101 Firefox/12.0',
-                    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-                    'Accept-Language': 'de-de,de;q=0.8,en-us;q=0.5,en;q=0.3',
-                    'Accept-Encoding': 'gzip,deflate',
-                    'Keep-Alive': '300',
-                    'Connection': 'keep-alive',
-                    'Cookie': cookies }
-        url = url+ urllib.urlencode(args)
-        response, content = http.request(url, 'POST', headers=headers)
-        xml = parseString(str(content))
-        link = xml.getElementsByTagName("path")[0].childNodes[0].nodeValue
-        pp = ' playpath=mp4:u' + link.partition('mp4:u')[2]
-        app = ' app=ondemand?' + link.partition('?')[2]
-        link = 'rtmp://cp118328.edgefcs.net:1935/ondemand' + app + pp + ' swfUrl=http://neulionms.vo.llnwd.net/o37/nba/player/nbatv/console.swf swfVfy=1'
-        return link
-    except:
-        return ''
 
 teams = {
     "bkn" : "Nets",
@@ -225,7 +253,9 @@ def getGames(fromDate = '', full = True, highlight = False):
                     if scores == '1':
                         name = name + ' ' + vs + ':' + hs
                     print name, date
-                    addDir(name, gid, '5', '')
+                    thumbnail_url = ("http://e1.cdnl3.neulion.com/nba/player-v4/nba/images/teams/%s.png" % h)
+                    print thumbnail_url
+                    addDir(name, gid, '5', thumbnail_url)
     except:
         # raise
         return None
@@ -320,18 +350,27 @@ def getParams():
 def addLink(name,url,title,iconimage):
     liz=xbmcgui.ListItem(name, iconImage="DefaultVideo.png", thumbnailImage=iconimage)
     liz.setInfo( type="Video", infoLabels={ "Title": title } )
+    global fanart_image
+    liz.setProperty('fanart_image', fanart_image)
     return xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=url,listitem=liz)
 
 def addDir(name,url,mode,iconimage):
     u=sys.argv[0]+"?url="+urllib.quote_plus(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)
     liz=xbmcgui.ListItem(name, iconImage="DefaultFolder.png", thumbnailImage=iconimage)
     liz.setInfo( type="Video", infoLabels={ "Title": name } )
+    global fanart_image
+    liz.setProperty('fanart_image', fanart_image)
     return xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz,isFolder=True)
 
 params=getParams()
 url=None
 name=None
 mode=None
+
+# Set the fanart image
+s = settings.getSetting("fanart_image")
+if s != '':
+    fanart_image = s
 
 try:
     url=urllib.unquote_plus(params["url"])
@@ -347,6 +386,10 @@ except:
     pass
 
 if mode==None or url==None or len(url)<1:
+    # initialize the feed
+    getFeed()
+
+    # create the main menu
     mainMenu()
 
 elif mode==1:
