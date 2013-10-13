@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="plugin.video.nba"
        name="NBA League Pass"
-       version="0.2"
-       provider-name="Petros Tsampoukas">
+       version="0.3"
+       provider-name="Petros and robla">
   <requires>
     <import addon="xbmc.python" version="1.0"/>
     <import addon="script.module.httplib2" version="0.7.1"/>
@@ -14,6 +14,6 @@
   <extension point="xbmc.addon.metadata">
     <platform>all</platform>
     <summary>NBA League Pass is an online service offering streaming video of NBA games.</summary>
-    <description>NBA League Pass is an online service offering streaming video of NBA games. Based heavily on a plugin version by robla.</description>
+    <description>Features: Archive and condensed games for the NBA 2012 and 2013 seasons. Selection of video qualities (from 720p to 360p). Fanart and thumbnails.</description>
   </extension>
 </addon>

@@ -11,12 +11,17 @@ import os,binascii
 ############################################################################
 # global variables
 settings = xbmcaddon.Addon( id="plugin.video.nba")
-quality = settings.getSetting( id="quality")
 scores = settings.getSetting( id="scores")
-if settings.getSetting( id="full_or_condensed") == "1":
-    full_or_condensed = "archive"
-else:
-    full_or_condensed = "condensed"
+debug = settings.getSetting( id="debug")
+
+# map the quality_id to a video height
+# Ex: 720p
+quality_id = settings.getSetting( id="quality_id")
+video_heights_per_quality = [720, 540, 432, 360]
+target_video_height = video_heights_per_quality[int(quality_id)]
+if debug:
+    print "Chosen quality_id %s and target_video_height %d" % (quality_id, target_video_height)
+
 cookies = ''
 player_id = binascii.b2a_hex(os.urandom(16))
 http = httplib2.Http()
@@ -96,14 +101,16 @@ def login():
     except:
         return ''
 
-def get_archive_game_url(video_id):
+def get_game_url(video_id, video_type="archive"):
     try:
         # 
         # Make the first for the HLS manifest URL:
         # 
         global cookies
         global player_id
-        addLink("full_or_condensed has value %s" % (full_or_condensed),'','','')
+        global debug
+        global target_video_height
+        # addLink("video_type has value %s" % (video_type),'','','')
 
         url = 'http://watch.nba.com/nba/servlets/publishpoint'
         headers = { 
@@ -114,7 +121,7 @@ def get_archive_game_url(video_id):
         body = urllib.urlencode({ 
             'id': str(video_id), 
             'isFlex': 'true',
-            'gt': full_or_condensed, 
+            'gt': video_type, 
             'type': 'game',
             'plid': player_id
         })
@@ -126,14 +133,16 @@ def get_archive_game_url(video_id):
             return ''
         xml = parseString(str(content))
         link = xml.getElementsByTagName("path")[0].childNodes[0].nodeValue
-        print link
+        if debug:
+            print link
 
         # transform the link
         m = re.search('adaptive://([^/]+)(.+)$', link)
         arguments = urllib.quote_plus(str(m.group(2)))
         domain = m.group(1)
         http_link = "http://%s/play?url=%s" % (domain, arguments)
-        print http_link
+        if debug:
+            print http_link
 
 
         # Make the second request which will return video of a (now) hardcoded
@@ -149,20 +158,21 @@ def get_archive_game_url(video_id):
 
         # parse the xml
         xml = parseString(str(content))
-        print xml
         all_streamdata = xml.getElementsByTagName("streamData")
         full_video_url = ''
         for streamdata in all_streamdata:
-            video_path = streamdata.attributes["url"].value
-            if re.search(r'1600\.mp4$', video_path):
-                selected_video_path = video_path
+            video_height = streamdata.getElementsByTagName("video")[0].attributes["height"].value
+
+            if int(video_height) == target_video_height:
+                selected_video_path = streamdata.attributes["url"].value
                 selected_domain = streamdata.getElementsByTagName("httpserver")[0].attributes["name"].value
                 full_video_url = "http://%s%s" % (selected_domain, selected_video_path)
                 break
 
-        # A HACK: just because the nba guys are that stupid...
-        m3u8_url = re.sub(r'1600\.mp4$', "3000_iphone.mp4.m3u8", full_video_url)
-        addLink("the url of video %s is %s" % (video_id, m3u8_url),'','','')
+        # A HACK: HLS will be more bandwidth efficient
+        m3u8_url = re.sub(r'\.mp4$', ".mp4.m3u8", full_video_url)
+        if debug:
+            print "the url of video %s is %s" % (video_id, m3u8_url)
         return m3u8_url
     except:
         # raise
@@ -203,10 +213,12 @@ teams = {
     # non nba
     "fbu" : "Fenerbahce",
     "ubb" : "Bilbao",
-    'mos' : "UCKA Moscow"
+    'mos' : "UCKA Moscow",
+    'mac' : "Maccabi Haifa",
+    'nop' : "New Orleans",
 }
 
-def getGames(fromDate = '', full = True, highlight = False):
+def getGames(fromDate = '', video_type = "archive"):
     try:
         date = ''
         h = ''
@@ -249,25 +261,42 @@ def getGames(fromDate = '', full = True, highlight = False):
                 print v.lower()
                 print h.lower()
                 if gid != '':
-                    name = date[:10] + ' ' + teams[v.lower()] + ' vs ' + teams[h.lower()]
+                    # Get pretty names for the team names
+                    if v.lower() in teams:
+                        visitor_name = teams[v.lower()]
+                    else:
+                        visitor_name = v
+                    if h.lower() in teams:
+                        host_name = teams[h.lower()]
+                    else:
+                        host_name = h
+
+                    # Create the title
+                    name = date[:10] + ' ' + visitor_name + ' vs ' + host_name
                     if scores == '1':
                         name = name + ' ' + vs + ':' + hs
-                    print name, date
+                    # print name, date
                     thumbnail_url = ("http://e1.cdnl3.neulion.com/nba/player-v4/nba/images/teams/%s.png" % h)
-                    print thumbnail_url
-                    addDir(name, gid, '5', thumbnail_url)
+                    # print thumbnail_url
+                    addDir(name, "%s/%s" % (gid, video_type), '5', thumbnail_url)
     except:
         # raise
+        print "Error!!!"
         return None
 
-def playGame(title, url):
+def playGame(title, video_string):
+    # Authenticate
     global cookies
     if cookies == '':
         cookies  = login()
-    # values = { 'path' : url , 'isFlex' : 'true', 'type': 'fvod'}
-    # link = encrypt(values)
-    addLink("getting the archive game url for game with id %s" % url,'','','')
-    link = get_archive_game_url(url)
+
+    # Decode the video string
+    video_id, video_type = video_string.split("/")
+
+    # Get the video url. 
+    # Authentication is needed over this point!
+    # addLink("getting the archive game video_id for game with id %s" % video_id,'','','')
+    link = get_game_url(video_id, video_type)
     if link != '':
         addLink(title, link, '', '')
         liz=xbmcgui.ListItem(name, iconImage="DefaultVideo.png", thumbnailImage='')
@@ -277,34 +306,35 @@ def playGame(title, url):
 def mainMenu():
     addDir('Archive', 'archive', '1','')
     addDir('Condensed', 'condensed', '1','')
-    addDir('Highlights', 'highlights', '1', '')
+    # addDir('Highlights', 'highlights', '1', '')
 
 def dateMenu(type):
-    addDir('This week',  type + 'this', '2' ,'')
-    addDir('Last week' , type + 'last', '3','')
-    addDir('Select date' , type + 'date', '4','')
-    addDir('2012-2013 season', type +'s12', '6','')
+    addDir('This week',  type, '2' ,'')
+    addDir('Last week' , type, '3','')
+    addDir('Select date' , type, '4','')
+    addDir('2012-2013 season', type, '6','')
 
 def season2012(mode, url):
     # addLink("in season 2012",'','','')
-    d1 = date(2013, 2, 4)
+    d1 = date(2012, 10, 30)
     week = 1
-    while week < 28:
+    while week < 36:
         # addLink("in week %s" % (d1),'','','')
         gameLinks(mode,url, d1)
         d1 = d1 + timedelta(7)
-    week = week + 1
+        week = week + 1
 
 def gameLinks(mode, url, date2Use = None):
     try:
-        isFull = url.find('archive') != -1
-        isHighlight = url.find('highlights') != -1
         if mode == 4:
             tday = getDate()
         elif mode == 6:
             tday = date2Use
         else:
             tday = date.today()
+
+        # parse the video type
+        video_type = url
 
         day = tday.isoweekday()
         # starts on mondays
@@ -314,17 +344,18 @@ def gameLinks(mode, url, date2Use = None):
         default = default + '/' + "%d" % now.month
         default = default + '_' + "%d" % now.day
         if mode == 2 or mode ==4 or mode ==6:
-            addLink("asked to get games for %s" % default,'','','')
-            getGames(default, isFull, isHighlight)
+            # addLink("asked to get games for %s %s" % (default, video_type),'','','')
+            # print "Calling getGames with %s %s" %(default, video_type)
+            getGames(default, video_type)
         elif mode == 3:
             tday = tday - timedelta(7)
             now = tday
             default = "%04d" % now.year
             default = default + '/' + "%d" % now.month
             default = default + '_' + "%d" % now.day
-            getGames(default, isFull, isHighlight)
+            getGames(default, video_type)
         else:
-            getGames(default, False, isHighlight)
+            getGames(default, video_type)
         xbmcplugin.addSortMethod( handle=int( sys.argv[ 1 ] ), sortMethod=xbmcplugin.SORT_METHOD_DATE )
     except:
         xbmcplugin.endOfDirectory(handle = int(sys.argv[1]),succeeded=False)
