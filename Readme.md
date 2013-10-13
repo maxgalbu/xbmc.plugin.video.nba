@@ -6,11 +6,11 @@ Introduction
 
 This [XBMC](http://xbmc.org/) plugin features: 
 
-* Archive and condensed games for the NBA 2012 and 2013 seasons. 
-* Selection of video qualities (from 720p to 360p).
-* Fanart and thumbnails.
+* Archive and condensed games for the NBA 2012 and 2013 seasons
+* Selection of video qualities (from 720p to 360p)
+* Fanart from feeds, and thumbnails
 
-The first version of this plugin was written by [robla](http://forum.xbmc.org/showthread.php?tid=124716). Petros Tsampoukas then modified it to work with the 2012 and 2013 NBA seasons.
+The first version of this plugin was written by [robla](http://forum.xbmc.org/showthread.php?tid=124716). Petros Tsampoukas then modified it to work with the 2012 and 2013 NBA seasons, and added images.
 
 Installation
 =======================
