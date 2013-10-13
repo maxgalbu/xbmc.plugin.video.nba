@@ -1,0 +1,16 @@
+0.5- Rewrote the login procedure to identify errors
+0.4- Removed the extra images to save space
+0.3- First released version
+0.2- Patched for the 2012-2013 season playoffs
+0.1.6- bugfix for missing 2012 finals games
+0.1.1- bugfix for missing 2012 finals games
+0.1.0- added listing for complete 2011/2012 season
+0.0.9- fix for new domain watch.nba.com
+0.0.8- fix for playoff game recaps
+0.0.7- fix for archived playoff games
+0.0.6- fix for strange schedule js response
+0.0.5- apply quality settings for highlights, high = 720p
+0.0.4- added highlights and scores
+0.0.3- video idx check
+0.0.2- initial release
+0.0.1- initial test version
