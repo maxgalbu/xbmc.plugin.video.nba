@@ -19,7 +19,7 @@ Installation
 
 ### Requirements
 
-It requires XBMC Frodo, and the [httplib2](http://superrepo.org/script.module.httplib2/) addon.
+It requires XBMC Frodo, and the [httplib2](http://code.google.com/p/carb0s-repo/source/browse/addons/script.module.httplib2) addon (also attached in the [download page](https://bitbucket.org/ptsampoukas/plugin.video.nba/downloads#available-downloads)).
 
 ### Using a zip file
 
