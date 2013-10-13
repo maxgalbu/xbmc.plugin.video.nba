@@ -2,7 +2,7 @@
 <addon id="plugin.video.nba"
        name="NBA League Pass"
        version="0.5.1"
-       provider-name="ptsampoukas|robla">
+       provider-name="ptsampoukas and robla">
   <requires>
     <import addon="xbmc.python" version="2.1.0"/>
     <import addon="script.module.httplib2" version="0.7.1"/>
