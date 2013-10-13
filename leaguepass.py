@@ -277,6 +277,10 @@ def getGames(fromDate = '', video_type = "archive"):
                     except:
                         vs = ''
                         hs = ''
+                    if "video" in details:
+                        has_video = True
+                    else:
+                        has_video = False
                 except  Exception, e:
                     # continue
                     raise
@@ -302,7 +306,13 @@ def getGames(fromDate = '', video_type = "archive"):
                     # print thumbnail_url
                     if vs == '':
                         name = name + " (F)"
-                    addDir(name, "%s/%s" % (gid, video_type), '5', thumbnail_url)
+                        addLink(name, "", "", thumbnail_url)
+                    elif has_video == False:
+                        name = name + " (NV)"
+                        addLink(name, "", "", thumbnail_url)
+                    else:
+                        video_string = "%s/%s" % (gid, video_type)
+                        addDir(name, video_string, '5', thumbnail_url)
     except:
         # raise
         print "Error!!!"

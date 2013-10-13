@@ -35,6 +35,7 @@ Changes
 
 ### Changelog:
 
+    0.5.3- Added markers: (F) for future games and (NV) for games without videos
     0.5.2- Removed py-dom-xpath from the requirements and links to the httplib2 addon
     0.5-    Fixed the login procedure
     0.4-    Removed the extra images to save space
