@@ -3,6 +3,7 @@ import datetime, time
 from datetime import date
 from datetime import timedelta
 import urllib,urllib2,re,time,xbmcplugin,xbmcgui, xbmcaddon, os, httplib2
+import xbmc
 from xml.dom.minidom import parse, parseString
 import xpath # pip install py-dom-xpath
 import re
@@ -91,14 +92,33 @@ def getDate( default= '', heading='Please enter date (YYYY/MM/DD)', hidden=False
 
 def login():
     try:
+        # Login
         url = 'https://watch.nba.com/nba/secure/login?'
         body = {'username' : settings.getSetting( id="username"), 'password' : settings.getSetting( id="password")}
         headers = {'Content-type': 'application/x-www-form-urlencoded'}
-        response, content = http.request(url+urllib.urlencode(body), 'POST', headers=headers)
+        response_headers, content = http.request(url, 'POST', body=urllib.urlencode(body), headers=headers)        
+
+        # If the response is not 200, it is not an authentication error
         global cookies
-        cookies  = response['set-cookie'].partition(';')[0]
+        if debug:
+            print response_headers
+        if response_headers["status"] != "200":
+            if debug:
+                print "Login failed with content: %s" % content
+            xbmc.executebuiltin('Notification(NBA League Pass,I am not sure what happened here!,5000,)')
+            return ''
+
+        # Check the response xml
+        xml = parseString(str(content))
+        if xml.getElementsByTagName("code")[0].firstChild.nodeValue == "loginlocked":
+            xbmc.executebuiltin('Notification(NBA League Pass,Cannot login: invalid username and password, or your account is locked.,5000,)')
+        else:
+            # logged in
+            cookies = response_headers['set-cookie'].partition(';')[0]
         return cookies
     except:
+        cookies = ''
+        xbmc.executebuiltin('Notification(NBA League Pass,Failed to login!,5000,)')
         return ''
 
 def get_game_url(video_id, video_type="archive"):
@@ -127,9 +147,11 @@ def get_game_url(video_id, video_type="archive"):
         })
         response, content = http.request(url, 'POST', body=body, headers=headers)
         if response['status'] != "200":
-            print str(content)
-            print str(url)
-            addLink("returning because return code wasn't 200. The content was %s" % str(content),'','','')
+            if debug:
+                print str(content)
+                print str(url)
+                print "The content was %s" % str(content)
+            addLink("Failed to get a video URL. Are you logged in?",'','','')
             return ''
         xml = parseString(str(content))
         link = xml.getElementsByTagName("path")[0].childNodes[0].nodeValue
