@@ -14,6 +14,6 @@
   <extension point="xbmc.addon.metadata">
     <platform>all</platform>
     <summary>NBA League Pass is an online service offering streaming video of NBA games.</summary>
-    <description>Features: Archive and condensed games for the NBA 2012 and 2013 seasons. Selection of video qualities (from 720p to 360p). Fanart and thumbnails.</description>
+    <description>Features: Archive and condensed games for the NBA 2012 and 2013 seasons. Selection of video qualities (from 720p to 360p). Fanart and thumbnails. Requires a subscription.</description>
   </extension>
 </addon>

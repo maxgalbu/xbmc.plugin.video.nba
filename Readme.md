@@ -10,7 +10,7 @@ This [XBMC](http://xbmc.org/) plugin features:
 * Selection of video qualities (from 720p to 360p)
 * Fanart from feeds, and thumbnails
 
-The first version of this plugin was written by [robla](http://forum.xbmc.org/showthread.php?tid=124716). Petros Tsampoukas then modified it to work with the 2012 and 2013 NBA seasons, and added images.
+The first version of this plugin was written by [robla](http://forum.xbmc.org/showthread.php?tid=124716). Petros Tsampoukas then modified it to work with the 2012 and 2013 NBA seasons, and added images. It requires login.
 
 Installation
 =======================
@@ -21,17 +21,21 @@ It requires some extra Python modules, which can be installed as below:
 
     sudo pip install httplib2 py-dom-xpath
 
+### Using a zip file
+
+First download the latest version from the [download page](https://bitbucket.org/ptsampoukas/plugin.video.nba/downloads#available-downloads). Then install the addon on a zip file in xbmc ([instructions](http://wiki.xbmc.org/index.php?title=Add-on_manager#How_to_install_from_a_ZIP_file)).
+
 ### Using mercurial
 
-
-
-It has to be installed as an XBMC plugin. 
+    cd ~/.xbmc/addons
+    hg clone ssh://hg@bitbucket.org/ptsampoukas/plugin.video.nba
 
 Changes
 =======================
 
 ### Changelog:
 
+    0.4- Removed the extra images to save space
     0.3- First released version
     0.2- Patched for the 2012-2013 season playoffs
 
@@ -55,3 +59,7 @@ Changes
     0.0.3- video idx check
     0.0.2- initial release
     0.0.1- initial test version
+
+### Producing a new zip version
+
+    zip -r plugin.video.nba.v0_4.zip -x\*sublime\* -x\*/.hg/\* -x\*/.hgignore plugin.video.nba/

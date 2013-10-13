@@ -27,12 +27,12 @@ player_id = binascii.b2a_hex(os.urandom(16))
 http = httplib2.Http()
 media_dir = os.path.join(
     xbmc.translatePath("special://home/" ), 
-    "addons", "plugin.video.nba",
-    "resources", "media"
+    "addons", "plugin.video.nba"
+    # "resources", "media"
 )
 
 # the default fanart image
-fanart_image = os.path.join(media_dir, "fanart1.jpg")
+fanart_image = os.path.join(media_dir, "fanart.jpg")
 http.disable_ssl_certificate_validation=True
 ############################################################################
 
