@@ -5,7 +5,7 @@ from datetime import timedelta
 import urllib,urllib2,re,time,xbmcplugin,xbmcgui, xbmcaddon, os, httplib2
 import xbmc
 from xml.dom.minidom import parse, parseString
-import xpath # pip install py-dom-xpath
+# import xpath # pip install py-dom-xpath
 import re
 import os,binascii
 
@@ -300,6 +300,8 @@ def getGames(fromDate = '', video_type = "archive"):
                     # print name, date
                     thumbnail_url = ("http://e1.cdnl3.neulion.com/nba/player-v4/nba/images/teams/%s.png" % h)
                     # print thumbnail_url
+                    if vs == '':
+                        name = name + " (F)"
                     addDir(name, "%s/%s" % (gid, video_type), '5', thumbnail_url)
     except:
         # raise

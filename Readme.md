@@ -19,9 +19,7 @@ Installation
 
 ### Requirements
 
-It requires some extra Python modules, which can be installed as below:
-
-    sudo pip install httplib2 py-dom-xpath
+It requires XBMC Frodo, and the [httplib2](http://superrepo.org/script.module.httplib2/) addon.
 
 ### Using a zip file
 
@@ -37,10 +35,11 @@ Changes
 
 ### Changelog:
 
-    0.5- Fixed the login procedure
-    0.4- Removed the extra images to save space
-    0.3- First released version
-    0.2- Patched for the 2012-2013 season playoffs
+    0.5.2- Removed py-dom-xpath from the requirements and links to the httplib2 addon
+    0.5-    Fixed the login procedure
+    0.4-    Removed the extra images to save space
+    0.3-    First released version
+    0.2-    Patched for the 2012-2013 season playoffs
 
 ### Potential new features:
 
