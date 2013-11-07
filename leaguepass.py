@@ -183,7 +183,7 @@ def get_game_url(video_id, video_type="archive"):
             arguments = m.group(2)
             domain = m.group(1)
             arguments = arguments.replace("whole_1_pc", "whole_1_3000")
-            return "http://%s/%s" % (domain, arguments)
+            full_video_url = "http://%s/%s" % (domain, arguments)
         else:
             # parse the xml
             xml = parseString(str(content))
@@ -198,11 +198,11 @@ def get_game_url(video_id, video_type="archive"):
                     full_video_url = "http://%s%s" % (selected_domain, selected_video_path)
                     break
 
-            # A HACK: HLS will be more bandwidth efficient
-            m3u8_url = re.sub(r'\.mp4$', ".mp4.m3u8", full_video_url)
-            if debug:
-                print "the url of video %s is %s" % (video_id, m3u8_url)
-            return m3u8_url
+        # A HACK: HLS will be more bandwidth efficient
+        m3u8_url = re.sub(r'\.mp4$', ".mp4.m3u8", full_video_url)
+        if debug:
+            print "the url of video %s is %s" % (video_id, m3u8_url)
+        return m3u8_url
     except:
         # raise
         return 'ERROR!'
