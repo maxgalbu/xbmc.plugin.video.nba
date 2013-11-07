@@ -178,7 +178,7 @@ def get_game_url(video_id, video_type="archive"):
         content = f.read()
         f.close()
 
-        if !content:
+        if not content:
             m = re.search('adaptive://([^/]+)/(.+)$', link)
             arguments = m.group(2)
             domain = m.group(1)
