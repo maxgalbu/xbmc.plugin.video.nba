@@ -182,6 +182,7 @@ def get_game_url(video_id, video_type="archive"):
             m = re.search('adaptive://([^/]+)/(.+)$', link)
             arguments = m.group(2)
             domain = m.group(1)
+            domain = domain.replace(":443", "")
             arguments = arguments.replace("whole_1_pc", "whole_1_3000")
             full_video_url = "http://%s/%s" % (domain, arguments)
         else:
