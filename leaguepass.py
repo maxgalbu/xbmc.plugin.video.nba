@@ -178,24 +178,31 @@ def get_game_url(video_id, video_type="archive"):
         content = f.read()
         f.close()
 
-        # parse the xml
-        xml = parseString(str(content))
-        all_streamdata = xml.getElementsByTagName("streamData")
-        full_video_url = ''
-        for streamdata in all_streamdata:
-            video_height = streamdata.getElementsByTagName("video")[0].attributes["height"].value
+        if !content:
+            m = re.search('adaptive://([^/]+)/(.+)$', link)
+            arguments = m.group(2)
+            domain = m.group(1)
+            arguments = arguments.replace("whole_1_pc", "whole_1_3000")
+            return "http://%s/%s" % (domain, arguments)
+        else:
+            # parse the xml
+            xml = parseString(str(content))
+            all_streamdata = xml.getElementsByTagName("streamData")
+            full_video_url = ''
+            for streamdata in all_streamdata:
+                video_height = streamdata.getElementsByTagName("video")[0].attributes["height"].value
 
-            if int(video_height) == target_video_height:
-                selected_video_path = streamdata.attributes["url"].value
-                selected_domain = streamdata.getElementsByTagName("httpserver")[0].attributes["name"].value
-                full_video_url = "http://%s%s" % (selected_domain, selected_video_path)
-                break
+                if int(video_height) == target_video_height:
+                    selected_video_path = streamdata.attributes["url"].value
+                    selected_domain = streamdata.getElementsByTagName("httpserver")[0].attributes["name"].value
+                    full_video_url = "http://%s%s" % (selected_domain, selected_video_path)
+                    break
 
-        # A HACK: HLS will be more bandwidth efficient
-        m3u8_url = re.sub(r'\.mp4$', ".mp4.m3u8", full_video_url)
-        if debug:
-            print "the url of video %s is %s" % (video_id, m3u8_url)
-        return m3u8_url
+            # A HACK: HLS will be more bandwidth efficient
+            m3u8_url = re.sub(r'\.mp4$', ".mp4.m3u8", full_video_url)
+            if debug:
+                print "the url of video %s is %s" % (video_id, m3u8_url)
+            return m3u8_url
     except:
         # raise
         return 'ERROR!'
