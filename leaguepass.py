@@ -183,7 +183,16 @@ def get_game_url(video_id, video_type="archive"):
             arguments = m.group(2)
             domain = m.group(1)
             domain = domain.replace(":443", "")
-            arguments = arguments.replace("whole_1_pc", "whole_1_3000")
+            
+            target_bitrate = {
+                720: 3000,
+                540: 1600,
+                432: 1200,
+                360: 800,
+                224: 224,
+            }.get(target_video_height, 1600)
+
+            arguments = arguments.replace("whole_1_pc", "whole_1_"+str(target_bitrate))
             full_video_url = "http://%s/%s" % (domain, arguments)
         else:
             # parse the xml
