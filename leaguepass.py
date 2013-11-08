@@ -121,7 +121,7 @@ def login():
         xbmc.executebuiltin('Notification(NBA League Pass,Failed to login!,5000,)')
         return ''
 
-def get_game_url(video_id, video_type="archive"):
+def getGameUrl(video_id, video_type="archive"):
     # 
     # Make the first for the HLS manifest URL:
     # 
@@ -183,7 +183,7 @@ def get_game_url(video_id, video_type="archive"):
     if not content:
         if debug:
             print "no xml response, try guessing the url"
-        full_video_url = get_game_url_guessing(video_id, link)
+        full_video_url = getGameUrlGuessing(video_id, link)
     else:
         if debug:
             print "parsing xml response: %s" % content
@@ -204,7 +204,7 @@ def get_game_url(video_id, video_type="archive"):
     if not full_video_url:
         if debug:
             print "parsed xml but video not found, try guessing the url"
-        full_video_url = get_game_url_guessing(video_id, link)
+        full_video_url = getGameUrlGuessing(video_id, link)
     
     # A HACK: HLS will be more bandwidth efficient
     m3u8_url = re.sub(r'\.mp4$', ".mp4.m3u8", full_video_url)
@@ -217,7 +217,7 @@ def get_game_url(video_id, video_type="archive"):
         print "the url of video %s is %s" % (video_id, full_video_url)
     return full_video_url
 
-def get_game_url_guessing(video_id, adaptive_link):
+def getGameUrlGuessing(video_id, adaptive_link):
     m = re.search('adaptive://([^/]+)/(.+)\?.+$', adaptive_link)
     arguments = m.group(2)
     domain = m.group(1)
@@ -364,7 +364,7 @@ def playGame(title, video_string):
     # Get the video url. 
     # Authentication is needed over this point!
     # addLink("getting the archive game video_id for game with id %s" % video_id,'','','')
-    link = get_game_url(video_id, video_type)
+    link = getGameUrl(video_id, video_type)
     if link != '':
         addLink(title, link, '', '')
         liz=xbmcgui.ListItem(name, iconImage="DefaultVideo.png", thumbnailImage='')
