@@ -212,7 +212,11 @@ def getGameUrl(video_id, video_type="archive"):
     # test the m3u8 url
     if urllib.urlopen(m3u8_url).getcode() == 200:
         full_video_url = m3u8_url
-    
+
+    # check if the url exists
+    if urllib.urlopen(full_video_url).getcode() != 200:
+        return ""
+
     if debug:
         print "the url of video %s is %s" % (video_id, full_video_url)
     return full_video_url
@@ -370,6 +374,8 @@ def playGame(title, video_string):
         liz=xbmcgui.ListItem(name, iconImage="DefaultVideo.png", thumbnailImage='')
         liz.setInfo( type="Video", infoLabels={ "Title": title } )
         xbmc.Player(xbmc.PLAYER_CORE_DVDPLAYER).play(link,liz)
+    else:
+        xbmc.executebuiltin('Notification(NBA League Pass,Video not found. Try lowering the quality from the addon settings.,10000,)')
 
 def mainMenu():
     addDir('Archive', 'archive', '1','')
