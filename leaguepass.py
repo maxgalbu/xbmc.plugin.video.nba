@@ -122,100 +122,117 @@ def login():
         return ''
 
 def get_game_url(video_id, video_type="archive"):
+    # 
+    # Make the first for the HLS manifest URL:
+    # 
+    global cookies
+    global player_id
+    global debug
+    global target_video_height
+    # addLink("video_type has value %s" % (video_type),'','','')
+
+    url = 'http://watch.nba.com/nba/servlets/publishpoint'
+    headers = { 
+        'Cookie': cookies , 
+        'Content-type': 'application/x-www-form-urlencoded',
+        'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:12.0) Gecko/20100101 Firefox/12.0',
+    }
+    body = urllib.urlencode({ 
+        'id': str(video_id), 
+        'isFlex': 'true',
+        'gt': video_type, 
+        'type': 'game',
+        'plid': player_id
+    })
+    response, content = http.request(url, 'POST', body=body, headers=headers)
+    if response['status'] != "200":
+        if debug:
+            print str(content)
+            print str(url)
+            print "The content was %s" % str(content)
+        addLink("Failed to get a video URL. Are you logged in?",'','','')
+        return ''
+    xml = parseString(str(content))
+    link = xml.getElementsByTagName("path")[0].childNodes[0].nodeValue
+    if debug:
+        print link
+
+    # transform the link
+    m = re.search('adaptive://([^/]+)(.+)$', link)
+    arguments = urllib.quote_plus(str(m.group(2)))
+    domain = m.group(1)
+    http_link = "http://%s/play?url=%s" % (domain, arguments)
+    if debug:
+        print http_link
+    
+    # Make the second request which will return video of a (now) hardcoded
+    # quality 
+    # NOTE: had to switch to urllib2, as httplib2 assumed that
+    # because the port was 443 it should use SSL (although the protocol
+    # was correctly set to http)
     try:
-        # 
-        # Make the first for the HLS manifest URL:
-        # 
-        global cookies
-        global player_id
-        global debug
-        global target_video_height
-        # addLink("video_type has value %s" % (video_type),'','','')
-
-        url = 'http://watch.nba.com/nba/servlets/publishpoint'
-        headers = { 
-            'Cookie': cookies , 
-            'Content-type': 'application/x-www-form-urlencoded',
-            'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:12.0) Gecko/20100101 Firefox/12.0',
-        }
-        body = urllib.urlencode({ 
-            'id': str(video_id), 
-            'isFlex': 'true',
-            'gt': video_type, 
-            'type': 'game',
-            'plid': player_id
-        })
-        response, content = http.request(url, 'POST', body=body, headers=headers)
-        if response['status'] != "200":
-            if debug:
-                print str(content)
-                print str(url)
-                print "The content was %s" % str(content)
-            addLink("Failed to get a video URL. Are you logged in?",'','','')
-            return ''
-        xml = parseString(str(content))
-        link = xml.getElementsByTagName("path")[0].childNodes[0].nodeValue
-        if debug:
-            print link
-
-        # transform the link
-        m = re.search('adaptive://([^/]+)(.+)$', link)
-        arguments = urllib.quote_plus(str(m.group(2)))
-        domain = m.group(1)
-        http_link = "http://%s/play?url=%s" % (domain, arguments)
-        if debug:
-            print http_link
-
-
-        # Make the second request which will return video of a (now) hardcoded
-        # quality 
-        # NOTE: had to switch to urllib2, as httplib2 assumed that
-        # because the port was 443 it should use SSL (although the protocol
-        # was correctly set to http)
         opener = urllib2.build_opener()
         opener.addheaders.append(('Cookie', cookies))
         f = opener.open(http_link)
         content = f.read()
         f.close()
-
-        if not content:
-            m = re.search('adaptive://([^/]+)/(.+)$', link)
-            arguments = m.group(2)
-            domain = m.group(1)
-            domain = domain.replace(":443", "")
-            
-            target_bitrate = {
-                720: 3000,
-                540: 1600,
-                432: 1200,
-                360: 800,
-                224: 224,
-            }.get(target_video_height, 1600)
-
-            arguments = arguments.replace("whole_1_pc", "whole_1_"+str(target_bitrate))
-            full_video_url = "http://%s/%s" % (domain, arguments)
-        else:
-            # parse the xml
-            xml = parseString(str(content))
-            all_streamdata = xml.getElementsByTagName("streamData")
-            full_video_url = ''
-            for streamdata in all_streamdata:
-                video_height = streamdata.getElementsByTagName("video")[0].attributes["height"].value
-
-                if int(video_height) == target_video_height:
-                    selected_video_path = streamdata.attributes["url"].value
-                    selected_domain = streamdata.getElementsByTagName("httpserver")[0].attributes["name"].value
-                    full_video_url = "http://%s%s" % (selected_domain, selected_video_path)
-                    break
-
-        # A HACK: HLS will be more bandwidth efficient
-        m3u8_url = re.sub(r'\.mp4$', ".mp4.m3u8", full_video_url)
-        if debug:
-            print "the url of video %s is %s" % (video_id, m3u8_url)
-        return m3u8_url
     except:
-        # raise
-        return 'ERROR!'
+        content = ""
+        pass
+    
+    if not content:
+        if debug:
+            print "no xml response, try guessing the url"
+        full_video_url = get_game_url_guessing(video_id, link)
+    else:
+        if debug:
+            print "parsing xml response: %s" % content
+        
+        # parse the xml
+        xml = parseString(str(content))
+        all_streamdata = xml.getElementsByTagName("streamData")
+        full_video_url = ''
+        for streamdata in all_streamdata:
+            video_height = streamdata.getElementsByTagName("video")[0].attributes["height"].value
+
+            if int(video_height) == target_video_height:
+                selected_video_path = streamdata.attributes["url"].value
+                selected_domain = streamdata.getElementsByTagName("httpserver")[0].attributes["name"].value
+                full_video_url = "http://%s%s" % (selected_domain, selected_video_path)
+                break
+    
+    if not full_video_url:
+        if debug:
+            print "parsed xml but video not found, try guessing the url"
+        full_video_url = get_game_url_guessing(video_id, link)
+    
+    # A HACK: HLS will be more bandwidth efficient
+    m3u8_url = re.sub(r'\.mp4$', ".mp4.m3u8", full_video_url)
+    
+    # test the m3u8 url
+    if urllib.urlopen(m3u8_url).getcode() == 200:
+        full_video_url = m3u8_url
+    
+    if debug:
+        print "the url of video %s is %s" % (video_id, full_video_url)
+    return full_video_url
+
+def get_game_url_guessing(video_id, adaptive_link):
+    m = re.search('adaptive://([^/]+)/(.+)\?.+$', adaptive_link)
+    arguments = m.group(2)
+    domain = m.group(1)
+    domain = domain.replace(":443", "")
+    
+    target_bitrate = {
+        720: 3000,
+        540: 1600,
+        432: 1200,
+        360: 800,
+        224: 224,
+    }.get(target_video_height, 1600)
+
+    arguments = arguments.replace("whole_1_pc", "whole_1_"+str(target_bitrate))
+    return "http://%s/%s" % (domain, arguments)
 
 teams = {
     "bkn" : "Nets",
