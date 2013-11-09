@@ -198,7 +198,8 @@ def getGameUrl(video_id, video_type="archive"):
             if int(video_height) == target_video_height:
                 selected_video_path = streamdata.attributes["url"].value
                 selected_domain = streamdata.getElementsByTagName("httpserver")[0].attributes["name"].value
-                full_video_url = "http://%s%s" % (selected_domain, selected_video_path)
+                full_video_url = getGameUrl_m3u8("http://%s%s" % (selected_domain, selected_video_path))
+                
                 if urllib.urlopen(full_video_url).getcode() != 200:
                     full_video_url = ""
                 break
@@ -209,13 +210,14 @@ def getGameUrl(video_id, video_type="archive"):
         full_video_url = getGameUrlGuessing(video_id, link)
     
     if full_video_url:
-        # A HACK: HLS will be more bandwidth efficient, if it exists
-        m3u8_url = re.sub(r'\.mp4$', ".mp4.m3u8", full_video_url)
-        if urllib.urlopen(m3u8_url).getcode() == 200:
-            full_video_url = m3u8_url
-
         if debug:
             print "the url of video %s is %s" % (video_id, full_video_url)
+    return full_video_url
+
+def getGameUrl_m3u8(full_video_url):
+    m3u8_url = re.sub(r'\.mp4$', ".mp4.m3u8", full_video_url)
+    if urllib.urlopen(m3u8_url).getcode() == 200:
+        full_video_url = m3u8_url
     return full_video_url
 
 def getGameUrlGuessing(video_id, adaptive_link):
@@ -234,14 +236,14 @@ def getGameUrlGuessing(video_id, adaptive_link):
     video_url = video_url.replace(":443", "")
 
     target_video_url = video_url.replace("whole_1_pc", "whole_1_"+str(target_bitrate))
-    target_video_url = "http://%s" % target_video_url
+    target_video_url = getGameUrl_m3u8("http://%s" % target_video_url)
 
     if urllib.urlopen(target_video_url).getcode() != 200:
         if debug:
             print "video of height %d not found, trying with height 360" % target_video_height
 
         target_video_url = video_url.replace("whole_1_pc", "whole_1_"+str(failsafe_bitrate))
-        target_video_url = "http://%s" % target_video_url
+        target_video_url = getGameUrl_m3u8("http://%s" % target_video_url)
 
         if urllib.urlopen(target_video_url).getcode() != 200:
             if debug:
