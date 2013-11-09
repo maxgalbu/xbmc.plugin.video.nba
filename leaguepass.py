@@ -199,6 +199,8 @@ def getGameUrl(video_id, video_type="archive"):
                 selected_video_path = streamdata.attributes["url"].value
                 selected_domain = streamdata.getElementsByTagName("httpserver")[0].attributes["name"].value
                 full_video_url = "http://%s%s" % (selected_domain, selected_video_path)
+                if urllib.urlopen(full_video_url).getcode() != 200:
+                    full_video_url = ""
                 break
     
     if not full_video_url:
@@ -206,37 +208,47 @@ def getGameUrl(video_id, video_type="archive"):
             print "parsed xml but video not found, try guessing the url"
         full_video_url = getGameUrlGuessing(video_id, link)
     
-    # A HACK: HLS will be more bandwidth efficient
-    m3u8_url = re.sub(r'\.mp4$', ".mp4.m3u8", full_video_url)
-    
-    # test the m3u8 url
-    if urllib.urlopen(m3u8_url).getcode() == 200:
-        full_video_url = m3u8_url
+    if full_video_url:
+        # A HACK: HLS will be more bandwidth efficient, if it exists
+        m3u8_url = re.sub(r'\.mp4$', ".mp4.m3u8", full_video_url)
+        if urllib.urlopen(m3u8_url).getcode() == 200:
+            full_video_url = m3u8_url
 
-    # check if the url exists
-    if urllib.urlopen(full_video_url).getcode() != 200:
-        return ""
-
-    if debug:
-        print "the url of video %s is %s" % (video_id, full_video_url)
+        if debug:
+            print "the url of video %s is %s" % (video_id, full_video_url)
     return full_video_url
 
 def getGameUrlGuessing(video_id, adaptive_link):
-    m = re.search('adaptive://([^/]+)/(.+)\?.+$', adaptive_link)
-    arguments = m.group(2)
-    domain = m.group(1)
-    domain = domain.replace(":443", "")
-    
-    target_bitrate = {
+    available_bitrates = {
         720: 3000,
         540: 1600,
         432: 1200,
         360: 800,
         224: 224,
-    }.get(target_video_height, 1600)
+    }
+    target_bitrate = available_bitrates.get(target_video_height, 1600)
+    failsafe_bitrate = available_bitrates.get(360)
 
-    arguments = arguments.replace("whole_1_pc", "whole_1_"+str(target_bitrate))
-    return "http://%s/%s" % (domain, arguments)
+    matches = re.search('adaptive://([^?]+)\?.+$', adaptive_link)
+    video_url = matches.group(1)
+    video_url = video_url.replace(":443", "")
+
+    target_video_url = video_url.replace("whole_1_pc", "whole_1_"+str(target_bitrate))
+    target_video_url = "http://%s" % target_video_url
+
+    if urllib.urlopen(target_video_url).getcode() != 200:
+        if debug:
+            print "video of height %d not found, trying with height 360" % target_video_height
+
+        target_video_url = video_url.replace("whole_1_pc", "whole_1_"+str(failsafe_bitrate))
+        target_video_url = "http://%s" % target_video_url
+
+        if urllib.urlopen(target_video_url).getcode() != 200:
+            if debug:
+                print "failsafe bitrate video not found, bailing out"
+            return ""
+
+    return target_video_url
 
 teams = {
     "bkn" : "Nets",
@@ -375,7 +387,7 @@ def playGame(title, video_string):
         liz.setInfo( type="Video", infoLabels={ "Title": title } )
         xbmc.Player(xbmc.PLAYER_CORE_DVDPLAYER).play(link,liz)
     else:
-        xbmc.executebuiltin('Notification(NBA League Pass,Video not found. Try lowering the quality from the addon settings.,10000,)')
+        xbmc.executebuiltin('Notification(NBA League Pass,Video not found.,10000,)')
 
 def mainMenu():
     addDir('Archive', 'archive', '1','')
