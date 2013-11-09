@@ -199,7 +199,7 @@ def getGameUrl(video_id, video_type="archive"):
                 selected_video_path = streamdata.attributes["url"].value
                 selected_domain = streamdata.getElementsByTagName("httpserver")[0].attributes["name"].value
                 full_video_url = getGameUrl_m3u8("http://%s%s" % (selected_domain, selected_video_path))
-                
+
                 if urllib.urlopen(full_video_url).getcode() != 200:
                     full_video_url = ""
                 break
@@ -235,14 +235,14 @@ def getGameUrlGuessing(video_id, adaptive_link):
     video_url = matches.group(1)
     video_url = video_url.replace(":443", "")
 
-    target_video_url = video_url.replace("whole_1_pc", "whole_1_"+str(target_bitrate))
+    target_video_url = getGameUrlByBitrate(target_bitrate, video_url)
     target_video_url = getGameUrl_m3u8("http://%s" % target_video_url)
 
     if urllib.urlopen(target_video_url).getcode() != 200:
         if debug:
             print "video of height %d not found, trying with height 360" % target_video_height
 
-        target_video_url = video_url.replace("whole_1_pc", "whole_1_"+str(failsafe_bitrate))
+        target_video_url = getGameUrlByBitrate(failsafe_bitrate, video_url)
         target_video_url = getGameUrl_m3u8("http://%s" % target_video_url)
 
         if urllib.urlopen(target_video_url).getcode() != 200:
@@ -251,6 +251,10 @@ def getGameUrlGuessing(video_id, adaptive_link):
             return ""
 
     return target_video_url
+
+def getGameUrlByBitrate(target_bitrate, video_url):
+    # replace whole_1_pc\whole_2_pc with whole_[number]_[bitrate]
+    return re.sub("whole_([0-9]+)_pc", "whole_\1_"+str(target_bitrate), video_url)
 
 teams = {
     "bkn" : "Nets",
