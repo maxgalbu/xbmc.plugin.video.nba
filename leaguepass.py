@@ -2,12 +2,11 @@ import json
 import datetime, time
 from datetime import date
 from datetime import timedelta
-import urllib,urllib2,re,time,xbmcplugin,xbmcgui, xbmcaddon, os, httplib2
-import xbmc
-from xml.dom.minidom import parse, parseString
+import urllib,urllib2,httplib2
+import xbmc,xbmcplugin,xbmcgui,xbmcaddon
+from xml.dom.minidom import parseString
 # import xpath # pip install py-dom-xpath
-import re
-import os,binascii
+import re,os,binascii
 
 ############################################################################
 # global variables
@@ -36,6 +35,18 @@ media_dir = os.path.join(
 fanart_image = os.path.join(media_dir, "fanart.jpg")
 http.disable_ssl_certificate_validation=True
 ############################################################################
+
+def isLiveUsable():
+    # retrieve current installed version
+    json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "method": "Application.GetProperties", "params": {"properties": ["version", "name"]}, "id": 1 }')
+    json_query = unicode(json_query, 'utf-8', errors='ignore')
+    json_query = json.loads(json_query)
+    version_installed = []
+    if json_query.has_key('result') and json_query['result'].has_key('version'):
+        version_installed  = json_query['result']['version']
+        print ("Version installed %s" %version_installed)
+
+    return version_installed and version_installed['major'] >= 13
 
 def getFeed():
     global fanart_image
@@ -131,19 +142,28 @@ def getGameUrl(video_id, video_type="archive"):
     global target_video_height
     # addLink("video_type has value %s" % (video_type),'','','')
 
+    if debug:
+        print "cookies: %s %s" % (video_type, cookies)
+
     url = 'http://watch.nba.com/nba/servlets/publishpoint'
     headers = { 
-        'Cookie': cookies , 
+        'Cookie': cookies, 
         'Content-type': 'application/x-www-form-urlencoded',
-        'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:12.0) Gecko/20100101 Firefox/12.0',
+        'User-Agent': 'iPad' if video_type == "live" 
+            else "Mozilla/5.0 (X11; Linux x86_64; rv:12.0) Gecko/20100101 Firefox/12.0",
     }
-    body = urllib.urlencode({ 
+    body = { 
         'id': str(video_id), 
-        'isFlex': 'true',
         'gt': video_type, 
         'type': 'game',
         'plid': player_id
-    })
+    }
+    if video_type != "live":
+        body['isFlex'] = 'true'
+    else:
+        body['nt'] = '1'
+    body = urllib.urlencode(body)
+
     response, content = http.request(url, 'POST', body=body, headers=headers)
     if response['status'] != "200":
         if debug:
@@ -157,61 +177,76 @@ def getGameUrl(video_id, video_type="archive"):
     if debug:
         print link
 
-    # transform the link
-    m = re.search('adaptive://([^/]+)(.+)$', link)
-    arguments = urllib.quote_plus(str(m.group(2)))
-    domain = m.group(1)
-    http_link = "http://%s/play?url=%s" % (domain, arguments)
-    if debug:
-        print http_link
-    
-    # Make the second request which will return video of a (now) hardcoded
-    # quality 
-    # NOTE: had to switch to urllib2, as httplib2 assumed that
-    # because the port was 443 it should use SSL (although the protocol
-    # was correctly set to http)
-    try:
-        opener = urllib2.build_opener()
-        opener.addheaders.append(('Cookie', cookies))
-        f = opener.open(http_link)
-        content = f.read()
-        f.close()
-    except:
-        content = ""
-        pass
-    
-    if not content:
+    if video_type == "live":
+        # transform the link
+        match = re.search('http://([^:]+)/([^?]+?)\?(.+)$', link)
+        domain = match.group(1)
+        arguments = match.group(2)
+        querystring = match.group(3)
+
+        livecookies = "nlqptid=%s" % (querystring)
+        livecookiesencoded = urllib.quote(livecookies)
+
         if debug:
-            print "no xml response, try guessing the url"
-        full_video_url = getGameUrlGuessing(video_id, link)
+            print "live cookie: %s %s" % (querystring, livecookies)
+
+        full_video_url = "http://%s/%s?%s|Cookie=%s" % (domain, arguments, querystring, livecookiesencoded)
     else:
+        # transform the link
+        m = re.search('adaptive://([^/]+)(.+)$', link)
+        arguments = urllib.quote_plus(str(m.group(2)))
+        domain = m.group(1)
+        http_link = "http://%s/play?url=%s" % (domain, arguments)
         if debug:
-            print "parsing xml response: %s" % content
+            print http_link
         
-        # parse the xml
-        xml = parseString(str(content))
-        all_streamdata = xml.getElementsByTagName("streamData")
-        full_video_url = ''
-        for streamdata in all_streamdata:
-            video_height = streamdata.getElementsByTagName("video")[0].attributes["height"].value
-
-            if int(video_height) == target_video_height:
-                selected_video_path = streamdata.attributes["url"].value
-                selected_domain = streamdata.getElementsByTagName("httpserver")[0].attributes["name"].value
-                full_video_url = getGameUrl_m3u8("http://%s%s" % (selected_domain, selected_video_path))
-
-                if urllib.urlopen(full_video_url).getcode() != 200:
-                    full_video_url = ""
-                break
+        # Make the second request which will return video of a (now) hardcoded
+        # quality 
+        # NOTE: had to switch to urllib2, as httplib2 assumed that
+        # because the port was 443 it should use SSL (although the protocol
+        # was correctly set to http)
+        try:
+            opener = urllib2.build_opener()
+            opener.addheaders.append(('Cookie', cookies))
+            f = opener.open(http_link)
+            content = f.read()
+            f.close()
+        except:
+            content = ""
+            pass
     
-    if not full_video_url:
-        if debug:
-            print "parsed xml but video not found, try guessing the url"
-        full_video_url = getGameUrlGuessing(video_id, link)
-    
-    if full_video_url:
-        if debug:
-            print "the url of video %s is %s" % (video_id, full_video_url)
+        if not content:
+            if debug:
+                print "no xml response, try guessing the url"
+            full_video_url = getGameUrlGuessing(video_id, link)
+        else:
+            if debug:
+                print "parsing xml response: %s" % content
+            
+            # parse the xml
+            xml = parseString(str(content))
+            all_streamdata = xml.getElementsByTagName("streamData")
+            full_video_url = ''
+            for streamdata in all_streamdata:
+                video_height = streamdata.getElementsByTagName("video")[0].attributes["height"].value
+
+                if int(video_height) == target_video_height:
+                    selected_video_path = streamdata.attributes["url"].value
+                    selected_domain = streamdata.getElementsByTagName("httpserver")[0].attributes["name"].value
+                    full_video_url = getGameUrl_m3u8("http://%s%s" % (selected_domain, selected_video_path))
+
+                    if urllib.urlopen(full_video_url).getcode() != 200:
+                        full_video_url = ""
+                    break
+        
+        if not full_video_url:
+            if debug:
+                print "parsed xml but video not found, try guessing the url"
+            full_video_url = getGameUrlGuessing(video_id, link)
+        
+    if full_video_url and debug:
+        print "the url of video %s is %s" % (video_id, full_video_url)
+
     return full_video_url
 
 def getGameUrl_m3u8(full_video_url):
@@ -367,8 +402,10 @@ def getGames(fromDate = '', video_type = "archive"):
                         name = name + " (NV)"
                         addLink(name, "", "", thumbnail_url)
                     else:
-                        video_string = "%s/%s" % (gid, video_type)
-                        addDir(name, video_string, '5', thumbnail_url)
+                        if video_type == "archive" or (video_type == "live" and details['gs'] == 1 and details['vs'] != ''):
+                            actual_video_type = "live" if details['gs'] == 1 and details['vs'] != '' else video_type
+                            video_string = "%s/%s" % (gid, actual_video_type)
+                            addDir(name, video_string, 'playgame', thumbnail_url)
     except:
         # raise
         print "Error!!!"
@@ -396,15 +433,21 @@ def playGame(title, video_string):
         xbmc.executebuiltin('Notification(NBA League Pass,Video not found.,10000,)')
 
 def mainMenu():
-    addDir('Archive', 'archive', '1','')
-    addDir('Condensed', 'condensed', '1','')
+    if isLiveUsable():
+        addDir('Live', 'live', 'live','')
+    addDir('Archive', 'archive', 'archive','')
+    addDir('Condensed', 'condensed', 'condensed','')
     # addDir('Highlights', 'highlights', '1', '')
 
 def dateMenu(type):
-    addDir('This week',  type, '2' ,'')
-    addDir('Last week' , type, '3','')
-    addDir('Select date' , type, '4','')
-    addDir('2012-2013 season', type, '6','')
+    addDir('This week',  type, 'thisweek' ,'')
+    addDir('Last week' , type, 'lastweek','')
+    addDir('Select date' , type, 'selectdate','')
+    addDir('2012-2013 season', type, 'oldseason','')
+
+def liveMenu():
+    gameLinks('', 'live')
+
 
 def season2012(mode, url):
     # addLink("in season 2012",'','','')
@@ -418,9 +461,9 @@ def season2012(mode, url):
 
 def gameLinks(mode, url, date2Use = None):
     try:
-        if mode == 4:
+        if mode == "selectdate":
             tday = getDate()
-        elif mode == 6:
+        elif mode == "oldseason":
             tday = date2Use
         else:
             tday = date.today()
@@ -435,11 +478,11 @@ def gameLinks(mode, url, date2Use = None):
         default = "%04d" % now.year
         default = default + '/' + "%d" % now.month
         default = default + '_' + "%d" % now.day
-        if mode == 2 or mode ==4 or mode ==6:
+        if mode == "live" or mode == "thisweek" or mode == "selectdate" or mode == "oldseason":
             # addLink("asked to get games for %s %s" % (default, video_type),'','','')
             # print "Calling getGames with %s %s" %(default, video_type)
             getGames(default, video_type)
-        elif mode == 3:
+        elif mode == "lastweek":
             tday = tday - timedelta(7)
             now = tday
             default = "%04d" % now.year
@@ -504,24 +547,24 @@ try:
 except:
     pass
 try:
-    mode=int(params["mode"])
+    mode=params["mode"]
 except:
     pass
 
-if mode==None or url==None or len(url)<1:
+if mode == None or url == None or len(url)<1:
     # initialize the feed
     getFeed()
 
     # create the main menu
     mainMenu()
-
-elif mode==1:
+elif mode == "archive" or mode == "condensed":
     dateMenu(url)
-
-elif mode==5:
+elif mode == "playgame":
     playGame(name, url)
-elif mode==6:
+elif mode == "oldseason":
     season2012(mode, url)
+elif mode == "live":
+    liveMenu()
 else:
     gameLinks(mode, url)
 
