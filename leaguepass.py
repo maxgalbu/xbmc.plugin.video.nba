@@ -116,7 +116,7 @@ def login():
         if response_headers["status"] != "200":
             if debug:
                 print "Login failed with content: %s" % content
-            xbmc.executebuiltin('Notification(NBA League Pass,I am not sure what happened here!,5000,)')
+            xbmc.executebuiltin('Notification(NBA League Pass,Failed to login (response != 200),5000,)')
             return ''
 
         # Check the response xml
@@ -170,8 +170,9 @@ def getGameUrl(video_id, video_type="archive"):
             print str(content)
             print str(url)
             print "The content was %s" % str(content)
-        addLink("Failed to get a video URL. Are you logged in?",'','','')
+        xbmc.executebuiltin('Notification(NBA League Pass,Failed to get a video URL. Are you logged in?,5000,)')
         return ''
+    
     xml = parseString(str(content))
     link = xml.getElementsByTagName("path")[0].childNodes[0].nodeValue
     if debug:
@@ -332,105 +333,107 @@ teams = {
 }
 
 def getGames(fromDate = '', video_type = "archive"):
-    try:
-        date = ''
-        h = ''
-        v = ''
-        gid =''
-        st = ''
-        vs = ''
-        hs = ''
-        idx = ''
-        t = ''
-        s = ''
-        thisweek = 'http://smb.cdnak.neulion.com/fs/nba/feeds_s2012/schedule/' +fromDate +  '.js?t=' + "%d"  %time.time()
-        print 'Requesting ', thisweek
-        # http://smb.cdnak.neulion.com/fs/nba/feeds_s2012/schedule/2013/10_7.js?t=1381054350000
-        req = urllib2.Request(thisweek, None);
-        response = str(urllib2.urlopen(req).read())
-        print response
-        js = json.loads(response[response.find("{"):])
-        print js
+    date = ''
+    h = ''
+    v = ''
+    gid =''
+    st = ''
+    vs = ''
+    hs = ''
+    idx = ''
+    t = ''
+    s = ''
 
-        for game in js['games']:
-            print game
-            for details in game:
-                print details
+    thisweek = 'http://smb.cdnak.neulion.com/fs/nba/feeds_s2012/schedule/' +fromDate +  '.js?t=' + "%d"  %time.time()
+    print 'Requesting %s' % thisweek
+    # http://smb.cdnak.neulion.com/fs/nba/feeds_s2012/schedule/2013/10_7.js?t=1381054350000
+    req = urllib2.Request(thisweek, None);
+    response = str(urllib2.urlopen(req).read())
+    js = json.loads(response[response.find("{"):])
+
+    for game in js['games']:
+        print game
+        for details in game:
+            try:
+                h = details['h']
+                v = details['v']
+                gid = details['id']
+                date = details['d']
                 try:
-                    h = details['h']
-                    v = details['v']
-                    gid = details['id']
-                    date = details['d']
-                    try:
-                        st = details['st']
-                        vs = str(details['vs'])
-                        hs = str(details['hs'])
-                    except:
-                        vs = ''
-                        hs = ''
-                    if "video" in details:
-                        has_video = True
-                    else:
-                        has_video = False
-                except  Exception, e:
-                    # continue
-                    raise
-                print v.lower()
-                print h.lower()
-                if gid != '':
-                    # Get pretty names for the team names
-                    if v.lower() in teams:
-                        visitor_name = teams[v.lower()]
-                    else:
-                        visitor_name = v
-                    if h.lower() in teams:
-                        host_name = teams[h.lower()]
-                    else:
-                        host_name = h
+                    st = details['st']
+                    vs = str(details['vs'])
+                    hs = str(details['hs'])
+                except:
+                    vs = ''
+                    hs = ''
+                
+                has_video = "video" in details
+            except  Exception, e:
+                # continue
+                raise
+            print v.lower()
+            print h.lower()
+            if gid != '':
+                # Get pretty names for the team names
+                if v.lower() in teams:
+                    visitor_name = teams[v.lower()]
+                else:
+                    visitor_name = v
+                if h.lower() in teams:
+                    host_name = teams[h.lower()]
+                else:
+                    host_name = h
 
-                    # Create the title
-                    name = date[:10] + ' ' + visitor_name + ' vs ' + host_name
-                    if scores == '1':
-                        name = name + ' ' + vs + ':' + hs
-                    # print name, date
-                    thumbnail_url = ("http://e1.cdnl3.neulion.com/nba/player-v4/nba/images/teams/%s.png" % h)
-                    # print thumbnail_url
-                    if vs == '':
-                        name = name + " (F)"
-                        addLink(name, "", "", thumbnail_url)
-                    elif has_video == False:
-                        name = name + " (NV)"
-                        addLink(name, "", "", thumbnail_url)
-                    else:
-                        if video_type == "archive" or (video_type == "live" and details['gs'] == 1 and details['vs'] != ''):
-                            actual_video_type = "live" if details['gs'] == 1 and details['vs'] != '' else video_type
-                            video_string = "%s/%s" % (gid, actual_video_type)
-                            addDir(name, video_string, 'playgame', thumbnail_url)
-    except:
-        # raise
-        print "Error!!!"
-        return None
+                live_video = False
+                if details['gs'] == 1 and details['vs'] != '':
+                    live_video = True;
+
+                # Create the title
+                name = date[:10] + ' ' + visitor_name + ' vs ' + host_name
+                if scores == '1':
+                    name = name + ' ' + vs + ':' + hs
+
+                thumbnail_url = ("http://e1.cdnl3.neulion.com/nba/player-v4/nba/images/teams/%s.png" % h)
+
+                future_video = vs == ''
+
+                add_link = True
+                if video_type == "live" and not live_video:
+                    add_link = False
+                elif video_type != "live" and live_video:
+                    add_link = False
+                elif future_video:
+                    add_link = False
+
+                video_mode = ''
+                if future_video:
+                    name = name + " (F)"
+                elif has_video == False:
+                    name = name + " (NV)"
+                else:
+                    video_mode = 'playgame'
+
+                if add_link == True:
+                    video_string = "%s/%s" % (gid, video_type)
+                    addLink(name, video_string, video_mode, thumbnail_url)
 
 def playGame(title, video_string):
     # Authenticate
     global cookies
     if cookies == '':
-        cookies  = login()
+        cookies = login()
 
     # Decode the video string
-    video_id, video_type = video_string.split("/")
+    currentvideo_id, currentvideo_type = video_string.split("/")
 
     # Get the video url. 
     # Authentication is needed over this point!
     # addLink("getting the archive game video_id for game with id %s" % video_id,'','','')
-    link = getGameUrl(video_id, video_type)
-    if link != '':
-        addLink(title, link, '', '')
-        liz=xbmcgui.ListItem(name, iconImage="DefaultVideo.png", thumbnailImage='')
-        liz.setInfo( type="Video", infoLabels={ "Title": title } )
-        xbmc.Player(xbmc.PLAYER_CORE_DVDPLAYER).play(link,liz)
+    currentvideo_link = getGameUrl(currentvideo_id, currentvideo_type)
+    if currentvideo_link:
+        xbmc.Player(xbmc.PLAYER_CORE_DVDPLAYER).play(currentvideo_link)
     else:
-        xbmc.executebuiltin('Notification(NBA League Pass,Video not found.,10000,)')
+        xbmc.executebuiltin('Notification(NBA League Pass,Video not found.,5000,)')
 
 def mainMenu():
     if isLiveUsable():
@@ -475,9 +478,7 @@ def gameLinks(mode, url, date2Use = None):
         # starts on mondays
         tday = tday - timedelta(day -1)
         now = tday
-        default = "%04d" % now.year
-        default = default + '/' + "%d" % now.month
-        default = default + '_' + "%d" % now.day
+        default = "%04d/%d_%d" % (now.year, now.month, now.day)
         if mode == "live" or mode == "thisweek" or mode == "selectdate" or mode == "oldseason":
             # addLink("asked to get games for %s %s" % (default, video_type),'','','')
             # print "Calling getGames with %s %s" %(default, video_type)
@@ -485,13 +486,11 @@ def gameLinks(mode, url, date2Use = None):
         elif mode == "lastweek":
             tday = tday - timedelta(7)
             now = tday
-            default = "%04d" % now.year
-            default = default + '/' + "%d" % now.month
-            default = default + '_' + "%d" % now.day
+            default = "%04d/%d_%d" % (now.year, now.month, now.day)
             getGames(default, video_type)
         else:
             getGames(default, video_type)
-        xbmcplugin.addSortMethod( handle=int( sys.argv[ 1 ] ), sortMethod=xbmcplugin.SORT_METHOD_DATE )
+        xbmcplugin.addSortMethod( handle=int(sys.argv[1]), sortMethod=xbmcplugin.SORT_METHOD_DATE )
     except:
         xbmcplugin.endOfDirectory(handle = int(sys.argv[1]),succeeded=False)
         return None
@@ -513,20 +512,23 @@ def getParams():
                             param[splitparams[0]]=splitparams[1]
     return param
 
-def addLink(name,url,title,iconimage):
-    liz=xbmcgui.ListItem(name, iconImage="DefaultVideo.png", thumbnailImage=iconimage)
-    liz.setInfo( type="Video", infoLabels={ "Title": title } )
+def addLink(name,url,mode,iconimage):
     global fanart_image
+    u = sys.argv[0]+"?url="+urllib.quote_plus(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)
+    liz = xbmcgui.ListItem(name, iconImage="DefaultVideo.png", thumbnailImage=iconimage)
+    liz.setInfo( type="Video", infoLabels={ "Title": name } )
     liz.setProperty('fanart_image', fanart_image)
-    return xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=url,listitem=liz)
+    xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz)
+    return liz
 
 def addDir(name,url,mode,iconimage):
-    u=sys.argv[0]+"?url="+urllib.quote_plus(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)
-    liz=xbmcgui.ListItem(name, iconImage="DefaultFolder.png", thumbnailImage=iconimage)
-    liz.setInfo( type="Video", infoLabels={ "Title": name } )
     global fanart_image
+    u = sys.argv[0]+"?url="+urllib.quote_plus(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)
+    liz = xbmcgui.ListItem(name, iconImage="DefaultFolder.png", thumbnailImage=iconimage)
+    liz.setInfo( type="Video", infoLabels={ "Title": name } )
     liz.setProperty('fanart_image', fanart_image)
-    return xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz,isFolder=True)
+    xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz,isFolder=True)
+    return liz
 
 params=getParams()
 url=None
