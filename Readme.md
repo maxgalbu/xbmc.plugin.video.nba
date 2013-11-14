@@ -19,22 +19,29 @@ Installation
 
 ### Requirements
 
-It requires XBMC Frodo, and the [httplib2](http://code.google.com/p/carb0s-repo/source/browse/addons/script.module.httplib2) addon (also attached in the [download page](https://bitbucket.org/ptsampoukas/plugin.video.nba/downloads#available-downloads)).
+It requires XBMC Frodo, and the [httplib2](http://code.google.com/p/carb0s-repo/source/browse/addons/script.module.httplib2) addon (also attached in the [download page](https://bitbucket.org/maxgalbu/plugin.video.nba/downloads#available-downloads)).
+
+Live games currently require a nightly build of XBMC Gotham released after 10/11/2013. XBMC Gotham alpha versions (even alpha9) still don't support cookies correctly, so live games don't work.
+
+See here for a list of nightly builds for your system:
+
+http://wiki.xbmc.org/index.php?title=development_builds#Nightly_build
 
 ### Using a zip file
 
-First download the latest version from the [download page](https://bitbucket.org/ptsampoukas/plugin.video.nba/downloads#available-downloads). Then install the addon from a zip file in xbmc ([instructions](http://wiki.xbmc.org/index.php?title=Add-on_manager#How_to_install_from_a_ZIP_file)).
+First download the latest version from the [download page](https://bitbucket.org/maxgalbu/plugin.video.nba/downloads#available-downloads). Then install the addon from a zip file in xbmc ([instructions](http://wiki.xbmc.org/index.php?title=Add-on_manager#How_to_install_from_a_ZIP_file)).
 
 ### Using mercurial
 
     cd ~/.xbmc/addons
-    hg clone ssh://hg@bitbucket.org/ptsampoukas/plugin.video.nba
+    hg clone ssh://hg@bitbucket.org/maxgalbu/plugin.video.nba
 
 Changes
 =======================
 
 ### Changelog:
 
+    0.6.1-  Added live games (working only for gotham), fixed archive 'video not found' when the video is actually up
     0.6-    Try and guess the game url if the xml returned is empty
     0.5.3-  Added markers: (F) for future games and (NV) for games without videos
     0.5.2-  Removed py-dom-xpath from the requirements and links to the httplib2 addon

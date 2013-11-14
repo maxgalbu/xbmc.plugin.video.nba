@@ -1,3 +1,4 @@
+0.6.1- Added live games (working only for gotham), fixed archive 'video not found' when the video is actually up
 0.6- Try and guess the game url if the xml returned is empty
 0.5.3- Added markers: (F) for future games and (NV) for games without videos
 0.5.2- Removed py-dom-xpath from the requirements and links to the httplib2 addon
