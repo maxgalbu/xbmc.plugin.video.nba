@@ -172,7 +172,7 @@ def getGameUrl(video_id, video_type="archive"):
             print "The content was %s" % str(content)
         xbmc.executebuiltin('Notification(NBA League Pass,Failed to get a video URL. Are you logged in?,5000,)')
         return ''
-    
+
     xml = parseString(str(content))
     link = xml.getElementsByTagName("path")[0].childNodes[0].nodeValue
     if debug:
@@ -194,10 +194,11 @@ def getGameUrl(video_id, video_type="archive"):
         full_video_url = "http://%s/%s?%s|Cookie=%s" % (domain, arguments, querystring, livecookiesencoded)
     else:
         # transform the link
-        m = re.search('adaptive://([^/]+)(.+)$', link)
-        arguments = urllib.quote_plus(str(m.group(2)))
+        m = re.search('adaptive://([^/]+)(/[^?]+)\?(.+)$', link)
         domain = m.group(1)
-        http_link = "http://%s/play?url=%s" % (domain, arguments)
+        path = urllib.quote_plus(str(m.group(2)))
+        arguments = m.group(3)
+        http_link = "http://%s/play?url=%s&%s" % (domain, path, arguments)
         if debug:
             print http_link
         
