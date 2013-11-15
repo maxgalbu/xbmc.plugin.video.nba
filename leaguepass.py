@@ -398,7 +398,7 @@ def getGames(fromDate = '', video_type = "archive"):
                     # Create the title
                     name = game_start_date_est[:10] + ' ' + visitor_name + ' vs ' + host_name
                     if scores == '1':
-                        name = name + ' ' + vs + ':' + hs
+                        name = name + ' ' + str(vs) + ':' + str(hs)
 
                     thumbnail_url = ("http://e1.cdnl3.neulion.com/nba/player-v4/nba/images/teams/%s.png" % h)
 
