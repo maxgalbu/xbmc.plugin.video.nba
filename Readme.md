@@ -40,7 +40,10 @@ Changes
 =======================
 
 ### Changelog:
-
+    
+    0.6.2-  Remember the playback position
+            Remember video url after parsing it (using cache plugin)
+            Better detection of live and past games
     0.6.1-  Added live games (working only for gotham), fixed archive 'video not found' when the video is actually up
     0.6-    Try and guess the game url if the xml returned is empty
     0.5.3-  Added markers: (F) for future games and (NV) for games without videos
