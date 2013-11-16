@@ -19,8 +19,6 @@ settings = xbmcaddon.Addon( id="plugin.video.nba")
 scores = settings.getSetting( id="scores")
 debug = settings.getSetting( id="debug")
 
-cache = StorageServer.StorageServer("nbaleaguepass", 1)
-
 # map the quality_id to a video height
 # Ex: 720p
 quality_id = settings.getSetting( id="quality_id")
@@ -28,6 +26,15 @@ video_heights_per_quality = [720, 540, 432, 360]
 target_video_height = video_heights_per_quality[int(quality_id)]
 if debug:
     print "Chosen quality_id %s and target_video_height %d" % (quality_id, target_video_height)
+
+cache = StorageServer.StorageServer("nbaleaguepass", 1)
+cache.table_name = "nbaleaguepass"
+
+# Delete the video urls cached if the video quality setting has changed
+if cache.get("target_video_height") != str(target_video_height):
+    cache.delete("video_%")
+    cache.set("target_video_height", str(target_video_height))
+    print "deleting video url cache"
 
 cookies = ''
 player_id = binascii.b2a_hex(os.urandom(16))
