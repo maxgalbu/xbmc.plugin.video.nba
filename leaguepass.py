@@ -324,7 +324,7 @@ teams = {
     "lal" : "Lakers",
     "sas" : "Spurs",
     "okc" : "Thunder",
-    "noh" : "Hornets",
+    "nop" : "Pelicans",
     "por" : "Blazers",
     "mem" : "Grizzlies",
     "mia" : "Heat",
@@ -344,7 +344,6 @@ teams = {
     "ubb" : "Bilbao",
     'mos' : "UCKA Moscow",
     'mac' : "Maccabi Haifa",
-    'nop' : "New Orleans",
 }
 
 def getGames(fromDate = '', video_type = "archive"):
