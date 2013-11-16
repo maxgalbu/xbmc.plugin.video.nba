@@ -384,7 +384,7 @@ def getGames(fromDate = '', video_type = "archive"):
                 #if the end date is not available (for live games, mainly), 
                 #set game end date to be 2 hours after the start of the game
                 if type(game_end_date) is not datetime.datetime:
-                    game_end_date = game_start_date + datetime.timedelta(hours=2, minutes=20)
+                    game_end_date = game_start_date + datetime.timedelta(hours=4)
 
                 print v.lower()
                 print h.lower()
