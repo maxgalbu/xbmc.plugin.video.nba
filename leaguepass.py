@@ -375,11 +375,16 @@ def getGames(fromDate = '', video_type = "archive"):
                     if game_end_date:
                         game_end_date = datetime.datetime.fromtimestamp(time.mktime(time.strptime(game_end_date, "%Y-%m-%dT%H:%M:%S.%f")))
 
-                #set dates in the past if python can't parse the date
+                #set game start date in the past if python can't parse the date
+                #so it doesn't get flagged as live or future game and you can still play it
+                #if a video is available
                 if type(game_start_date) is not datetime.datetime:
                     game_start_date = datetime.datetime.now() + datetime.timedelta(-30)
+
+                #if the end date is not available (for live games, mainly), 
+                #set game end date to be 2 hours after the start of the game
                 if type(game_end_date) is not datetime.datetime:
-                    game_end_date = datetime.datetime.now() + datetime.timedelta(-30)
+                    game_end_date = game_start_date + datetime.timedelta(hours=2, minutes=20)
 
                 print v.lower()
                 print h.lower()
