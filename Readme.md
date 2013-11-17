@@ -41,6 +41,10 @@ Changes
 
 ### Changelog:
     
+    0.6.3-  fix new orleans team name
+            delete the video urls cached if the video quality setting has changed
+            fix detecting live games again (guess end date)
+            fix error when scores are enabled
     0.6.2-  Remember the playback position
             Remember video url after parsing it (using cache plugin)
             Better detection of live and past games
