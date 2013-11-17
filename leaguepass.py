@@ -506,7 +506,7 @@ def gameLinks(mode, url, date2Use = None):
             tday = date2Use
         else:
             tday = datetime.nowEST()
-        print "current date (america timezone) is %s" % str(tday)
+            print "current date (america timezone) is %s" % str(tday)
 
         # parse the video type
         video_type = url
