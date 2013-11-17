@@ -62,6 +62,10 @@ def isLiveUsable():
 
     return version_installed and version_installed['major'] >= 13
 
+def nowEST():
+    return datetime.datetime.utcnow() - datetime.timedelta(hours=5)
+datetime.nowEST = nowEST
+
 def getFeed():
     global fanart_image
 
@@ -501,7 +505,8 @@ def gameLinks(mode, url, date2Use = None):
         elif mode == "oldseason":
             tday = date2Use
         else:
-            tday = date.today()
+            tday = datetime.nowEST()
+        print "current date (america timezone) is %s" % str(tday)
 
         # parse the video type
         video_type = url
