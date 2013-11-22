@@ -41,7 +41,7 @@ def getGameUrl(video_id, video_type="archive"):
 
     xml = parseString(str(content))
     link = xml.getElementsByTagName("path")[0].childNodes[0].nodeValue
-    log(link, xmbc.LOGDEBUG)
+    log(link, xbmc.LOGDEBUG)
 
     if video_type == "live":
         # transform the link
@@ -103,11 +103,11 @@ def getGameUrl(video_id, video_type="archive"):
                     break
         
         if not full_video_url:
-            log("parsed xml but video not found, try guessing the url", xmbc.LOGDEBUG)
+            log("parsed xml but video not found, try guessing the url", xbmc.LOGDEBUG)
             full_video_url = getGameUrlGuessing(video_id, link)
         
     if full_video_url:
-        log("the url of video %s is %s" % (video_id, full_video_url), xmbc.LOGDEBUG)
+        log("the url of video %s is %s" % (video_id, full_video_url), xbmc.LOGDEBUG)
 
     return full_video_url
 
