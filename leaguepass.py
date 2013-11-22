@@ -8,6 +8,7 @@ import sys
 from utils import *
 from games import *
 from common import *
+from videos import *
 import vars
 
 log("Chosen quality_id %s and target_video_height %d" % (vars.quality_id, vars.target_video_height))
@@ -17,6 +18,8 @@ def mainMenu():
         addListItem('Live', 'live', 'live','', True)
     addListItem('Archive', 'archive', 'archive','', True)
     addListItem('Condensed', 'condensed', 'condensed','', True)
+    addListItem('Highlights', '', 'videohighlights','', True)
+    addListItem('Top Plays', '', 'videotopplays','', True)
 
 def dateMenu(type):
     addListItem('This week', type, 'thisweek' ,'', True)
@@ -62,6 +65,13 @@ elif mode == "oldseason":
     season2012(mode, url)
 elif mode == "live":
     liveMenu()
+elif mode.startswith("video"):
+    if mode.startswith("videoplay"):
+        videoPlay(url)
+    elif mode.startswith("videodate"):
+        videoMenu(url, mode.replace("videodate", "") )
+    else:
+        videoDateMenu( mode.replace("video", "") )
 else:
     gameLinks(mode, url)
 
