@@ -72,7 +72,7 @@ def getGameUrl(video_id, video_type="archive"):
         # was correctly set to http)
         try:
             opener = urllib2.build_opener()
-            opener.addheaders.append(('Cookie', cookies))
+            opener.addheaders.append(('Cookie', vars.cookies))
             f = opener.open(http_link)
             content = f.read()
             f.close()
@@ -93,7 +93,7 @@ def getGameUrl(video_id, video_type="archive"):
             for streamdata in all_streamdata:
                 video_height = streamdata.getElementsByTagName("video")[0].attributes["height"].value
 
-                if int(video_height) == target_video_height:
+                if int(video_height) == vars.target_video_height:
                     selected_video_path = streamdata.attributes["url"].value
                     selected_domain = streamdata.getElementsByTagName("httpserver")[0].attributes["name"].value
                     full_video_url = getGameUrl_m3u8("http://%s%s" % (selected_domain, selected_video_path))
@@ -152,8 +152,6 @@ def getGameUrlByBitrate(target_bitrate, video_url):
     return re.sub("whole_([0-9]+)_pc", "whole_\1_"+str(target_bitrate), video_url)
 
 def getGames(fromDate = '', video_type = "archive"):
-    global cache
-
     try:
         schedule = 'http://smb.cdnak.neulion.com/fs/nba/feeds_s2012/schedule/' +fromDate +  '.js?t=' + "%d"  %time.time()
         log('Requesting %s' % schedule, xbmc.LOGDEBUG)
@@ -262,7 +260,7 @@ def playGame(video_string):
     # addLink("getting the archive game video_id for game with id %s" % video_id,'','','')
     currentvideo_url = getGameUrl(currentvideo_id, currentvideo_type)
     if currentvideo_url:
-        cache.set("videourl_%s_%s" % (currentvideo_type, currentvideo_id), currentvideo_url)
+        vars.cache.set("videourl_%s_%s" % (currentvideo_type, currentvideo_id), currentvideo_url)
 
         item = xbmcgui.ListItem(path=currentvideo_url)
         xbmc.Player(xbmc.PLAYER_CORE_DVDPLAYER).play(currentvideo_url, item)
