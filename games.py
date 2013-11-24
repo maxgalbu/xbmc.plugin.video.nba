@@ -168,33 +168,24 @@ def getGames(fromDate = '', video_type = "archive"):
                 v = details.get('v', '')
                 game_id = details.get('id', '')
                 game_start_date_est = details.get('d', '')
-                game_start_date = details.get('st', '')
-                game_end_date = details.get('et', '')
                 vs = details.get('vs', '')
                 hs = details.get('hs', '')
                 gs = details.get('gs', '')
 
+                # Try to convert start date to datetime
                 try:
-                    if game_start_date:
-                        game_start_date = datetime.datetime.strptime(game_start_date, "%Y-%m-%dT%H:%M:%S.%f" )
-                    if game_end_date:
-                        game_end_date = datetime.datetime.strptime(game_end_date, "%Y-%m-%dT%H:%M:%S.%f" )
+                    game_start_datetime_est = datetime.datetime.strptime(game_start_date_est, "%Y-%m-%dT%H:%M:%S.%f" )
                 except:
-                    if game_start_date:
-                        game_start_date = datetime.datetime.fromtimestamp(time.mktime(time.strptime(game_start_date, "%Y-%m-%dT%H:%M:%S.%f")))
-                    if game_end_date:
-                        game_end_date = datetime.datetime.fromtimestamp(time.mktime(time.strptime(game_end_date, "%Y-%m-%dT%H:%M:%S.%f")))
+                    game_start_datetime_est = datetime.datetime.fromtimestamp(time.mktime(time.strptime(game_start_date_est, "%Y-%m-%dT%H:%M:%S.%f")))
 
-                #set game start date in the past if python can't parse the date
+                #et game start date in the past if python can't parse the date
                 #so it doesn't get flagged as live or future game and you can still play it
                 #if a video is available
-                if type(game_start_date) is not datetime.datetime:
-                    game_start_date = datetime.datetime.now() + datetime.timedelta(-30)
+                if type(game_start_datetime_est) is not datetime.datetime:
+                    game_start_datetime_est = nowEST() + timedelta(-30)
 
-                #if the end date is not available (for live games, mainly), 
-                #set game end date to be 2 hours after the start of the game
-                if type(game_end_date) is not datetime.datetime:
-                    game_end_date = game_start_date + datetime.timedelta(hours=4)
+                #guess end date by adding 4 hours to start date
+                game_end_datetime_est = game_start_datetime_est + timedelta(hours=4)
 
                 if game_id != '':
                     # Get pretty names for the team names
@@ -215,8 +206,8 @@ def getGames(fromDate = '', video_type = "archive"):
                     thumbnail_url = ("http://e1.cdnl3.neulion.com/nba/player-v4/nba/images/teams/%s.png" % h)
 
                     has_video = "video" in details
-                    future_video = game_start_date > datetime.datetime.now()
-                    live_video = game_start_date < datetime.datetime.now() < game_end_date
+                    future_video = game_start_datetime_est > nowEST()
+                    live_video = game_start_datetime_est < nowEST() < game_end_datetime_est
 
                     add_link = True
                     if video_type == "live" and not live_video:
@@ -274,7 +265,7 @@ def gameLinks(mode, url, date2Use = None):
         elif mode == "oldseason":
             tday = date2Use
         else:
-            tday = datetime.nowEST()
+            tday = nowEST()
             log("current date (america timezone) is %s" % str(tday), xbmc.LOGDEBUG)
 
         # parse the video type

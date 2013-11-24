@@ -1,12 +1,10 @@
 import xbmc,xbmcplugin,xbmcgui,xbmcaddon
 import urllib, datetime, json, sys
-import unicodedata
 
 import vars
 
 def nowEST():
     return datetime.datetime.utcnow() - datetime.timedelta(hours=5)
-datetime.nowEST = nowEST
 
 def isLiveUsable():
     # retrieve current installed version
