@@ -17,7 +17,7 @@ def getGameUrl(video_id, video_type="archive"):
     url = 'http://watch.nba.com/nba/servlets/publishpoint'
     headers = { 
         'Cookie': vars.cookies, 
-        'Content-type': 'application/x-www-form-urlencoded',
+        'Content-Type': 'application/x-www-form-urlencoded',
         'User-Agent': 'iPad' if video_type == "live" 
             else "Mozilla/5.0 (X11; Linux x86_64; rv:12.0) Gecko/20100101 Firefox/12.0",
     }
@@ -33,9 +33,12 @@ def getGameUrl(video_id, video_type="archive"):
         body['nt'] = '1'
     body = urllib.urlencode(body)
 
-    response, content = vars.http.request(url, 'POST', body=body, headers=headers)
-    if response['status'] != "200":
-        log("Failed to get video url. The url was %s, the content was %s" % (url, str(content)))
+    try:
+        request = urllib2.Request(url, body, headers)
+        response = urllib2.urlopen(request)
+        content = response.read()
+    except urllib2.HTTPError as e:
+        log("Failed to get video url. The url was %s, the content was %s" % (url, e.read()))
         xbmc.executebuiltin('Notification(NBA League Pass,Failed to get a video URL. Are you logged in?,5000,)')
         return ''
 

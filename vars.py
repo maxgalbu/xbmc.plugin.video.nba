@@ -1,5 +1,5 @@
 import xbmc,xbmcplugin,xbmcgui,xbmcaddon
-import os,binascii,httplib2
+import os,binascii
 
 try:
     import StorageServer
@@ -30,7 +30,6 @@ if cache.get("target_video_height") != str(target_video_height):
 
 cookies = ''
 player_id = binascii.b2a_hex(os.urandom(16))
-http = httplib2.Http()
 media_dir = os.path.join(
     xbmc.translatePath("special://home/" ), 
     "addons", "plugin.video.nba"
@@ -43,7 +42,6 @@ setting_fanart_image = settings.getSetting("fanart_image")
 if setting_fanart_image != '':
     fanart_image = setting_fanart_image
 
-http.disable_ssl_certificate_validation=True
 
 teams = {
     "bkn" : "Nets",

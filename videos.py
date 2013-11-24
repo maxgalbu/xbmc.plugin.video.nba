@@ -71,10 +71,12 @@ def videoPlay(video_id):
         'isFlex:': 'true',
     })
 
-    response, content = vars.http.request(url, 'POST', body=body, headers=headers)
-    if response['status'] != "200":
-        if debug:
-            log("videoPlay: failed getting video url: %s %s" % (url, response))
+    request = urllib2.Request(url, headers=headers)
+    response = urllib2.urlopen(request, body)
+    content = response.read()
+
+    if response.getcode() != 200:
+        log("videoPlay: failed getting video url: %s %s" % (url, response), xbmc.LOGDEBUG)
         xbmc.executebuiltin('Notification(NBA League Pass,Failed to get a video URL. Are you logged in?,5000,)')
         return ''
 

@@ -43,14 +43,15 @@ def login():
         # Login
         url = 'https://watch.nba.com/nba/secure/login?'
         body = {'username': vars.settings.getSetting( id="username"), 'password': vars.settings.getSetting( id="password")}
-        headers = {'Content-type': 'application/x-www-form-urlencoded'}
-        response_headers, content = vars.http.request(url, 'POST', body=urllib.urlencode(body), headers=headers)        
+        body = urllib.urlencode(body)
+        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
 
-        # If the response is not 200, it is not an authentication error
-        if vars.debug:
-            print response_headers
-        if response_headers["status"] != "200":
-            log("Login failed with content: %s" % content)
+        try:
+            request = urllib2.Request(url, body, headers)
+            response = urllib2.urlopen(request)
+            content = response.read()
+        except urllib2.HTTPError as e:
+            log("Login failed with code: %d and content: %s" % (e.getcode(), e.read()))
             xbmc.executebuiltin('Notification(NBA League Pass,Failed to login (response != 200),5000,)')
             return ''
 
@@ -60,7 +61,7 @@ def login():
             xbmc.executebuiltin('Notification(NBA League Pass,Cannot login: invalid username and password, or your account is locked.,5000,)')
         else:
             # logged in
-            vars.cookies = response_headers['set-cookie'].partition(';')[0]
+            vars.cookies = response.info().getheader('Set-Cookie').partition(';')[0]
         return vars.cookies
     except:
         vars.cookies = ''
