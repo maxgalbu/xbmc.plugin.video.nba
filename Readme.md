@@ -41,6 +41,11 @@ Changes
 
 ### Changelog:
     
+    0.6.4-  added nba tv live
+            fixed live in different timezones
+            added highlights and top plays
+            removed httplib2 dependency
+            fix week ending too soon for people not in America on sunday night
     0.6.3-  fix new orleans team name
             delete the video urls cached if the video quality setting has changed
             fix detecting live games again (guess end date)
