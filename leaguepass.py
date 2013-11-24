@@ -9,6 +9,7 @@ from utils import *
 from games import *
 from common import *
 from videos import *
+from nbatvlive import *
 import vars
 
 log("Chosen quality_id %s and target_video_height %d" % (vars.quality_id, vars.target_video_height))
@@ -18,6 +19,7 @@ def mainMenu():
         addListItem('Live', 'live', 'live','', True)
     addListItem('Archive', 'archive', 'archive','', True)
     addListItem('Condensed', 'condensed', 'condensed','', True)
+    addListItem('NBA TV Live', '', 'nbatvlive','')
     addListItem('Highlights', '', 'videohighlights','', True)
     addListItem('Top Plays', '', 'videotopplays','', True)
 
@@ -72,6 +74,8 @@ elif mode.startswith("video"):
         videoMenu(url, mode.replace("videodate", "") )
     else:
         videoDateMenu( mode.replace("video", "") )
+elif mode == "nbatvlive":
+    playLiveTV()
 else:
     gameLinks(mode, url)
 
