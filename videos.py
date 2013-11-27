@@ -22,7 +22,7 @@ def videoDateMenu(video_type):
 
     for date in dates:
         addListItem(str(date), str(date), 'videodate'+video_type, '', True)
-    xbmcplugin.endOfDirectory(handle = int(sys.argv[1]),succeeded=False)
+    xbmcplugin.endOfDirectory(handle = int(sys.argv[1]))
 
 def videoMenu(date, video_type):
     log("videoMenu: date requested is %s" % date, xbmc.LOGDEBUG)
@@ -55,6 +55,7 @@ def videoMenu(date, video_type):
 
     for video in jsonresponse['response']['docs']:
         addListItem(url=str(video['sequence']), name=video['name'], mode='videoplay', iconimage='')
+    xbmcplugin.endOfDirectory(handle = int(sys.argv[1]))
 
 def videoPlay(video_id):
     url = 'http://watch.nba.com/nba/servlets/publishpoint'
