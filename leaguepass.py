@@ -19,7 +19,8 @@ def mainMenu():
         addListItem('Live', 'live', 'live','', True)
     addListItem('Archive', 'archive', 'archive','', True)
     addListItem('Condensed', 'condensed', 'condensed','', True)
-    addListItem('NBA TV Live', '', 'nbatvlive','')
+    if isLiveUsable():
+        addListItem('NBA TV Live', '', 'nbatvlive','')
     addListItem('Highlights', '', 'videohighlights','', True)
     addListItem('Top Plays', '', 'videotopplays','', True)
 
