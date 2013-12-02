@@ -11,7 +11,7 @@ from utils import *
 from common import * 
 import vars
 
-def getGameUrl(video_id, video_type="archive"):
+def getGameUrl(video_id, video_type, video_ishomefeed):
     log("cookies: %s %s" % (video_type, vars.cookies), xbmc.LOGDEBUG)
 
     url = 'http://watch.nba.com/nba/servlets/publishpoint'
@@ -23,7 +23,7 @@ def getGameUrl(video_id, video_type="archive"):
     }
     body = { 
         'id': str(video_id), 
-        'gt': video_type, 
+        'gt': video_type + ("away" if not video_ishomefeed else ""), 
         'type': 'game',
         'plid': vars.player_id
     }
@@ -32,6 +32,8 @@ def getGameUrl(video_id, video_type="archive"):
     else:
         body['nt'] = '1'
     body = urllib.urlencode(body)
+
+    log("the body of publishpoint request is: %s" % body, xbmc.LOGDEBUG)
 
     try:
         request = urllib2.Request(url, body, headers)
@@ -175,6 +177,11 @@ def getGames(fromDate = '', video_type = "archive"):
                 hs = details.get('hs', '')
                 gs = details.get('gs', '')
 
+                video_has_away_feed = False
+                if video_type != "condensed":
+                    video_details = details.get('video', {})
+                    video_has_away_feed = video_details.get("af", False)
+
                 # Try to convert start date to datetime
                 try:
                     game_start_datetime_est = datetime.datetime.strptime(game_start_date_est, "%Y-%m-%dT%H:%M:%S.%f" )
@@ -220,21 +227,20 @@ def getGames(fromDate = '', video_type = "archive"):
                     elif future_video or not has_video:
                         add_link = False
 
-                    video_mode = ''
-                    if future_video:
-                        name = name + " (F)"
-                    elif has_video == False:
-                        name = name + " (NV)"
-                    else:
-                        video_mode = 'playgame'
-
                     if add_link == True:
                         url = "%s/%s" % (game_id, video_type)
-                        real_url = vars.cache.get("videourl_%s_%s" % (video_type, game_id))
-                        if real_url:
-                            addVideoListItem(name, real_url, thumbnail_url)
+
+                        # If the game has home/away feeds, add a directory item
+                        # that allows the user to select the home or away feed
+                        if video_has_away_feed:
+                            addListItem(name, url, "gamehomeaway", thumbnail_url, True)
                         else:
-                            addListItem(name, url, video_mode, thumbnail_url)
+                            # Get the cached url for home feeds which is the default.
+                            cached_url = vars.cache.get("videourl_%s_%s_1" % (video_type, game_id))
+                            if cached_url:
+                                addVideoListItem(name, cached_url, thumbnail_url)
+                            else:
+                                addListItem(name, url, "playgame", thumbnail_url)
 
     except Exception, e:
         xbmc.executebuiltin('Notification(NBA League Pass,'+str(e)+',5000,)')
@@ -247,19 +253,44 @@ def playGame(video_string):
         vars.cookies = login()
 
     # Decode the video string
-    currentvideo_id, currentvideo_type = video_string.split("/")
+    if video_string.count('/') == 2:
+        # If the game has home/away feed, the "video_string" variable will have
+        # the following format video_id/video_type/is_home_feed
+        # where is_home_feed is 1 for "home" feed and "0" is for away feed 
+        currentvideo_id, currentvideo_type, currentvideo_homefeed = video_string.split("/")
+        currentvideo_homefeed = currentvideo_homefeed == "1"
+    else:
+        # If the game has no away feed, the "video_string" variable will have
+        # the following format: video_id/video_type
+        # The home feed is selected automatically
+        currentvideo_id, currentvideo_type = video_string.split("/")
+        currentvideo_homefeed = 1
 
     # Get the video url. 
     # Authentication is needed over this point!
-    # addLink("getting the archive game video_id for game with id %s" % video_id,'','','')
-    currentvideo_url = getGameUrl(currentvideo_id, currentvideo_type)
+    currentvideo_url = getGameUrl(currentvideo_id, currentvideo_type, currentvideo_homefeed)
     if currentvideo_url:
-        vars.cache.set("videourl_%s_%s" % (currentvideo_type, currentvideo_id), currentvideo_url)
+        vars.cache.set("videourl_%s_%s_%d" % (currentvideo_type, currentvideo_id, currentvideo_homefeed), currentvideo_url)
 
         item = xbmcgui.ListItem(path=currentvideo_url)
         xbmc.Player(xbmc.PLAYER_CORE_DVDPLAYER).play(currentvideo_url, item)
     else:
         xbmc.executebuiltin('Notification(NBA League Pass,Video not found.,5000,)')
+
+def gameHomeAwayMenu(video_string):
+    currentvideo_id, currentvideo_type = video_string.split("/")
+
+    # Create the "Home" and "Away" list items
+    for ishomefeed in [True, False]:
+        listitemname = "Away feed" if ishomefeed else "Home feed"
+        cached_url = vars.cache.get("videourl_%s_%s_%d" % (currentvideo_type, currentvideo_id, ishomefeed))
+        if cached_url:
+            addVideoListItem(listitemname, cached_url, "")
+        else:
+            url = "%s/%s/%d" % (currentvideo_id, currentvideo_type, ishomefeed)
+            addListItem(listitemname, url, "playgame", "")
+
+    xbmcplugin.endOfDirectory(handle = int(sys.argv[1]) )
 
 def gameLinks(mode, url, date2Use = None):
     try:
@@ -290,7 +321,11 @@ def gameLinks(mode, url, date2Use = None):
             getGames(default, video_type)
         else:
             getGames(default, video_type)
-        xbmcplugin.addSortMethod( handle=int(sys.argv[1]), sortMethod=xbmcplugin.SORT_METHOD_DATE )
+
+        # Can't sort the games list correctly because XBMC treats file items and directory
+        # items differently and puts directory first, then file items (home/away feeds
+        # require a directory item while only-home-feed games is a file item)
+        xbmcplugin.addSortMethod( handle=int(sys.argv[1]) )
     except:
         xbmcplugin.endOfDirectory(handle = int(sys.argv[1]),succeeded=False)
         return None

@@ -64,6 +64,8 @@ elif mode == "archive" or mode == "condensed":
     dateMenu(url)
 elif mode == "playgame":
     playGame(url)
+elif mode == "gamehomeaway":
+    gameHomeAwayMenu(url)
 elif mode == "oldseason":
     season2012(mode, url)
 elif mode == "live":
