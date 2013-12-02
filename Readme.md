@@ -40,7 +40,9 @@ Changes
 =======================
 
 ### Changelog:
-    
+    0.6.5-  added home/away feeds
+            fix highlight and top plays on frodo
+            nba tv live: force the right bitrate by getting the xml first
     0.6.4-  added nba tv live
             fixed live in different timezones
             added highlights and top plays
