@@ -323,7 +323,7 @@ def gameLinks(mode, url, date2Use = None):
         # Can't sort the games list correctly because XBMC treats file items and directory
         # items differently and puts directory first, then file items (home/away feeds
         # require a directory item while only-home-feed games is a file item)
-        xbmcplugin.addSortMethod( handle=int(sys.argv[1]) )
+        #xbmcplugin.addSortMethod( handle=int(sys.argv[1]), sortMethod=xbmcplugin.SORT_METHOD_DATE )
     except:
         xbmcplugin.endOfDirectory(handle = int(sys.argv[1]),succeeded=False)
         return None

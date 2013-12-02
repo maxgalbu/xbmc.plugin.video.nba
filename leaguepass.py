@@ -82,5 +82,4 @@ elif mode == "nbatvlive":
 else:
     gameLinks(mode, url)
 
-
 xbmcplugin.endOfDirectory(int(sys.argv[1]))
