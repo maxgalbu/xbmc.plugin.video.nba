@@ -310,9 +310,7 @@ def gameLinks(mode, url, date2Use = None):
         tday = tday - timedelta(day -1)
         now = tday
         default = "%04d/%d_%d" % (now.year, now.month, now.day)
-        if mode == "live" or mode == "thisweek" or mode == "selectdate" or mode == "oldseason":
-            # addLink("asked to get games for %s %s" % (default, video_type),'','','')
-            # print "Calling getGames with %s %s" %(default, video_type)
+        if mode in ["live", "thisweek", "selectdate", "oldseason"]:
             getGames(default, video_type)
         elif mode == "lastweek":
             tday = tday - timedelta(7)
