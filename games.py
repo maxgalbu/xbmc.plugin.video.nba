@@ -282,7 +282,7 @@ def gameHomeAwayMenu(video_string):
 
     # Create the "Home" and "Away" list items
     for ishomefeed in [True, False]:
-        listitemname = "Away feed" if ishomefeed else "Home feed"
+        listitemname = "Away feed" if not ishomefeed else "Home feed"
         cached_url = vars.cache.get("videourl_%s_%s_%d" % (currentvideo_type, currentvideo_id, ishomefeed))
         if cached_url:
             addVideoListItem(listitemname, cached_url, "")
