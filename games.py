@@ -91,30 +91,51 @@ def getGameUrl(video_id, video_type, video_ishomefeed):
         else:
             log("parsing xml response: %s" % content, xbmc.LOGDEBUG)
             
-            # parse the xml
+            # Parse the xml. The streamdata tag looks like this:
+            # <streamData url="/nlds_vod/nba/vod/2014/01/15/21300566/a29e02/2_21300566_chi_orl_2013_h_condensed_1_3000.mp4" blockDuration="2000" bitrate="3072000" duration="1155121">
+            #     <video width="1280" height="720" fps="29.970030" bitrate="2978816" codec="avc1" />
+            #     <audio channelCount="2" samplesRate="44100" sampleBitSize="16" bitrate="124928" codec="mp4a" />
+            #     <httpservers>
+            #         <httpserver name="nlds120.cdnak.neulion.com" port="80" />
+            #         <httpserver name="nlds120.cdnl3nl.neulion.com" port="80" />
+            #     </httpservers>
+            # </streamData>
             xml = parseString(str(content))
             all_streamdata = xml.getElementsByTagName("streamData")
-            full_video_url = ''
+            selected_video_url = ''
             for streamdata in all_streamdata:
                 video_height = streamdata.getElementsByTagName("video")[0].attributes["height"].value
 
                 if int(video_height) == vars.target_video_height:
                     selected_video_path = streamdata.attributes["url"].value
-                    selected_domain = streamdata.getElementsByTagName("httpserver")[0].attributes["name"].value
-                    full_video_url = getGameUrl_m3u8("http://%s%s" % (selected_domain, selected_video_path))
+                    http_servers = streamdata.getElementsByTagName("httpserver")
+                    for http_server in http_servers:
+                        server_name = http_server.attributes["name"].value
+                        server_port = http_server.attributes["port"].value
 
-                    if urllib.urlopen(full_video_url).getcode() != 200:
-                        full_video_url = ""
+                        # Construct the video url
+                        mp4_video_url = "http://%s:%s%s" % (server_name, server_port, selected_video_path)
+                        m3u8_video_url = getGameUrl_m3u8(mp4_video_url)
+                        
+                        # Test if the video is actually available. If it is not available go to the next server.
+                        # The mp4 urls rarely work
+                        if urllib.urlopen(m3u8_video_url).getcode() == 200:
+                            selected_video_url = m3u8_video_url
+                            break
+
+                        log("no working url found for this server, moving to the next", xbmc.LOGDEBUG)
+
+                    # break from the video quality loop
                     break
         
-        if not full_video_url:
+        if not selected_video_url:
             log("parsed xml but video not found, try guessing the url", xbmc.LOGDEBUG)
-            full_video_url = getGameUrlGuessing(video_id, link)
+            selected_video_url = getGameUrlGuessing(video_id, link)
         
-    if full_video_url:
-        log("the url of video %s is %s" % (video_id, full_video_url), xbmc.LOGDEBUG)
+    if selected_video_url:
+        log("the url of video %s is %s" % (video_id, selected_video_url), xbmc.LOGDEBUG)
 
-    return full_video_url
+    return selected_video_url
 
 def getGameUrl_m3u8(full_video_url):
     m3u8_url = re.sub(r'\.mp4$', ".mp4.m3u8", full_video_url)
@@ -135,7 +156,7 @@ def getGameUrlGuessing(video_id, adaptive_link):
 
     matches = re.search('adaptive://([^?]+)\?.+$', adaptive_link)
     video_url = matches.group(1)
-    video_url = video_url.replace(":443", "")
+    video_url = video_url.replace(":443", "", 1)
 
     target_video_url = getGameUrlByBitrate(target_bitrate, video_url)
     target_video_url = getGameUrl_m3u8("http://%s" % target_video_url)
