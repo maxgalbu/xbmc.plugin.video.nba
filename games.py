@@ -84,10 +84,11 @@ def getGameUrl(video_id, video_type, video_ishomefeed):
         except:
             content = ""
             pass
-    
+        
+        selected_video_url = ''
         if not content:
             log("no xml response, try guessing the url", xbmc.LOGDEBUG)
-            full_video_url = getGameUrlGuessing(video_id, link)
+            selected_video_url = getGameUrlGuessing(video_id, link)
         else:
             log("parsing xml response: %s" % content, xbmc.LOGDEBUG)
             
@@ -102,7 +103,6 @@ def getGameUrl(video_id, video_type, video_ishomefeed):
             # </streamData>
             xml = parseString(str(content))
             all_streamdata = xml.getElementsByTagName("streamData")
-            selected_video_url = ''
             for streamdata in all_streamdata:
                 video_height = streamdata.getElementsByTagName("video")[0].attributes["height"].value
 
