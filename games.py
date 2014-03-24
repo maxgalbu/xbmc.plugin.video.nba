@@ -19,18 +19,17 @@ def getGameUrl(video_id, video_type, video_ishomefeed):
         'Cookie': vars.cookies, 
         'Content-Type': 'application/x-www-form-urlencoded',
         'User-Agent': 'iPad' if video_type == "live" 
-            else "Mozilla/5.0 (X11; Linux x86_64; rv:12.0) Gecko/20100101 Firefox/12.0",
+            else "AppleCoreMedia/1.0.0.8C148a (iPad; U; CPU OS 6_2_1 like Mac OS X; en_us)",
     }
     body = { 
         'id': str(video_id), 
         'gt': video_type + ("away" if not video_ishomefeed else ""), 
         'type': 'game',
-        'plid': vars.player_id
+        'plid': vars.player_id,
+        'nt': '1'
     }
     if video_type != "live":
-        body['isFlex'] = 'true'
-    else:
-        body['nt'] = '1'
+        body['format'] = 'xml'
     body = urllib.urlencode(body)
 
     log("the body of publishpoint request is: %s" % body, xbmc.LOGDEBUG)
@@ -63,74 +62,10 @@ def getGameUrl(video_id, video_type, video_ishomefeed):
 
         selected_video_url = "http://%s/%s?%s|Cookie=%s" % (domain, arguments, querystring, livecookiesencoded)
     else:
-        # transform the link
-        m = re.search('adaptive://([^/]+)(/[^?]+)\?(.+)$', link)
-        domain = m.group(1)
-        path = urllib.quote_plus(str(m.group(2)))
-        arguments = m.group(3)
-        http_link = "http://%s/play?url=%s&%s" % (domain, path, arguments)
-        log(http_link, xbmc.LOGDEBUG)
-        
-        # Make the second request which will return video of a (now) hardcoded
-        # quality 
-        # NOTE: had to switch to urllib2, as httplib2 assumed that
-        # because the port was 443 it should use SSL (although the protocol
-        # was correctly set to http)
-        try:
-            opener = urllib2.build_opener()
-            opener.addheaders.append(('Cookie', vars.cookies))
-            f = opener.open(http_link)
-            content = f.read()
-            f.close()
-        except:
-            content = ""
-            pass
-        
-        if not content:
-            log("no xml response, try guessing the url", xbmc.LOGDEBUG)
-            selected_video_url = getGameUrlGuessing(video_id, link)
-        else:
-            log("parsing xml response: %s" % content, xbmc.LOGDEBUG)
-            
-            # Parse the xml. The streamdata tag looks like this:
-            # <streamData url="/nlds_vod/nba/vod/2014/01/15/21300566/a29e02/2_21300566_chi_orl_2013_h_condensed_1_3000.mp4" blockDuration="2000" bitrate="3072000" duration="1155121">
-            #     <video width="1280" height="720" fps="29.970030" bitrate="2978816" codec="avc1" />
-            #     <audio channelCount="2" samplesRate="44100" sampleBitSize="16" bitrate="124928" codec="mp4a" />
-            #     <httpservers>
-            #         <httpserver name="nlds120.cdnak.neulion.com" port="80" />
-            #         <httpserver name="nlds120.cdnl3nl.neulion.com" port="80" />
-            #     </httpservers>
-            # </streamData>
-            xml = parseString(str(content))
-            all_streamdata = xml.getElementsByTagName("streamData")
-            for streamdata in all_streamdata:
-                video_height = streamdata.getElementsByTagName("video")[0].attributes["height"].value
-
-                if int(video_height) == vars.target_video_height:
-                    selected_video_path = streamdata.attributes["url"].value
-                    http_servers = streamdata.getElementsByTagName("httpserver")
-                    for http_server in http_servers:
-                        server_name = http_server.attributes["name"].value
-                        server_port = http_server.attributes["port"].value
-
-                        # Construct the video url
-                        mp4_video_url = "http://%s:%s%s" % (server_name, server_port, selected_video_path)
-                        m3u8_video_url = getGameUrl_m3u8(mp4_video_url)
-                        
-                        # Test if the video is actually available. If it is not available go to the next server.
-                        # The mp4 urls rarely work
-                        if urllib.urlopen(m3u8_video_url).getcode() == 200:
-                            selected_video_url = m3u8_video_url
-                            break
-
-                        log("no working url found for this server, moving to the next", xbmc.LOGDEBUG)
-
-                    # break from the video quality loop
-                    break
-        
-        if not selected_video_url:
-            log("parsed xml but video not found, try guessing the url", xbmc.LOGDEBUG)
-            selected_video_url = getGameUrlGuessing(video_id, link)
+        # Archive and condensed flow:
+        # We now work with HLS. Return the HLS playlist to XBMC as is. 
+        # The cookies are already in the URL and the server will supply them to ffmpeg later.
+        selected_video_url = link
         
     if selected_video_url:
         log("the url of video %s is %s" % (video_id, selected_video_url), xbmc.LOGDEBUG)
@@ -142,36 +77,6 @@ def getGameUrl_m3u8(full_video_url):
     if urllib.urlopen(m3u8_url).getcode() == 200:
         full_video_url = m3u8_url
     return full_video_url
-
-def getGameUrlGuessing(video_id, adaptive_link):
-    available_bitrates = {
-        720: 3000,
-        540: 1600,
-        432: 1200,
-        360: 800,
-        224: 224,
-    }
-    target_bitrate = available_bitrates.get(vars.target_video_height, 1600)
-    failsafe_bitrate = available_bitrates.get(360)
-
-    matches = re.search('adaptive://([^?]+)\?.+$', adaptive_link)
-    video_url = matches.group(1)
-    video_url = video_url.replace(":443", "", 1)
-
-    target_video_url = getGameUrlByBitrate(target_bitrate, video_url)
-    target_video_url = getGameUrl_m3u8("http://%s" % target_video_url)
-
-    if urllib.urlopen(target_video_url).getcode() != 200:
-        log("video of height %d not found, trying with height 360" % vars.target_video_height, xbmc.LOGDEBUG)
-
-        target_video_url = getGameUrlByBitrate(failsafe_bitrate, video_url)
-        target_video_url = getGameUrl_m3u8("http://%s" % target_video_url)
-
-        if urllib.urlopen(target_video_url).getcode() != 200:
-            log("failsafe bitrate video not found, bailing out", xbmc.LOGDEBUG)
-            return ""
-
-    return target_video_url
 
 def getGameUrlByBitrate(target_bitrate, video_url):
     # replace whole_1_pc\whole_2_pc with whole_[number]_[bitrate]
