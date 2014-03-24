@@ -48,6 +48,7 @@ def getGameUrl(video_id, video_type, video_ishomefeed):
     link = xml.getElementsByTagName("path")[0].childNodes[0].nodeValue
     log(link, xbmc.LOGDEBUG)
 
+    selected_video_url = ''
     if video_type == "live":
         # transform the link
         match = re.search('http://([^:]+)/([^?]+?)\?(.+)$', link)
@@ -60,7 +61,7 @@ def getGameUrl(video_id, video_type, video_ishomefeed):
 
         log("live cookie: %s %s" % (querystring, livecookies), xbmc.LOGDEBUG)
 
-        full_video_url = "http://%s/%s?%s|Cookie=%s" % (domain, arguments, querystring, livecookiesencoded)
+        selected_video_url = "http://%s/%s?%s|Cookie=%s" % (domain, arguments, querystring, livecookiesencoded)
     else:
         # transform the link
         m = re.search('adaptive://([^/]+)(/[^?]+)\?(.+)$', link)
@@ -84,10 +85,10 @@ def getGameUrl(video_id, video_type, video_ishomefeed):
         except:
             content = ""
             pass
-    
+        
         if not content:
             log("no xml response, try guessing the url", xbmc.LOGDEBUG)
-            full_video_url = getGameUrlGuessing(video_id, link)
+            selected_video_url = getGameUrlGuessing(video_id, link)
         else:
             log("parsing xml response: %s" % content, xbmc.LOGDEBUG)
             
@@ -102,7 +103,6 @@ def getGameUrl(video_id, video_type, video_ishomefeed):
             # </streamData>
             xml = parseString(str(content))
             all_streamdata = xml.getElementsByTagName("streamData")
-            selected_video_url = ''
             for streamdata in all_streamdata:
                 video_height = streamdata.getElementsByTagName("video")[0].attributes["height"].value
 
