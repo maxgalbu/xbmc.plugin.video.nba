@@ -29,25 +29,6 @@ First create the publishpoint call:
 This will give us the URL for the video under result => path. No cookies are needed for the following request:
 
     GET /nlds_vod/nba/vod/2014/03/22/21301036/ff3741/2_21301036_mia_nop_2013_h_condensed_1_android.mp4.m3u8?nltid=nba&nltdt=8&nltnt=1&uid=1433543&hdnea=expires%3D1395683024%7Eaccess%3D%2Fnlds_vod%2Fnba%2Fvod%2F2014%2F03%2F22%2F21301036%2Fff3741%2F*%7Emd5%3D4ec38c3c8611d3e101184d81db51e790 HTTP/1.1
-    User-Agent: Android
-    Host: nlds120.cdnak.neulion.com
-    Connection: Keep-Alive
-    Accept-Encoding: gzip
-
-    HTTP/1.1 200 OK
-    Server: NeuLion Adaptive Streaming Server
-    Last-Modified: Sun, 23 Mar 2014 07:12:24 GMT
-    Content-Type: application/vnd.apple.mpegurl
-    Content-Length: 545
-    Cache-Control: max-age=65839
-    Expires: Tue, 25 Mar 2014 11:59:05 GMT
-    Date: Mon, 24 Mar 2014 17:41:46 GMT
-    Connection: keep-alive
-    Set-Cookie: nlqptid=nltid=nba&nltdt=8&nltnt=1&uid=1433543&hdnea=expires%3D1395683024%7Eaccess%3D%2Fnlds_vod%2Fnba%2Fvod%2F2014%2F03%2F22%2F21301036%2Fff3741%2F*%7Emd5%3D4ec38c3c8611d3e101184d81db51e790; path=/; domain=.neulion.com
-
-This gives the player the HLS playlist -and- a cookie which is needed for its playback. then typically we will see a request for a specific quality:
-
-    GET /nlds_vod/nba/vod/2014/03/22/21301036/ff3741/2_21301036_mia_nop_2013_h_condensed_1_android.mp4.m3u8?nltid=nba&nltdt=8&nltnt=1&uid=1433543&hdnea=expires%3D1395683024%7Eaccess%3D%2Fnlds_vod%2Fnba%2Fvod%2F2014%2F03%2F22%2F21301036%2Fff3741%2F*%7Emd5%3D4ec38c3c8611d3e101184d81db51e790 HTTP/1.1
     Host: nlds120.cdnak.neulion.com
     Connection: keep-alive
     Cookie: nlqptid=nltid=nba&nltdt=8&nltnt=1&uid=1433543&hdnea=expires%3D1395683024%7Eaccess%3D%2Fnlds_vod%2Fnba%2Fvod%2F2014%2F03%2F22%2F21301036%2Fff3741%2F*%7Emd5%3D4ec38c3c8611d3e101184d81db51e790;
@@ -76,6 +57,9 @@ This gives the player the HLS playlist -and- a cookie which is needed for its pl
     2_21301036_mia_nop_2013_h_condensed_1_240_android.mp4.m3u8
     #EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=150000
     2_21301036_mia_nop_2013_h_condensed_1_150_android.mp4.m3u8
+
+This gives the player the HLS playlist -and- a cookie which is needed for its playback. then typically we will see a request for a specific quality:
+
     GET /nlds_vod/nba/vod/2014/03/22/21301036/ff3741/2_21301036_mia_nop_2013_h_condensed_1_400_android.mp4.m3u8 HTTP/1.1
     Host: nlds120.cdnak.neulion.com
     Connection: keep-alive
