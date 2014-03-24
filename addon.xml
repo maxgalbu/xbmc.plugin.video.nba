@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="plugin.video.nba"
        name="NBA League Pass"
-       version="0.6.5"
+       version="0.6.6"
        provider-name="ptsampoukas, robla and maxgalbu">
   <requires>
     <import addon="xbmc.python" version="2.1.0"/>
@@ -14,6 +14,6 @@
   <extension point="xbmc.addon.metadata">
     <platform>all</platform>
     <summary>Watch NBA League Pass games.</summary>
-    <description>Features: Archive and condensed games for the NBA 2012 and 2013 seasons. Selection of video qualities (from 720p to 360p). Fanart and thumbnails. Requires a subscription and httplib2 for xbmc. Homepage: https://bitbucket.org/maxgalbu/plugin.video.nba/overview</description>
+    <description>Features: Archive and condensed games for the NBA 2012 and 2013 seasons. Fanart and thumbnails. Requires a subscription and httplib2 for xbmc. Homepage: https://bitbucket.org/maxgalbu/plugin.video.nba/overview</description>
   </extension>
 </addon>

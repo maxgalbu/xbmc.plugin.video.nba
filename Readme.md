@@ -7,21 +7,18 @@ Introduction
 This [XBMC](http://xbmc.org/) plugin features: 
 
 * Archive and condensed games for the NBA 2012 and 2013 seasons
-* Selection of video qualities (from 720p to 360p)
+* Live game support
 * Fanart from feeds, and thumbnails
 
 The first version of this plugin was written by [robla](http://forum.xbmc.org/showthread.php?tid=124716). Petros Tsampoukas then modified it to work with the 2012 and 2013 NBA seasons, and added images. It requires login.
 
-Note that most likely it *will* have to be updated once the regular 2013 season starts.
 
 Installation
 =======================
 
 ### Requirements
 
-It requires XBMC Frodo, and the [httplib2](http://code.google.com/p/carb0s-repo/source/browse/addons/script.module.httplib2) addon (also attached in the [download page](https://bitbucket.org/maxgalbu/plugin.video.nba/downloads#available-downloads)).
-
-Live games currently require a nightly build of XBMC Gotham released after 10/11/2013. XBMC Gotham alpha versions (even alpha9) still don't support cookies correctly, so live games don't work.
+As of 24 March 2014, all games require XBMC Gotham (beta2 or earlier). The archive and condensed games used to work in Frodo but the streams switched to using encryption with HLS, which does not work with Frodo due to faulty cookie support.
 
 See here for a list of nightly builds for your system:
 
@@ -40,6 +37,7 @@ Changes
 =======================
 
 ### Changelog:
+    0.6.6-  the archive and condensed games work again, but require Gotham
     0.6.5-  added home/away feeds
             fix highlight and top plays on frodo
             nba tv live: force the right bitrate by getting the xml first
