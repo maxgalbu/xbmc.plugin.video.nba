@@ -72,16 +72,6 @@ def getGameUrl(video_id, video_type, video_ishomefeed):
 
     return selected_video_url
 
-def getGameUrl_m3u8(full_video_url):
-    m3u8_url = re.sub(r'\.mp4$', ".mp4.m3u8", full_video_url)
-    if urllib.urlopen(m3u8_url).getcode() == 200:
-        full_video_url = m3u8_url
-    return full_video_url
-
-def getGameUrlByBitrate(target_bitrate, video_url):
-    # replace whole_1_pc\whole_2_pc with whole_[number]_[bitrate]
-    return re.sub("whole_([0-9]+)_pc", "whole_\1_"+str(target_bitrate), video_url)
-
 def getGames(fromDate = '', video_type = "archive"):
     try:
         schedule = 'http://smb.cdnak.neulion.com/fs/nba/feeds_s2012/schedule/' +fromDate +  '.js?t=' + "%d"  %time.time()
@@ -161,12 +151,8 @@ def getGames(fromDate = '', video_type = "archive"):
                         if video_has_away_feed:
                             addListItem(name, url, "gamehomeaway", thumbnail_url, True)
                         else:
-                            # Get the cached url for home feeds which is the default.
-                            cached_url = vars.cache.get("videourl_%s_%s_1" % (video_type, game_id))
-                            if cached_url:
-                                addVideoListItem(name, cached_url, thumbnail_url)
-                            else:
-                                addListItem(name, url, "playgame", thumbnail_url)
+                            # Get the url for home feeds which is the default.
+                            addListItem(name, url, "playgame", thumbnail_url)
 
     except Exception, e:
         xbmc.executebuiltin('Notification(NBA League Pass,'+str(e)+',5000,)')
@@ -196,8 +182,6 @@ def playGame(video_string):
     # Authentication is needed over this point!
     currentvideo_url = getGameUrl(currentvideo_id, currentvideo_type, currentvideo_homefeed)
     if currentvideo_url:
-        vars.cache.set("videourl_%s_%s_%d" % (currentvideo_type, currentvideo_id, currentvideo_homefeed), currentvideo_url)
-
         item = xbmcgui.ListItem(path=currentvideo_url)
         xbmc.Player(xbmc.PLAYER_CORE_DVDPLAYER).play(currentvideo_url, item)
     else:
@@ -209,12 +193,8 @@ def gameHomeAwayMenu(video_string):
     # Create the "Home" and "Away" list items
     for ishomefeed in [True, False]:
         listitemname = "Away feed" if not ishomefeed else "Home feed"
-        cached_url = vars.cache.get("videourl_%s_%s_%d" % (currentvideo_type, currentvideo_id, ishomefeed))
-        if cached_url:
-            addVideoListItem(listitemname, cached_url, "")
-        else:
-            url = "%s/%s/%d" % (currentvideo_id, currentvideo_type, ishomefeed)
-            addListItem(listitemname, url, "playgame", "")
+        url = "%s/%s/%d" % (currentvideo_id, currentvideo_type, ishomefeed)
+        addListItem(listitemname, url, "playgame", "")
 
     xbmcplugin.endOfDirectory(handle = int(sys.argv[1]) )
 
