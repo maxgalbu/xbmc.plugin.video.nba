@@ -183,7 +183,7 @@ def playGame(video_string):
     currentvideo_url = getGameUrl(currentvideo_id, currentvideo_type, currentvideo_homefeed)
     if currentvideo_url:
         item = xbmcgui.ListItem(path=currentvideo_url)
-        xbmc.Player(xbmc.PLAYER_CORE_DVDPLAYER).play(currentvideo_url, item)
+        xbmcplugin.setResolvedUrl(handle=int(sys.argv[1]), succeeded=True, listitem=item) 
     else:
         xbmc.executebuiltin('Notification(NBA League Pass,Video not found.,5000,)')
 

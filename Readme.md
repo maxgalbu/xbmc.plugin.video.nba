@@ -37,6 +37,7 @@ Changes
 =======================
 
 ### Changelog:
+    0.6.7-  Fixed a bug causing a "One or more items failed to play" error even though the playback worked
     0.6.6-  the archive and condensed games work again, but require Gotham
     0.6.5-  added home/away feeds
             fix highlight and top plays on frodo
@@ -85,4 +86,4 @@ Changes
 
 ### Producing a new zip version
 
-    zip -r plugin.video.nba.v0_5.zip -x\*sublime\* -x\*/.hg/\* -x\*/.hgignore plugin.video.nba/
+    zip -r plugin.video.nba.v0_6_7.zip -x\*sublime\*  -x\*/docs/\* -x\*/.hg/\* -x\*/.hgignore plugin.video.nba/
