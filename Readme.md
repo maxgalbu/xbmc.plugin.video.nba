@@ -1,4 +1,3 @@
-
 Introduction
 ======================
 
@@ -86,4 +85,4 @@ Changes
 
 ### Producing a new zip version
 
-    zip -r plugin.video.nba.v0_6_7.zip -x\*sublime\*  -x\*/docs/\* -x\*/.hg/\* -x\*/.hgignore plugin.video.nba/
+    zip -r plugin.video.nba.v0_6_6.zip -x\*/.hg/\* -x\*/.hgignore -x\*/docs/\* -x\*/*.pyc -x\*/*.pyo plugin.video.nba/
