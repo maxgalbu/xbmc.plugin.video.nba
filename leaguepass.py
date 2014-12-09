@@ -28,7 +28,13 @@ def dateMenu(type):
     addListItem('This week', type, 'thisweek' ,'', True)
     addListItem('Last week' , type, 'lastweek','', True)
     addListItem('Select date' , type, 'selectdate','', True)
-    addListItem('2012-2013 season', type, 'oldseason','', True)
+
+    # Dynamic previous season, so I don't have to update this every time!
+    now = date.today()
+    current_year = now.year
+    if now.month <= 10: #October
+        current_year -= 1
+    addListItem('%d-%d season' % (current_year-1, current_year), type, 'oldseason', '', True)
 
 def liveMenu():
     gameLinks('', 'live')

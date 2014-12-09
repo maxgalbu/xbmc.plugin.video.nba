@@ -1,3 +1,6 @@
+0.7-    (10/12/2014)
+        Force the bitrate of archive and condensed videos (xbmc always picks 720p format)
+        Fixed year for previous season
 0.6.7-  (29/03/2014)
         Fixed a bug causing a "One or more items failed to play" error even though the playback worked
 0.6.6-  (24/03/2014)
