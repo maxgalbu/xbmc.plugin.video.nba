@@ -36,31 +36,8 @@ Changes
 =======================
 
 ### Changelog:
-    0.6.7-  Fixed a bug causing a "One or more items failed to play" error even though the playback worked
-    0.6.6-  the archive and condensed games work again, but require Gotham
-    0.6.5-  added home/away feeds
-            fix highlight and top plays on frodo
-            nba tv live: force the right bitrate by getting the xml first
-    0.6.4-  added nba tv live
-            fixed live in different timezones
-            added highlights and top plays
-            removed httplib2 dependency
-            fix week ending too soon for people not in America on sunday night
-    0.6.3-  fix new orleans team name
-            delete the video urls cached if the video quality setting has changed
-            fix detecting live games again (guess end date)
-            fix error when scores are enabled
-    0.6.2-  Remember the playback position
-            Remember video url after parsing it (using cache plugin)
-            Better detection of live and past games
-    0.6.1-  Added live games (working only for gotham), fixed archive 'video not found' when the video is actually up
-    0.6-    Try and guess the game url if the xml returned is empty
-    0.5.3-  Added markers: (F) for future games and (NV) for games without videos
-    0.5.2-  Removed py-dom-xpath from the requirements and links to the httplib2 addon
-    0.5-    Fixed the login procedure
-    0.4-    Removed the extra images to save space
-    0.3-    First released version
-    0.2-    Patched for the 2012-2013 season playoffs
+
+See changelog.txt
 
 ### Potential new features:
 
