@@ -14,6 +14,6 @@
   <extension point="xbmc.addon.metadata">
     <platform>all</platform>
     <summary>Watch NBA League Pass games.</summary>
-    <description>Features: Archive and condensed games for the NBA 2012 and 2013 seasons. Fanart and thumbnails. Requires a subscription to the International League Pass. Homepage: https://bitbucket.org/maxgalbu/plugin.video.nba/overview</description>
+    <description>Features: Archive and condensed games for the NBA 2013 and 2014 seasons. Fanart and thumbnails. Requires a subscription to the International League Pass. Homepage: https://bitbucket.org/maxgalbu/plugin.video.nba/overview</description>
   </extension>
 </addon>
