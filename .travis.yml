@@ -1,0 +1,49 @@
+language: python
+
+env:
+    global:
+        - GITHUB_USERNAME: maxgalbu
+        - GITHUB_REPO: xbmc.plugin.video.nba
+        - GITHUB_REPOPATH: ${GITHUB_USERNAME}/${GITHUB_REPO}
+        - GITHUB_TAGNAME: latest
+        - ZIP_FILENAME: plugin.video.nba-latest.zip
+        - secure: "N7m3hZXuO94lqCH+GBE2ELGInnssciIBJrRfw7r5yqh8/fMqDjBR5ztaQ5LnZvXyO//f9DaM36F6A2DQtMatuuf1UwuTBDYrT4jw4rco8plweMREmA98n9MGQ/AOn+AJ78BsKw+jwXk2UPUO2KTN0tiS9Nedm9fu4+5dRoePHHk="
+
+#Evito che travis lanci una compilazione ogni volta che si crea un tag
+branches:
+  except:
+    - $GITHUB_TAGNAME
+
+install:
+    - wget "https://github.com/aktau/github-release/releases/download/v0.5.2/linux-amd64-github-release.tar.bz2"
+    - tar xvf linux-amd64-github-release.tar.bz2
+
+before_script:
+    - cd ..
+
+    #Rinomino la cartella
+    - mv $GITHUB_REPO plugin.video.nba
+
+script:
+    #Creo zip
+    - zip -r $ZIP_FILENAME -x\*/.hg/\* -x\*/.hgignore -x\*/docs/\* -x\*/*.pyc -x\*/*.pyo -x\*/.git/\* ./plugin.video.nba
+
+    #Ritorno nella cartella per far funzionare il deploy
+    - cp $ZIP_FILENAME plugin.video.nba/
+    - cd plugin.video.nba
+
+after_success:
+    #Creo un tag per creare una release su github
+    - git config --global user.email "max.galbusera+travis@gmail.com"
+    - git config --global user.name "Travis-CI"
+    - git remote rm origin
+    - git remote add origin https://maxgalbu:${GITHUB_TOKEN}@github.com/${GITHUB_REPO}
+    - git tag -d $GITHUB_TAGNAME
+    - git push origin :$GITHUB_TAGNAME --quiet 2> /dev/null
+    - git tag -a $GITHUB_TAGNAME -m 'latest version'
+    - git push --tags --quiet 2> /dev/null
+
+    #Uso https://github.com/aktau/github-release
+    - bin/linux/amd64/github-release delete --user $GITHUB_USERNAME --repo $GITHUB_REPO --tag $GITHUB_TAGNAME
+    - bin/linux/amd64/github-release release --user $GITHUB_USERNAME --repo $GITHUB_REPO --tag $GITHUB_TAGNAME --name "Latest version"
+    - bin/linux/amd64/github-release upload --user $GITHUB_USERNAME --repo $GITHUB_REPO --tag $GITHUB_TAGNAME --name "plugin.video.nba-latest.zip" --file plugin.video.nba-latest.zip
