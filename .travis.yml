@@ -14,10 +14,6 @@ branches:
   except:
     - $GITHUB_TAGNAME
 
-install:
-    - wget "https://github.com/aktau/github-release/releases/download/v0.5.2/linux-amd64-github-release.tar.bz2"
-    - tar xvf linux-amd64-github-release.tar.bz2
-
 before_script:
     - cd ..
 
@@ -26,7 +22,7 @@ before_script:
 
 script:
     #Creo zip
-    - zip -r $ZIP_FILENAME -x\*/.hg/\* -x\*/.hgignore -x\*/docs/\* -x\*/*.pyc -x\*/*.pyo -x\*/.git/\* ./plugin.video.nba
+    - zip $ZIP_FILENAME -x "*/.*" "*/docs/*" "*/*.pyc" "*/*.pyo" "*/*.pyo" -r ./plugin.video.nba
 
     #Ritorno nella cartella per far funzionare il deploy
     - cp $ZIP_FILENAME plugin.video.nba/
@@ -41,7 +37,11 @@ after_success:
     - git tag -d $GITHUB_TAGNAME
     - git push origin :$GITHUB_TAGNAME --quiet 2> /dev/null
     - git tag -a $GITHUB_TAGNAME -m 'latest version'
-    - git push --tags --quiet 2> /dev/null
+    - git push origin $GITHUB_TAGNAME --quiet 2> /dev/null
+
+    #Download github-release
+    - wget "https://github.com/aktau/github-release/releases/download/v0.5.2/linux-amd64-github-release.tar.bz2"
+    - tar xvf linux-amd64-github-release.tar.bz2
 
     #Uso https://github.com/aktau/github-release
     - bin/linux/amd64/github-release delete --user $GITHUB_USERNAME --repo $GITHUB_REPO --tag $GITHUB_TAGNAME
