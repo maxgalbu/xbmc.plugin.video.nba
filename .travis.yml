@@ -11,8 +11,8 @@ env:
 
 #Evito che travis lanci una compilazione ogni volta che si crea un tag
 branches:
-  except:
-    - $GITHUB_TAGNAME
+  only:
+    - master
 
 before_script:
     - cd ..
