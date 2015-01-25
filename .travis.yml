@@ -40,7 +40,7 @@ after_success:
     - git push origin $GITHUB_TAGNAME --quiet 2> /dev/null
 
     #Download github-release
-    - wget "https://github.com/aktau/github-release/releases/download/v0.5.2/linux-amd64-github-release.tar.bz2"
+    - wget "https://github.com/aktau/github-release/releases/download/v0.5.3/linux-amd64-github-release.tar.bz2"
     - tar xvf linux-amd64-github-release.tar.bz2
 
     #Uso https://github.com/aktau/github-release
