@@ -44,13 +44,13 @@ def getGameUrl(video_id, video_type, video_ishomefeed):
         return ''
 
     xml = parseString(str(content))
-    link = xml.getElementsByTagName("path")[0].childNodes[0].nodeValue
-    log(link, xbmc.LOGDEBUG)
+    url = xml.getElementsByTagName("path")[0].childNodes[0].nodeValue
+    log(url, xbmc.LOGDEBUG)
 
     selected_video_url = ''
     if video_type == "live":
-        # transform the link
-        match = re.search('http://([^:]+)/([^?]+?)\?(.+)$', link)
+        # transform the url
+        match = re.search('http://([^:]+)/([^?]+?)\?(.+)$', url)
         domain = match.group(1)
         arguments = match.group(2)
         querystring = match.group(3)
@@ -60,35 +60,49 @@ def getGameUrl(video_id, video_type, video_ishomefeed):
 
         log("live cookie: %s %s" % (querystring, livecookies), xbmc.LOGDEBUG)
 
-        selected_video_url = "http://%s/%s?%s|Cookie=%s" % (domain, arguments, querystring, livecookiesencoded)
+        url = "http://%s/%s?%s" % (domain, arguments, querystring)
+        url = getGameUrlWithBitrate(url, is_live = True)
+
+        selected_video_url = "%s|Cookie=%s" % (url, livecookiesencoded)
     else:
         # Archive and condensed flow: We now work with HLS. 
         # The cookies are already in the URL and the server will supply them to ffmpeg later.
-
-        # Force the bitrate by modifying the HLS url and adding the bitrate
-        available_bitrates = {
-            720: 3000,
-            540: 1600,
-            432: 1200,
-            360: 800,
-            224: 224,
-        }
-        target_bitrate = available_bitrates.get(vars.target_video_height, 1600)
-        failsafe_bitrate = available_bitrates.get(360)
-
-        #Try the target bitrate
-        selected_video_url = re.sub('whole_([0-9])_ipad', r'whole_\1_%s_ipad' % target_bitrate, link)
-        if urllib.urlopen(selected_video_url).getcode() != 200:
-            log("video of height %d not found, trying with height 360" % vars.target_video_height, xbmc.LOGDEBUG)
-
-            #Try the failsafe url (bitrate of 800)
-            selected_video_url = re.sub('whole_([0-9])_ipad', r'whole_\1_%s_ipad' % failsafe_bitrate, link)
-            if urllib.urlopen(selected_video_url).getcode() != 200:
-                log("failsafe bitrate video not found, bailing out", xbmc.LOGDEBUG)
-                selected_video_url = ""
+        selected_video_url = getGameUrlWithBitrate(url)
+        
         
     if selected_video_url:
         log("the url of video %s is %s" % (video_id, selected_video_url), xbmc.LOGDEBUG)
+
+    return selected_video_url
+
+def getGameUrlWithBitrate(url, is_live = False):
+    # Force the bitrate by modifying the HLS url and adding the bitrate
+    available_bitrates = {
+        720: 3000,
+        540: 1600,
+        432: 1200,
+        360: 800,
+        224: 224,
+    }
+    target_bitrate = available_bitrates.get(vars.target_video_height, 1600)
+    failsafe_bitrate = available_bitrates.get(360)
+
+    regex_pattern = 'whole_([0-9])_ipad'
+    regex_replacement_format = r'whole_\1_%s_ipad'
+    if is_live:
+        regex_pattern = '([a-z]+)_hd_ipad'
+        regex_replacement_format = r'\1_hd_%s_ipad'
+
+    #Try the target bitrate
+    selected_video_url = re.sub(regex_pattern, regex_replacement_format % target_bitrate, url)
+    if urllib.urlopen(selected_video_url).getcode() != 200:
+        log("video of height %d not found, trying with height 360" % vars.target_video_height, xbmc.LOGDEBUG)
+
+        #Try the failsafe url (bitrate of 800)
+        selected_video_url = re.sub(regex_pattern, regex_replacement_format % failsafe_bitrate, url)
+        if urllib.urlopen(selected_video_url).getcode() != 200:
+            log("failsafe bitrate video not found, bailing out", xbmc.LOGDEBUG)
+            selected_video_url = ""
 
     return selected_video_url
 
