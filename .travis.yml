@@ -35,9 +35,9 @@ after_success:
     - git remote rm origin
     - git remote add origin https://maxgalbu:${GITHUB_TOKEN}@github.com/${GITHUB_REPO}
     - git tag -d $GITHUB_TAGNAME
-    - git push origin :$GITHUB_TAGNAME --quiet 2> /dev/null
+    - git push origin :$GITHUB_TAGNAME
     - git tag -a $GITHUB_TAGNAME -m 'latest version'
-    - git push origin $GITHUB_TAGNAME --quiet 2> /dev/null
+    - git push origin $GITHUB_TAGNAME
 
     #Download github-release
     - wget "https://github.com/aktau/github-release/releases/download/v0.5.2/linux-amd64-github-release.tar.bz2"
