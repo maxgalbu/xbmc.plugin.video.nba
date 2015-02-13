@@ -18,62 +18,61 @@ def mainMenu():
     if isLiveUsable():
         addListItem('Live', 'live', 'live','', True)
     addListItem('Archive', 'archive', 'archive','', True)
-    addListItem('Condensed', 'condensed', 'condensed','', True)
     if isLiveUsable():
         addListItem('NBA TV Live', '', 'nbatvlive','')
     addListItem('Highlights', '', 'videohighlights','', True)
     addListItem('Top Plays', '', 'videotopplays','', True)
 
-def dateMenu(type):
-    addListItem('This week', type, 'thisweek' ,'', True)
-    addListItem('Last week' , type, 'lastweek','', True)
-    addListItem('Select date' , type, 'selectdate','', True)
+def archiveMenu():
+    addListItem('This week', "archive", 'thisweek' ,'', True)
+    addListItem('Last week' , "archive", 'lastweek','', True)
+    addListItem('Select date' , "archive", 'selectdate','', True)
 
     # Dynamic previous season, so I don't have to update this every time!
     now = date.today()
     current_year = now.year
     if now.month <= 10: #October
         current_year -= 1
-    addListItem('%d-%d season' % (current_year-1, current_year), type, 'oldseason', '', True)
+    addListItem('%d-%d season' % (current_year-1, current_year), "archive", 'oldseason', '', True)
 
 def liveMenu():
-    gameLinks('', 'live')
+    chooseGameMenu('', 'live')
 
 
-def season2012(mode, url):
+def previousSeasonMenu(mode, url):
     # addLink("in season 2012",'','','')
     d1 = date(2012, 10, 30)
     week = 1
     while week < 36:
         # addLink("in week %s" % (d1),'','','')
-        gameLinks(mode, url, d1)
+        chooseGameMenu(mode, url, d1)
         d1 = d1 + timedelta(7)
         week = week + 1
 
-params=getParams()
-url=None
-mode=None
+params = getParams()
+url = None
+mode = None
 
 try:
-    url=urllib.unquote_plus(params["url"])
+    url = urllib.unquote_plus(params["url"])
 except:
     pass
 try:
-    mode=params["mode"]
+    mode = params["mode"]
 except:
     pass
 
 if mode == None:
     getFanartImage()
     mainMenu()
-elif mode == "archive" or mode == "condensed":
-    dateMenu(url)
+elif mode == "archive":
+    archiveMenu()
 elif mode == "playgame":
     playGame(url)
-elif mode == "gamehomeaway":
-    gameHomeAwayMenu(url)
+elif mode == "gamechoosevideo":
+    chooseGameVideoMenu(url)
 elif mode == "oldseason":
-    season2012(mode, url)
+    previousSeasonMenu(mode, url)
 elif mode == "live":
     liveMenu()
 elif mode.startswith("video"):
@@ -86,6 +85,6 @@ elif mode.startswith("video"):
 elif mode == "nbatvlive":
     playLiveTV()
 else:
-    gameLinks(mode, url)
+    chooseGameMenu(mode, url)
 
 xbmcplugin.endOfDirectory(int(sys.argv[1]))

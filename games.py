@@ -106,7 +106,7 @@ def getGameUrlWithBitrate(url, is_live = False):
 
     return selected_video_url
 
-def getGames(fromDate = '', video_type = "archive"):
+def addGamesLinks(fromDate = '', video_type = "archive"):
     try:
         schedule = 'http://smb.cdnak.neulion.com/fs/nba/feeds_s2012/schedule/' +fromDate +  '.js?t=' + "%d"  %time.time()
         log('Requesting %s' % schedule, xbmc.LOGDEBUG)
@@ -128,9 +128,8 @@ def getGames(fromDate = '', video_type = "archive"):
                 gs = details.get('gs', '')
 
                 video_has_away_feed = False
-                if video_type != "condensed":
-                    video_details = details.get('video', {})
-                    video_has_away_feed = video_details.get("af", False)
+                video_details = details.get('video', {})
+                video_has_away_feed = video_details.get("af", False)
 
                 # Try to convert start date to datetime
                 try:
@@ -181,15 +180,10 @@ def getGames(fromDate = '', video_type = "archive"):
                         add_link = False
 
                     if add_link == True:
-                        url = "%s/%s" % (game_id, video_type)
+                        url = "%s/%s/%s" % (game_id, video_type, 1 if video_has_away_feed else 0)
 
-                        # If the game has home/away feeds, add a directory item
-                        # that allows the user to select the home or away feed
-                        if video_has_away_feed:
-                            addListItem(name, url, "gamehomeaway", thumbnail_url, True)
-                        else:
-                            # Get the url for home feeds which is the default.
-                            addListItem(name, url, "playgame", thumbnail_url)
+                        # Add a directory item that contains home/away/condensed items
+                        addListItem(name, url, "gamechoosevideo", thumbnail_url, True)
 
     except Exception, e:
         xbmc.executebuiltin('Notification(NBA League Pass,'+str(e)+',5000,)')
@@ -201,19 +195,8 @@ def playGame(video_string):
     if vars.cookies == '':
         vars.cookies = login()
 
-    # Decode the video string
-    if video_string.count('/') == 2:
-        # If the game has home/away feed, the "video_string" variable will have
-        # the following format video_id/video_type/is_home_feed
-        # where is_home_feed is 1 for "home" feed and "0" is for away feed 
-        currentvideo_id, currentvideo_type, currentvideo_homefeed = video_string.split("/")
-        currentvideo_homefeed = currentvideo_homefeed == "1"
-    else:
-        # If the game has no away feed, the "video_string" variable will have
-        # the following format: video_id/video_type
-        # The home feed is selected automatically
-        currentvideo_id, currentvideo_type = video_string.split("/")
-        currentvideo_homefeed = 1
+    currentvideo_id, currentvideo_type, currentvideo_homefeed = video_string.split("/")
+    currentvideo_homefeed = currentvideo_homefeed == "1"
 
     # Get the video url. 
     # Authentication is needed over this point!
@@ -224,18 +207,28 @@ def playGame(video_string):
     else:
         xbmc.executebuiltin('Notification(NBA League Pass,Video not found.,5000,)')
 
-def gameHomeAwayMenu(video_string):
-    currentvideo_id, currentvideo_type = video_string.split("/")
+def chooseGameVideoMenu(video_string):
+    currentvideo_id, currentvideo_type, currentvideo_hasawayfeed = video_string.split("/")
+    currentvideo_hasawayfeed = currentvideo_hasawayfeed == "1"
 
-    # Create the "Home" and "Away" list items
-    for ishomefeed in [True, False]:
-        listitemname = "Away feed" if not ishomefeed else "Home feed"
-        url = "%s/%s/%d" % (currentvideo_id, currentvideo_type, ishomefeed)
-        addListItem(listitemname, url, "playgame", "")
+    if currentvideo_hasawayfeed:
+        # Create the "Home" and "Away" list items
+        for ishomefeed in [True, False]:
+            listitemname = "Full game, " + ("away feed" if not ishomefeed else "home feed")
+            url = "%s/%s/%d" % (currentvideo_id, currentvideo_type, ishomefeed)
+            addListItem(listitemname, url, "playgame", "")
+    else:
+        #Add a "Home" list item
+        url = "%s/%s/1" % (currentvideo_id, currentvideo_type)
+        addListItem("Full game", url, "playgame", "")
+
+    # Create the "Condensed" list item
+    url = "%s/%s/1" % (currentvideo_id, "condensed")
+    addListItem("Condensed game", url, "playgame", "")
 
     xbmcplugin.endOfDirectory(handle = int(sys.argv[1]) )
 
-def gameLinks(mode, url, date2Use = None):
+def chooseGameMenu(mode, url, date2Use = None):
     try:
         if mode == "selectdate":
             tday = getDate()
@@ -249,19 +242,18 @@ def gameLinks(mode, url, date2Use = None):
         video_type = url
 
         day = tday.isoweekday()
+
         # starts on mondays
         tday = tday - timedelta(day -1)
         now = tday
         default = "%04d/%d_%d" % (now.year, now.month, now.day)
-        if mode in ["live", "thisweek", "selectdate", "oldseason"]:
-            getGames(default, video_type)
-        elif mode == "lastweek":
+        
+        if mode == "lastweek":
             tday = tday - timedelta(7)
             now = tday
             default = "%04d/%d_%d" % (now.year, now.month, now.day)
-            getGames(default, video_type)
-        else:
-            getGames(default, video_type)
+
+        addGamesLinks(default, video_type)
 
         # Can't sort the games list correctly because XBMC treats file items and directory
         # items differently and puts directory first, then file items (home/away feeds
