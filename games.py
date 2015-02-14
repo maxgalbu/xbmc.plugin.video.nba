@@ -14,6 +14,10 @@ import vars
 def getGameUrl(video_id, video_type, video_ishomefeed):
     log("cookies: %s %s" % (video_type, vars.cookies), xbmc.LOGDEBUG)
 
+    # video_type could be archive, live or oldseason
+    if video_type not in ["live", "archive"]:
+        video_type = "archive"
+
     url = 'http://watch.nba.com/nba/servlets/publishpoint'
     headers = { 
         'Cookie': vars.cookies, 

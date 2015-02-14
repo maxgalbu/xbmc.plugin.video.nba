@@ -30,24 +30,38 @@ def archiveMenu():
 
     # Dynamic previous season, so I don't have to update this every time!
     now = date.today()
+    is_season_active = False
+    is_season_first_year = False
+    if now.month >= 10 and date(now.year, 10, 28) < now < date(now.year+1, 6, 30):
+        is_season_active = True
+        is_season_first_year = True
+    elif now.month < 10 and date(now.year-1, 10, 28) < now < date(now.year, 6, 30):
+        is_season_active = True
+
     current_year = now.year
-    if now.month <= 10: #October
+    if is_season_active and not is_season_first_year:
         current_year -= 1
-    addListItem('%d-%d season' % (current_year-1, current_year), "archive", 'oldseason', '', True)
+
+    # Available previous seasons starts from 2012 (2012-1 because range() doesn't include the last year)
+    for year in range(current_year-1, 2012-1, -1):
+        # Different separator (#) instead of /, otherwise the games' url will have 
+        # too many / (eg oldseason/2012/gameid/gametype/homefeed) and will fail
+        url = "oldseason#%d" % (year)
+        addListItem('%d-%d season' % (year, year+1), url, 'oldseason', '', True)
 
 def liveMenu():
     chooseGameMenu('', 'live')
 
 
 def previousSeasonMenu(mode, url):
-    # addLink("in season 2012",'','','')
-    d1 = date(2012, 10, 30)
-    week = 1
-    while week < 36:
-        # addLink("in week %s" % (d1),'','','')
-        chooseGameMenu(mode, url, d1)
-        d1 = d1 + timedelta(7)
-        week = week + 1
+    _, season_year = url.split("#")
+    season_year = int(season_year)
+    start_date = date(season_year, 10, 30)
+
+    # Get the games for 36 weeks
+    for week in range(1, 36):
+        chooseGameMenu(mode, url, start_date)
+        start_date = start_date + timedelta(7)
 
 params = getParams()
 url = None
