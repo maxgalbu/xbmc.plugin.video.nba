@@ -2,6 +2,7 @@
         Force the bitrate of live games
         Show the start time of live games
         Move condensed link inside archive, alongside home/away feeds
+        Move highlights link inside archive, alongside home/away feeds
         Enable playing 2012/2013 season
 0.7-    (10/12/2014)
         Force the bitrate of archive and condensed videos (xbmc always picks 720p format)
