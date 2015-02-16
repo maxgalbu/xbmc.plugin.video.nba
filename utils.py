@@ -30,7 +30,7 @@ def log(txt, severity=xbmc.LOGINFO):
             xbmc.log(msg=message, level=xbmc.LOGWARNING)
 
 def getParams():
-    param=[]
+    param={}
     paramstring=sys.argv[2]
     if len(paramstring)>=2:
             params=sys.argv[2]
@@ -46,15 +46,23 @@ def getParams():
                             param[splitparams[0]]=splitparams[1]
     return param
 
-def addVideoListItem(name,url,iconimage):
+def addVideoListItem(name, url, iconimage):
     return addListItem(name,url,"",iconimage,False,True)
 
-def addListItem(name,url,mode,iconimage,isfolder=False,usefullurl=False):
+def addListItem(name, url, mode, iconimage, isfolder=False, usefullurl=False, customparams={}):
     if not hasattr(addListItem, "fanart_image"):
         settings = xbmcaddon.Addon( id="plugin.video.nba")
         addListItem.fanart_image = settings.getSetting("fanart_image")
 
-    generated_url = sys.argv[0]+"?url="+urllib.quote_plus(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)
+    params = {
+        'url': url,
+        'mode': str(mode),
+        'name': name
+    }
+    params.update(customparams) #merge params with customparams
+    params = urllib.urlencode(params) #urlencode the params
+
+    generated_url = "%s?%s" % (sys.argv[0], params)
     liz = xbmcgui.ListItem(name, iconImage="DefaultFolder.png", thumbnailImage=iconimage)
     liz.setInfo( type="Video", infoLabels={ "Title": name } )
 

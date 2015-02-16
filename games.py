@@ -14,8 +14,8 @@ import vars
 def getGameUrl(video_id, video_type, video_ishomefeed):
     log("cookies: %s %s" % (video_type, vars.cookies), xbmc.LOGDEBUG)
 
-    # video_type could be archive, live or oldseason
-    if video_type not in ["live", "archive"]:
+    # video_type could be archive, live, condensed or oldseason
+    if video_type not in ["live", "archive", "condensed"]:
         video_type = "archive"
 
     url = 'http://watch.nba.com/nba/servlets/publishpoint'
@@ -184,51 +184,70 @@ def addGamesLinks(fromDate = '', video_type = "archive"):
                         add_link = False
 
                     if add_link == True:
-                        url = "%s/%s/%s" % (game_id, video_type, 1 if video_has_away_feed else 0)
+                        params = {
+                            'video_id': game_id,
+                            'video_type': video_type,
+                            'video_hasawayfeed': 1 if video_has_away_feed else 0
+                        }
 
                         # Add a directory item that contains home/away/condensed items
-                        addListItem(name, url, "gamechoosevideo", thumbnail_url, True)
+                        addListItem(name, url="", mode="gamechoosevideo", 
+                            iconimage=thumbnail_url, isfolder=True, customparams=params)
 
     except Exception, e:
         xbmc.executebuiltin('Notification(NBA League Pass,'+str(e)+',5000,)')
         log(str(e))
         pass
 
-def playGame(video_string):
+def playGame():
     # Authenticate
     if vars.cookies == '':
         vars.cookies = login()
 
-    currentvideo_id, currentvideo_type, currentvideo_homefeed = video_string.split("/")
-    currentvideo_homefeed = currentvideo_homefeed == "1"
+    currentvideo_id = vars.params.get("video_id")
+    currentvideo_type  = vars.params.get("video_type")
+    currentvideo_ishomefeed = vars.params.get("video_ishomefeed", "1")
+    currentvideo_ishomefeed = currentvideo_ishomefeed == "1"
 
     # Get the video url. 
     # Authentication is needed over this point!
-    currentvideo_url = getGameUrl(currentvideo_id, currentvideo_type, currentvideo_homefeed)
+    currentvideo_url = getGameUrl(currentvideo_id, currentvideo_type, currentvideo_ishomefeed)
     if currentvideo_url:
         item = xbmcgui.ListItem(path=currentvideo_url)
         xbmcplugin.setResolvedUrl(handle=int(sys.argv[1]), succeeded=True, listitem=item) 
     else:
         xbmc.executebuiltin('Notification(NBA League Pass,Video not found.,5000,)')
 
-def chooseGameVideoMenu(video_string):
-    currentvideo_id, currentvideo_type, currentvideo_hasawayfeed = video_string.split("/")
+def chooseGameVideoMenu():
+    currentvideo_id = vars.params.get("video_id")
+    currentvideo_type  = vars.params.get("video_type")
+    currentvideo_hasawayfeed = vars.params.get("video_hasawayfeed", "0")
     currentvideo_hasawayfeed = currentvideo_hasawayfeed == "1"
 
     if currentvideo_hasawayfeed:
         # Create the "Home" and "Away" list items
         for ishomefeed in [True, False]:
             listitemname = "Full game, " + ("away feed" if not ishomefeed else "home feed")
-            url = "%s/%s/%d" % (currentvideo_id, currentvideo_type, ishomefeed)
-            addListItem(listitemname, url, "playgame", "")
+            params = {
+                'video_id': currentvideo_id,
+                'video_type': currentvideo_type,
+                'video_ishomefeed': 1 if ishomefeed else 0
+            }
+            addListItem(listitemname, url="", mode="playgame", iconimage="", customparams=params)
     else:
         #Add a "Home" list item
-        url = "%s/%s/1" % (currentvideo_id, currentvideo_type)
-        addListItem("Full game", url, "playgame", "")
+        params = {
+            'video_id': currentvideo_id,
+            'video_type': currentvideo_type
+        }
+        addListItem("Full game", url="", mode="playgame", iconimage="", customparams=params)
 
     # Create the "Condensed" list item
-    url = "%s/%s/1" % (currentvideo_id, "condensed")
-    addListItem("Condensed game", url, "playgame", "")
+    params = {
+        'video_id': currentvideo_id,
+        'video_type': 'condensed'
+    }
+    addListItem("Condensed game", url="", mode="playgame", iconimage="", customparams=params)
 
     xbmcplugin.endOfDirectory(handle = int(sys.argv[1]) )
 

@@ -44,17 +44,18 @@ def archiveMenu():
 
     # Available previous seasons starts from 2012 (2012-1 because range() doesn't include the last year)
     for year in range(current_year-1, 2012-1, -1):
-        # Different separator (#) instead of /, otherwise the games' url will have 
-        # too many / (eg oldseason/2012/gameid/gametype/homefeed) and will fail
-        url = "oldseason#%d" % (year)
-        addListItem('%d-%d season' % (year, year+1), url, 'oldseason', '', True)
+        params = {
+            'oldseasonyear': year
+        }
+        addListItem('%d-%d season' % (year, year+1), url="", mode='oldseason', 
+            iconimage='', isfolder=True, customparams=params)
 
 def liveMenu():
     chooseGameMenu('', 'live')
 
 
-def previousSeasonMenu(mode, url):
-    _, season_year = url.split("#")
+def previousSeasonMenu():
+    season_year = vars.params.get("oldseasonyear")
     season_year = int(season_year)
     start_date = date(season_year, 10, 30)
 
@@ -64,17 +65,11 @@ def previousSeasonMenu(mode, url):
         start_date = start_date + timedelta(7)
 
 params = getParams()
-url = None
-mode = None
+url = urllib.unquote_plus(params.get("url", ""))
+mode = params.get("mode", None)
 
-try:
-    url = urllib.unquote_plus(params["url"])
-except:
-    pass
-try:
-    mode = params["mode"]
-except:
-    pass
+# Save the params in 'vars' to retrieve it in the functions
+vars.params = params;
 
 if mode == None:
     getFanartImage()
@@ -82,11 +77,11 @@ if mode == None:
 elif mode == "archive":
     archiveMenu()
 elif mode == "playgame":
-    playGame(url)
+    playGame()
 elif mode == "gamechoosevideo":
-    chooseGameVideoMenu(url)
+    chooseGameVideoMenu()
 elif mode == "oldseason":
-    previousSeasonMenu(mode, url)
+    previousSeasonMenu()
 elif mode == "live":
     liveMenu()
 elif mode.startswith("video"):
