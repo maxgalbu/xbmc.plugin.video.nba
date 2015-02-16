@@ -1,5 +1,3 @@
-import json
-import datetime, time
 import urllib,urllib2
 import xbmc,xbmcplugin,xbmcgui,xbmcaddon
 from xml.dom.minidom import parseString

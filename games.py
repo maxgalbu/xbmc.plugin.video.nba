@@ -4,7 +4,7 @@ from datetime import timedelta
 import urllib,urllib2
 import xbmc,xbmcplugin,xbmcgui
 from xml.dom.minidom import parseString
-import re,os
+import re
 import sys
 
 from utils import *
