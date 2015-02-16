@@ -1,15 +1,18 @@
 Introduction
 ======================
 
-[NBA League Pass](http://www.nba.com/leaguepass/) is an online service offering streaming video of NBA games.
+[International NBA League Pass](http://www.nba.com/leaguepass/) is an online service offering streaming video of NBA games.
 
 This [XBMC](http://xbmc.org/) plugin features: 
 
-* Archive and condensed games for the NBA 2012 and 2013 seasons
+* Archive and condensed games for the current NBA season and previous seasons, starting from 2012/2013
+* Home and Away feeds for archive games
+* Highlights and Top Plays
+* NBA TV live (League Pass Premium is required)
 * Live game support
 * Fanart from feeds, and thumbnails
 
-The first version of this plugin was written by [robla](http://forum.xbmc.org/showthread.php?tid=124716). Petros Tsampoukas then modified it to work with the 2012 and 2013 NBA seasons, and added images. It requires login.
+The first version of this plugin was written by [robla](http://forum.xbmc.org/showthread.php?tid=124716). Petros Tsampoukas then modified it to work with the 2012 and 2013 NBA seasons, and added images. It requires a valid International League Pass account.
 
 
 Installation
@@ -17,20 +20,48 @@ Installation
 
 ### Requirements
 
-As of 24 March 2014, all games require XBMC Gotham (beta2 or earlier). The archive and condensed games used to work in Frodo but the streams switched to using encryption with HLS, which does not work with Frodo due to faulty cookie support.
-
-See here for a list of nightly builds for your system:
-
-http://wiki.xbmc.org/index.php?title=development_builds#Nightly_build
+As of 24 March 2014, all games require XBMC/Kodi v13 (Gotham) or higher versions. The archive and condensed games used to work in Frodo but the streams switched to using encryption with HLS, which does not work with Frodo due to faulty cookie support.
 
 ### Using a zip file
 
 First download the latest version from the [download page](https://bitbucket.org/maxgalbu/plugin.video.nba/downloads#available-downloads). Then install the addon from a zip file in xbmc ([instructions](http://wiki.xbmc.org/index.php?title=Add-on_manager#How_to_install_from_a_ZIP_file)).
 
+You can also download an unreleased (nightly) version from [GitHub releases](https://github.com/maxgalbu/xbmc.plugin.video.nba/releases/download/latest/plugin.video.nba-latest.zip). This version is automatically updated every time a commit is made to the repository, so it always has the latest changes.
+
 ### Using mercurial
 
+    #if you are on OSX/linux:
     cd ~/.xbmc/addons
-    hg clone ssh://hg@bitbucket.org/maxgalbu/plugin.video.nba
+
+    #if you are on Windows:
+    cd c:\Users\<username>\AppData\Roaming\XBMC\addons
+
+    #Clone the repository:
+    hg clone https://bitbucket.org/maxgalbu/plugin.video.nba
+
+    #To get the latest changes:
+    hg pull
+
+### Using git
+
+    #if you are on OSX/linux:
+    cd ~/.xbmc/addons
+
+    #if you are on Windows:
+    cd c:\Users\<username>\AppData\Roaming\XBMC\addons
+
+    #Clone the repository:
+    git clone https://gibhub.com/maxgalbu/xbmc.plugin.video.nba
+
+    #To get the latest changes:
+    git pull
+
+Issues and discussions
+=======================
+
+If you have a bug to report, please report it on [BitBucket](https://bitbucket.org/maxgalbu/plugin.video.nba/issues?status=new&status=open) or [GitHub](https://github.com/maxgalbu/xbmc.plugin.video.nba/issues).
+
+If you have a question or want to discuss an improvement, please head to the [Kodi forums topic for this plugin](http://forum.kodi.tv/showthread.php?tid=124716).
 
 Changes
 =======================
