@@ -1,6 +1,5 @@
 import json
 import datetime, time
-from datetime import date
 from datetime import timedelta
 import urllib,urllib2
 import xbmc,xbmcplugin,xbmcgui,xbmcaddon
@@ -10,21 +9,25 @@ import re
 from utils import *
 import vars
 
-def videoDateMenu(video_type):
-    global date
-
+def videoDateMenu():
+    video_type = vars.params.get("video_type")
+    
     dates = []
-    current_date = date.today() - timedelta(days=1)
+    current_date = datetime.date.today() - timedelta(days=1)
     last_date = current_date - timedelta(days=7)
     while current_date - timedelta(days=1) > last_date:
         dates.append(current_date)
         current_date = current_date - timedelta(days=1)
 
     for date in dates:
-        addListItem(str(date), str(date), 'videodate'+video_type, '', True)
+        params = {'date': date, 'video_type': video_type}
+        addListItem(name=str(date), url='', mode='videodate', iconimage='', 
+            isfolder=True, customparams=params)
     xbmcplugin.endOfDirectory(handle = int(sys.argv[1]))
 
-def videoMenu(date, video_type):
+def videoMenu():
+    date = vars.params.get("date");
+    video_type = vars.params.get("video_type")
     log("videoMenu: date requested is %s" % date, xbmc.LOGDEBUG)
 
     selected_date = None
@@ -57,7 +60,9 @@ def videoMenu(date, video_type):
         addListItem(url=str(video['sequence']), name=video['name'], mode='videoplay', iconimage='')
     xbmcplugin.endOfDirectory(handle = int(sys.argv[1]))
 
-def videoPlay(video_id):
+def videoPlay():
+    video_id = vars.params.get("url")
+
     url = 'http://watch.nba.com/nba/servlets/publishpoint'
     headers = { 
         'Cookie': vars.cookies, 
