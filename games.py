@@ -79,6 +79,42 @@ def getGameUrl(video_id, video_type, video_ishomefeed):
 
     return selected_video_url
 
+def getHighlightGameUrl(video_id):
+    url = 'http://watch.nba.com/nba/servlets/publishpoint'
+    headers = {
+        'Cookie': vars.cookies, 
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'User-Agent': "AppleCoreMedia/1.0.0.8C148a (iPad; U; CPU OS 6_2_1 like Mac OS X; en_us)",
+    }
+    
+    body = urllib.urlencode({ 
+        'id': str(video_id), 
+        'gt': "recapf", 
+        'type': 'game',
+        'plid': vars.player_id,
+        'isFlex': "true",
+        'bitrate': "1600" # forced bitrate
+    })
+
+    log("the body of publishpoint request is: %s" % body, xbmc.LOGDEBUG)
+
+    try:
+        request = urllib2.Request(url, body, headers)
+        response = urllib2.urlopen(request)
+        content = response.read()
+    except urllib2.HTTPError:
+        return ''
+
+    xml = parseString(str(content))
+    url = xml.getElementsByTagName("path")[0].childNodes[0].nodeValue
+
+    # Remove everything after ? otherwise XBMC fails to read the rtpm stream
+    url, _,_ = url.partition("?")
+
+    log("highlight video url: %s" % url, xbmc.LOGDEBUG)
+    
+    return url
+
 def getGameUrlWithBitrate(url, is_live = False):
     # Force the bitrate by modifying the HLS url and adding the bitrate
     available_bitrates = {
@@ -248,6 +284,11 @@ def chooseGameVideoMenu():
         'video_type': 'condensed'
     }
     addListItem("Condensed game", url="", mode="playgame", iconimage="", customparams=params)
+
+    # Get the highlights video if available
+    highlights_url = getHighlightGameUrl(currentvideo_id)
+    if highlights_url:
+        addVideoListItem("Highlights", highlights_url, iconimage="")
 
     xbmcplugin.endOfDirectory(handle = int(sys.argv[1]) )
 

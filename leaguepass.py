@@ -20,7 +20,6 @@ def mainMenu():
     addListItem('Archive', 'archive', 'archive','', True)
     if isLiveUsable():
         addListItem('NBA TV Live', '', 'nbatvlive','')
-    addListItem('Highlights', '', 'video', '', True, customparams={'video_type':'highlights'})
     addListItem('Top Plays', '', 'video', '', True, customparams={'video_type':'topplays'})
 
 def archiveMenu():
