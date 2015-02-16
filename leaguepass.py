@@ -15,7 +15,7 @@ log("Chosen quality_id %s and target_video_height %d" % (vars.quality_id, vars.t
 
 def mainMenu():
     if isLiveUsable():
-        addListItem('Live', 'live', 'live','', True)
+        addListItem('Live games', 'live', 'live','', True)
     addListItem('Archive', 'archive', 'archive','', True)
     if isLiveUsable():
         addListItem('NBA TV Live', '', 'nbatvlive','')
