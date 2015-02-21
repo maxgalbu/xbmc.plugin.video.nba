@@ -279,16 +279,17 @@ def chooseGameVideoMenu():
         addListItem("Full game", url="", mode="playgame", iconimage="", customparams=params)
 
     # Create the "Condensed" list item
-    params = {
-        'video_id': currentvideo_id,
-        'video_type': 'condensed'
-    }
-    addListItem("Condensed game", url="", mode="playgame", iconimage="", customparams=params)
+    if currentvideo_type != "live":
+        params = {
+            'video_id': currentvideo_id,
+            'video_type': 'condensed'
+        }
+        addListItem("Condensed game", url="", mode="playgame", iconimage="", customparams=params)
 
-    # Get the highlights video if available
-    highlights_url = getHighlightGameUrl(currentvideo_id)
-    if highlights_url:
-        addVideoListItem("Highlights", highlights_url, iconimage="")
+        # Get the highlights video if available
+        highlights_url = getHighlightGameUrl(currentvideo_id)
+        if highlights_url:
+            addVideoListItem("Highlights", highlights_url, iconimage="")
 
     xbmcplugin.endOfDirectory(handle = int(sys.argv[1]) )
 
