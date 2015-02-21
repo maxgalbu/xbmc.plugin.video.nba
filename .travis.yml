@@ -46,4 +46,4 @@ after_success:
     #Uso https://github.com/aktau/github-release
     - bin/linux/amd64/github-release delete --user $GITHUB_USERNAME --repo $GITHUB_REPO --tag $GITHUB_TAGNAME
     - bin/linux/amd64/github-release release --user $GITHUB_USERNAME --repo $GITHUB_REPO --tag $GITHUB_TAGNAME --name "Latest version"
-    - bin/linux/amd64/github-release upload --user $GITHUB_USERNAME --repo $GITHUB_REPO --tag $GITHUB_TAGNAME --name "plugin.video.nba-latest.zip" --file plugin.video.nba-latest.zip
+    - bin/linux/amd64/github-release upload --user $GITHUB_USERNAME --repo $GITHUB_REPO --tag $GITHUB_TAGNAME --name "$ZIP_FILENAME" --file $ZIP_FILENAME
