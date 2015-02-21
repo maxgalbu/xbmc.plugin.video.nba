@@ -2,18 +2,17 @@
 <addon id="plugin.video.nba"
        name="NBA League Pass"
        version="0.7"
-       provider-name="ptsampoukas, robla and maxgalbu">
+       provider-name="maxgalbu, ptsampoukas and robla">
   <requires>
     <import addon="xbmc.python" version="2.1.0"/>
     <import addon="script.common.plugin.cache" version="0.9.1"/>
   </requires>
-  <extension point="xbmc.python.pluginsource"
-            library="leaguepass.py">
-        <provides>video</provides>
+  <extension point="xbmc.python.pluginsource" library="leaguepass.py">
+    <provides>video</provides>
   </extension>
   <extension point="xbmc.addon.metadata">
     <platform>all</platform>
     <summary>Watch NBA League Pass games.</summary>
-    <description>Features: Archive and condensed games for the NBA 2013 and 2014 seasons. Fanart and thumbnails. Requires a subscription to the International League Pass. Homepage: https://bitbucket.org/maxgalbu/plugin.video.nba/overview</description>
+    <description>Features: Archive and condensed games for the current NBA season, highlights and top plays, previous seasons starting from 2012/2013. Fanart and thumbnails. Requires a subscription to the International League Pass. Homepage: https://bitbucket.org/maxgalbu/plugin.video.nba/overview</description>
   </extension>
 </addon>
