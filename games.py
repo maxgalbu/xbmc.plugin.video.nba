@@ -177,7 +177,7 @@ def addGamesLinks(fromDate = '', video_type = "archive"):
                 except:
                     game_start_datetime_est = datetime.datetime.fromtimestamp(time.mktime(time.strptime(game_start_date_est, "%Y-%m-%dT%H:%M:%S.%f")))
 
-                #et game start date in the past if python can't parse the date
+                #Set game start date in the past if python can't parse the date
                 #so it doesn't get flagged as live or future game and you can still play it
                 #if a video is available
                 if type(game_start_datetime_est) is not datetime.datetime:
