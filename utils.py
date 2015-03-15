@@ -1,10 +1,15 @@
 import xbmc,xbmcplugin,xbmcgui,xbmcaddon
-import urllib, datetime, json, sys
+import urllib,datetime,json,sys,pytz
 
 import vars
 
 def nowEST():
-    return datetime.datetime.utcnow() - datetime.timedelta(hours=5)
+    timezone = pytz.timezone('America/New_York')
+    utc_datetime = datetime.datetime.utcnow()
+    est_datetime = utc_datetime + timezone.utcoffset(utc_datetime)
+    log("UTC datetime: %s" % utc_datetime)
+    log("EST datetime: %s" % est_datetime)
+    return est_datetime
 
 def isLiveUsable():
     # retrieve current installed version
