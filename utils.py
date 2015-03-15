@@ -4,11 +4,19 @@ import urllib,datetime,json,sys,pytz
 import vars
 
 def nowEST():
+    if hasattr(nowEST, "datetime"):
+        return nowEST.datetime
+
+    #Convert UTC to EST datetime
     timezone = pytz.timezone('America/New_York')
     utc_datetime = datetime.datetime.utcnow()
     est_datetime = utc_datetime + timezone.utcoffset(utc_datetime)
     log("UTC datetime: %s" % utc_datetime)
     log("EST datetime: %s" % est_datetime)
+
+    #Save the result to a static variable
+    nowEST.datetime = est_datetime
+
     return est_datetime
 
 def isLiveUsable():
