@@ -16,7 +16,7 @@ debug = settings.getSetting( id="debug")
 # map the quality_id to a video height
 # Ex: 720p
 quality_id = settings.getSetting( id="quality_id")
-video_heights_per_quality = [720, 540, 432, 360]
+video_heights_per_quality = [72060, 720, 540, 432, 360]
 target_video_height = video_heights_per_quality[int(quality_id)]
 
 cache = StorageServer.StorageServer("nbaleaguepass", 1)

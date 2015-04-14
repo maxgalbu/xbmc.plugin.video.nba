@@ -118,11 +118,11 @@ def getHighlightGameUrl(video_id):
 def getGameUrlWithBitrate(url, is_live = False):
     # Force the bitrate by modifying the HLS url and adding the bitrate
     available_bitrates = {
+        72060: 4500,
         720: 3000,
         540: 1600,
         432: 1200,
         360: 800,
-        224: 224,
     }
     target_bitrate = available_bitrates.get(vars.target_video_height, 1600)
     failsafe_bitrate = available_bitrates.get(360)
