@@ -151,6 +151,8 @@ def addGamesLinks(fromDate = '', video_type = "archive"):
         schedule = 'http://smb.cdnak.neulion.com/fs/nba/feeds_s2012/schedule/' +fromDate +  '.js?t=' + "%d"  %time.time()
         log('Requesting %s' % schedule, xbmc.LOGDEBUG)
 
+        now_datetime_est = nowEST()
+
         # http://smb.cdnak.neulion.com/fs/nba/feeds_s2012/schedule/2013/10_7.js?t=1381054350000
         req = urllib2.Request(schedule, None);
         response = str(urllib2.urlopen(req).read())
@@ -181,7 +183,7 @@ def addGamesLinks(fromDate = '', video_type = "archive"):
                 #so it doesn't get flagged as live or future game and you can still play it
                 #if a video is available
                 if type(game_start_datetime_est) is not datetime.datetime:
-                    game_start_datetime_est = nowEST() + timedelta(-30)
+                    game_start_datetime_est = now_datetime_est + timedelta(-30)
 
                 #guess end date by adding 4 hours to start date
                 game_end_datetime_est = game_start_datetime_est + timedelta(hours=4)
@@ -208,15 +210,22 @@ def addGamesLinks(fromDate = '', video_type = "archive"):
                     thumbnail_url = ("http://e1.cdnl3.neulion.com/nba/player-v4/nba/images/teams/%s.png" % h)
 
                     has_video = "video" in details
-                    future_video = game_start_datetime_est > nowEST()
-                    live_video = game_start_datetime_est < nowEST() < game_end_datetime_est
+                    future_video = game_start_datetime_est > now_datetime_est and \
+                        game_start_datetime_est.date() == now_datetime_est.date()
+                    live_video = game_start_datetime_est < now_datetime_est < game_end_datetime_est
+
+                    if video_type == "live":
+                        if future_video:
+                            name = "UPCOMING: " + name
+                        elif live_video:
+                            name = "LIVE: " + name
 
                     add_link = True
-                    if video_type == "live" and not live_video:
+                    if video_type == "live" and not (live_video or future_video):
                         add_link = False
-                    elif video_type != "live" and live_video:
+                    elif video_type != "live" and (live_video or future_video):
                         add_link = False
-                    elif future_video or not has_video:
+                    elif not future_video and not has_video:
                         add_link = False
 
                     if add_link == True:
