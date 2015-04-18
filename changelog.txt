@@ -1,4 +1,6 @@
 0.xx-   (xx/xx/2015)
+        Added 720p at 60fps video quality
+        Added list of upcoming live games
         Force the bitrate of live games
         Show the start time of live games
         Move condensed link inside archive, alongside home/away feeds
