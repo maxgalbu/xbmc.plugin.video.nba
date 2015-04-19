@@ -1,4 +1,5 @@
 0.xx-   (xx/xx/2015)
+        Show live/upcoming games in local timezone, according to setting
         Added 720p at 60fps video quality
         Added list of upcoming live games
         Force the bitrate of live games
