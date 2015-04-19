@@ -12,6 +12,7 @@ __addon_name__ = "NBA League Pass"
 settings = xbmcaddon.Addon( id="plugin.video.nba")
 scores = settings.getSetting( id="scores")
 debug = settings.getSetting( id="debug")
+use_local_timezone = settings.getSetting( id="local_timezone") == "0"
 
 # map the quality_id to a video height
 # Ex: 720p

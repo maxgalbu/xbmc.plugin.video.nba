@@ -202,7 +202,9 @@ def addGamesLinks(fromDate = '', video_type = "archive"):
                     # Create the title
                     name = game_start_date_est[:10]
                     if video_type == "live":
-                        name += game_start_datetime_est.strftime(" (at %I:%M %p)")
+                        name += toLocalTimezone(game_start_datetime_est).strftime(" (at %I:%M %p)")
+
+                    #Add the teams' names and the scores if needed
                     name += ' %s vs %s' % (visitor_name, host_name)
                     if vars.scores == '1':
                         name += ' %s:%s' % (str(vs), str(hs))
