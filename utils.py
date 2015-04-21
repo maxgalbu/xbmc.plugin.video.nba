@@ -49,6 +49,10 @@ def toLocalTimezone(date):
             if utcoffset == local_offset and tzname == local_shortname:
                 local_names.append(name)
 
+    #No locale found?
+    if len(local_names) == 0:
+        return date
+
     #Pick the first timezone name found
     local_timezone_name = local_names[0]
 
