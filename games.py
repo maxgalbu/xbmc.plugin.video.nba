@@ -199,6 +199,11 @@ def addGamesLinks(fromDate = '', video_type = "archive"):
                     else:
                         host_name = h
 
+                    has_video = "video" in details
+                    future_video = game_start_datetime_est > now_datetime_est and \
+                        game_start_datetime_est.date() == now_datetime_est.date()
+                    live_video = game_start_datetime_est < now_datetime_est < game_end_datetime_est
+
                     # Create the title
                     name = game_start_date_est[:10]
                     if video_type == "live":
@@ -206,15 +211,10 @@ def addGamesLinks(fromDate = '', video_type = "archive"):
 
                     #Add the teams' names and the scores if needed
                     name += ' %s vs %s' % (visitor_name, host_name)
-                    if vars.scores == '1':
+                    if vars.scores == '1' and not future_video:
                         name += ' %s:%s' % (str(vs), str(hs))
 
                     thumbnail_url = ("http://e1.cdnl3.neulion.com/nba/player-v4/nba/images/teams/%s.png" % h)
-
-                    has_video = "video" in details
-                    future_video = game_start_datetime_est > now_datetime_est and \
-                        game_start_datetime_est.date() == now_datetime_est.date()
-                    live_video = game_start_datetime_est < now_datetime_est < game_end_datetime_est
 
                     if video_type == "live":
                         if future_video:
