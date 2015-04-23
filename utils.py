@@ -29,7 +29,7 @@ def toLocalTimezone(date):
         return date
 
     #Pick the first timezone name found
-    local_timezone = tzlocal.get_localzone()
+    local_timezone = tzlocal()
 
     #Get the NBA league pass timezone (EST)
     est_timezone = pytz.timezone('America/New_York')
