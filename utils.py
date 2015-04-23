@@ -1,6 +1,6 @@
 import xbmc,xbmcplugin,xbmcgui,xbmcaddon
 import urllib,datetime,json,sys,pytz
-import time
+from dateutil.tz import tzlocal
 
 import vars
 
@@ -28,36 +28,8 @@ def toLocalTimezone(date):
     if not vars.use_local_timezone:
         return date
 
-    local_names = []
-    if time.daylight:
-        local_offset = time.altzone
-        local_shortname = time.tzname[1]
-    else:
-        local_offset = time.timezone
-        local_shortname = time.tzname[0]
-
-    local_offset = datetime.timedelta(seconds = -local_offset)
-
-    for name in pytz.all_timezones:
-        timezone = pytz.timezone(name)
-        if not hasattr(timezone, '_tzinfos'):
-            #Skip, if some timezone doesn't have info
-            continue
-
-        #Go thru tzinfo and see if short name like EDT and offset matches
-        for (utcoffset, daylight, tzname), _ in timezone._tzinfos.iteritems():
-            if utcoffset == local_offset and tzname == local_shortname:
-                local_names.append(name)
-
-    #No locale found?
-    if len(local_names) == 0:
-        return date
-
     #Pick the first timezone name found
-    local_timezone_name = local_names[0]
-
-    #Get the actual timezone object
-    local_timezone = pytz.timezone(local_timezone_name)
+    local_timezone = tzlocal.get_localzone()
 
     #Get the NBA league pass timezone (EST)
     est_timezone = pytz.timezone('America/New_York')
