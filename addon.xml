@@ -7,6 +7,7 @@
     <import addon="xbmc.python" version="2.1.0"/>
     <import addon="script.common.plugin.cache" version="0.9.1"/>
     <import addon="script.module.pytz" version="2014.2"/>
+    <import addon="script.module.six" version="1.9.0"/>
     <import addon="script.module.dateutil" version="2.4.0"/>
   </requires>
   <extension point="xbmc.python.pluginsource" library="leaguepass.py">
