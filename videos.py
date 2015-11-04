@@ -36,12 +36,13 @@ def videoMenu():
     except:
         selected_date = datetime.datetime.fromtimestamp(time.mktime(time.strptime(date, "%Y-%m-%d")))
 
-    base_url = "http://smbsolr.cdnak.neulion.com/solr/NBA/select/?"
+    base_url = "http://smbsolr.cdnak.neulion.com/solr_nbav6/nba/nba/usersearch/?"
     params = urllib.urlencode({
         "wt": "json",
         "json.wrf": "updateVideoBoxCallback",
-        "q": ("game_i:3" if video_type == "highlights" else "cat:Nightly Top Plays") +
-            " AND releaseDate:[%s TO %s]" % (selected_date.strftime('%Y-%m-%dT00:00:00.000000Z'), selected_date.strftime('%Y-%m-%dT23:59:59.000000Z')),
+        "q": "catSEOName:top-plays AND releaseDate:[%s TO %s]" 
+            % (selected_date.strftime('%Y-%m-%dT00:00:00.000000Z'), 
+                selected_date.strftime('%Y-%m-%dT23:59:59.000000Z')),
         "sort": "releaseDate desc",
         "start": 0,
         "rows": 20
