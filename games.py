@@ -65,13 +65,13 @@ def getGameUrl(video_id, video_type, video_ishomefeed):
         log("live cookie: %s %s" % (querystring, livecookies), xbmc.LOGDEBUG)
 
         url = "http://%s/%s?%s" % (domain, arguments, querystring)
-        url = getGameUrlWithBitrate(url, is_live = True)
+        url = getGameUrlWithBitrate(url, video_type)
 
         selected_video_url = "%s|Cookie=%s" % (url, livecookiesencoded)
     else:
         # Archive and condensed flow: We now work with HLS. 
         # The cookies are already in the URL and the server will supply them to ffmpeg later.
-        selected_video_url = getGameUrlWithBitrate(url)
+        selected_video_url = getGameUrlWithBitrate(url, video_type)
         
         
     if selected_video_url:
@@ -115,7 +115,7 @@ def getHighlightGameUrl(video_id):
     
     return url
 
-def getGameUrlWithBitrate(url, is_live = False):
+def getGameUrlWithBitrate(url, video_type):
     # Force the bitrate by modifying the HLS url and adding the bitrate
     available_bitrates = {
         72060: 4500,
@@ -129,7 +129,10 @@ def getGameUrlWithBitrate(url, is_live = False):
 
     regex_pattern = 'whole_([0-9])_ipad'
     regex_replacement_format = r'whole_\1_%s_ipad'
-    if is_live:
+    if video_type == "condensed":
+        regex_pattern = 'condensed_([0-9])_ipad'
+        regex_replacement_format = r'condensed_\1_%s_ipad'
+    elif video_type == "live":
         regex_pattern = '([a-z]+)_hd_ipad'
         regex_replacement_format = r'\1_hd_%s_ipad'
 
