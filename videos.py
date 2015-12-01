@@ -40,9 +40,9 @@ def videoMenu():
     params = urllib.urlencode({
         "wt": "json",
         "json.wrf": "updateVideoBoxCallback",
-        "q": "catSEOName:top-plays AND releaseDate:[%s TO %s]" 
-            % (selected_date.strftime('%Y-%m-%dT00:00:00.000000Z'), 
-                selected_date.strftime('%Y-%m-%dT23:59:59.000000Z')),
+        "q": "tags:top_plays AND releaseDate:[%s TO %s]" 
+            % (selected_date.strftime('%Y-%m-%dT00:00:00.000Z'), 
+                selected_date.strftime('%Y-%m-%dT23:59:59.000Z')),
         "sort": "releaseDate desc",
         "start": 0,
         "rows": 20
