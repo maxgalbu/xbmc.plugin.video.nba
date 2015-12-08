@@ -4,6 +4,9 @@ from dateutil.tz import tzlocal
 
 import vars
 
+def littleErrorPopup(error, seconds=5000):
+    xbmc.executebuiltin('Notification(NBA League Pass,%s,%d,)' % (error, seconds))
+
 #Get the current date and time in EST timezone
 def nowEST():
     if hasattr(nowEST, "datetime"):

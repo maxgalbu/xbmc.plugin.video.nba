@@ -19,7 +19,7 @@ def mainMenu():
     addListItem('Archive', 'archive', 'archive','', True)
     if isLiveUsable():
         addListItem('NBA TV Live', '', 'nbatvlive','')
-    addListItem('Top Plays', '', 'video', '', True, customparams={'video_type':'topplays'})
+    addListItem('Video', '', 'video', '', True)
 
 def archiveMenu():
     addListItem('This week', "archive", 'thisweek' ,'', True)
@@ -85,10 +85,12 @@ elif mode == "live":
 elif mode.startswith("video"):
     if mode == "videoplay":
         videoPlay()
+    elif mode == "videolist":
+        videoListMenu()
     elif mode == "videodate":
-        videoMenu()
-    else:
         videoDateMenu()
+    else:
+        videoMenu()
 elif mode == "nbatvlive":
     playLiveTV()
 else:
