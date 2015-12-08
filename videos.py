@@ -2,11 +2,12 @@ import json
 import datetime, time
 from datetime import timedelta
 import urllib,urllib2
-import xbmc,xbmcplugin,xbmcgui,xbmcaddon
+import xbmc,xbmcplugin,xbmcgui
 from xml.dom.minidom import parseString
 import re
 
 from utils import *
+from common import *
 import vars
 
 def videoDateMenu():
@@ -99,7 +100,7 @@ def videoPlay():
     }
     body = urllib.urlencode({
         'id': str(video_id), 
-        'bitrate': 1600,
+        'bitrate': 800,
         'type': 'video',
         'plid': vars.player_id,
         'isFlex:': 'true',
@@ -116,6 +117,7 @@ def videoPlay():
 
     xml = parseString(str(content))
     video_url = xml.getElementsByTagName("path")[0].childNodes[0].nodeValue
+    video_url = getGameUrlWithBitrate(video_url, "video")
     log("videoPlay: video url is %s" % video_url, xbmc.LOGDEBUG)
 
     #remove query string
