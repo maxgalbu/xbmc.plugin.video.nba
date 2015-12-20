@@ -2,7 +2,7 @@ import json
 import datetime, time
 from datetime import timedelta
 import urllib,urllib2
-import xbmc,xbmcplugin,xbmcgui
+import xbmc,xbmcplugin,xbmcgui,xbmcaddon
 from xml.dom.minidom import parseString
 import re
 
@@ -30,14 +30,17 @@ def videoMenu():
     addListItem('Top Plays', '', 'videodate', '', True, customparams={'video_tag':'top_plays'})
     addListItem('Shaqtin\' a fool', '', 'videolist', '', True, customparams={
         'video_tag': 'shaqtin', 
-        'video_query': "shaqtin"
+        'video_query': "shaqtin",
+        'pagination': True
     })
 
 def videoListMenu():
     date = vars.params.get("date");
     video_tag = vars.params.get("video_tag")
     video_query = vars.params.get("video_query")
-    log("videoListMenu: date requested is %s, tag is %s" % (date, video_tag), xbmc.LOGDEBUG)
+    page = int(vars.params.get("page", 0))
+    per_page = 20
+    log("videoListMenu: date requested is %s, tag is %s, page is %d" % (date, video_tag, page), xbmc.LOGDEBUG)
 
     if date:
         selected_date = None
@@ -45,7 +48,6 @@ def videoListMenu():
             selected_date = datetime.datetime.strptime(date, "%Y-%m-%d" )
         except:
             selected_date = datetime.datetime.fromtimestamp(time.mktime(time.strptime(date, "%Y-%m-%d")))
-
 
     query = []
     if video_tag:
@@ -60,7 +62,6 @@ def videoListMenu():
             selected_date.strftime('%Y-%m-%dT00:00:00.000Z'), 
             selected_date.strftime('%Y-%m-%dT23:59:59.000Z')
         )
-    
 
     base_url = "http://smbsolr.cdnak.neulion.com/solr_nbav6/nba/nba/usersearch/?"
     params = urllib.urlencode({
@@ -68,8 +69,8 @@ def videoListMenu():
         "json.wrf": "updateVideoBoxCallback",
         "q": query,
         "sort": "releaseDate desc",
-        "start": 0,
-        "rows": 20
+        "start": page * per_page,
+        "rows": per_page
     })
 
     url = base_url + params;
@@ -83,10 +84,44 @@ def videoListMenu():
 
     for video in jsonresponse['response']['docs']:
         name = video['name']
+
+        #Release date
+        try:
+            release_date = datetime.datetime.strptime(video['releaseDate'], "%Y-%m-%dT%H:%M:%SZ" )
+        except:
+            release_date = datetime.datetime.fromtimestamp(time.mktime(time.strptime(video['releaseDate'], "%Y-%m-%dT%H:%M:%SZ")))
+        release_date = release_date.strftime('%d/%m/%Y')
+
+        #Runtime formatting
+        minutes, seconds = divmod(video['runtime'], 60)
+        hours, minutes = divmod(minutes, 60)
+        runtime = "%02d:%02d" % (minutes, seconds)
+
         if not date:
-            name = "%s (%s)" % (name, video['releaseDate'])
+            if video['runtime']:
+                name = "%s (%s) - %s" % (name, runtime, release_date)
+            else:
+                name = "%s - %s" % (name, release_date)
+        else:
+            name = "%s (%s)" % (name, runtime)
 
         addListItem(url=str(video['sequence']), name=name, mode='videoplay', iconimage='')
+
+    if vars.params.get("pagination"):
+        next_page_name = xbmcaddon.Addon().getLocalizedString(50008)
+
+        #Add "next page" link
+        custom_params={
+            'video_tag': video_tag, 
+            'video_query': video_query,
+            'page': page + 1,
+            'pagination': True
+        }
+        if date:
+            custom_params['date'] = date
+
+        addListItem(next_page_name, '', 'videolist', '', True, customparams=custom_params)
+
     xbmcplugin.endOfDirectory(handle = int(sys.argv[1]))
 
 def videoPlay():
