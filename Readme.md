@@ -51,7 +51,7 @@ You can also download an unreleased (nightly) version from [GitHub releases](htt
     cd c:\Users\<username>\AppData\Roaming\XBMC\addons
 
     #Clone the repository:
-    git clone https://gibhub.com/maxgalbu/xbmc.plugin.video.nba
+    git clone https://github.com/maxgalbu/xbmc.plugin.video.nba
 
     #To get the latest changes:
     git pull
