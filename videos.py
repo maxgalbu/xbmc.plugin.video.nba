@@ -50,9 +50,13 @@ def videoMenu():
 def videoListMenu():
     date = vars.params.get("date");
     video_tag = vars.params.get("video_tag")
-    video_query = urllib.unquote_plus(vars.params.get("video_query"))
+    video_query = vars.params.get("video_query")
     page = int(vars.params.get("page", 0))
     per_page = 20
+
+    if video_query:
+        video_query = urllib.unquote_plus(video_query)
+
     log("videoListMenu: date requested is %s, tag is %s, query is %s, page is %d" % (date, video_tag, video_query, page), xbmc.LOGDEBUG)
 
     if date:
