@@ -33,6 +33,15 @@ def videoMenu():
         'video_query': "shaqtin",
         'pagination': True
     })
+    addListItem('The starters', '', 'videolist', '', True, customparams={
+        'video_tag': 'starters', 
+        'video_query': "starters",
+        'pagination': True
+    })
+    addListItem('Highlights', '', 'videolist', '', True, customparams={
+        'video_tag': 'recap', 
+        'pagination': True
+    })
 
 def videoListMenu():
     date = vars.params.get("date");
