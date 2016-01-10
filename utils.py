@@ -93,8 +93,16 @@ def addListItem(name, url, mode, iconimage, isfolder=False, usefullurl=False, cu
         'mode': str(mode),
         'name': name
     }
-    params.update(customparams) #merge params with customparams
-    params = urllib.urlencode(params) #urlencode the params
+
+    #merge params with customparams
+    params.update(customparams)
+
+    #Fix problems of encoding with urlencode and utf8 chars
+    for key, value in params.iteritems():
+        params[key] = unicode(value).encode('utf-8')
+
+    #urlencode the params
+    params = urllib.urlencode(params)
 
     generated_url = "%s?%s" % (sys.argv[0], params)
     liz = xbmcgui.ListItem(name, iconImage="DefaultFolder.png", thumbnailImage=iconimage)
