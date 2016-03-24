@@ -74,8 +74,8 @@ def getFanartImage():
         fanart_image = ("http://smb.cdnllnwnl.neulion.com/u/nba/nba/thumbs/dl/%s_pc.jpg" % first_id)
         vars.settings.setSetting("fanart_image", fanart_image)
     except:
-        print "Failed to parse the dl output!!!"
-        return ''
+        #I don't care
+        pass
 
 def getDate( default= '', heading='Please enter date (YYYY/MM/DD)', hidden=False ):
     now = datetime.datetime.now()
@@ -103,18 +103,18 @@ def login():
             content = response.read()
         except urllib2.HTTPError as e:
             log("Login failed with code: %d and content: %s" % (e.getcode(), e.read()))
-            xbmc.executebuiltin('Notification(NBA League Pass,Failed to login (response != 200),5000,)')
+            littleErrorPopup('Failed to login (response != 200)')
             return ''
 
         # Check the response xml
         xml = parseString(str(content))
         if xml.getElementsByTagName("code")[0].firstChild.nodeValue == "loginlocked":
-            xbmc.executebuiltin('Notification(NBA League Pass,Cannot login: invalid username and password, or your account is locked.,5000,)')
+            littleErrorPopup('Cannot login: invalid username and password, or your account is locked.')
         else:
             # logged in
             vars.cookies = response.info().getheader('Set-Cookie').partition(';')[0]
         return vars.cookies
     except:
         vars.cookies = ''
-        xbmc.executebuiltin('Notification(NBA League Pass,Failed to login!,5000,)')
+        littleErrorPopup('Failed to login!')
         return ''

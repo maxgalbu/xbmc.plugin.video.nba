@@ -44,7 +44,7 @@ def getGameUrl(video_id, video_type, video_ishomefeed):
         content = response.read()
     except urllib2.HTTPError as e:
         log("Failed to get video url. The url was %s, the content was %s" % (url, e.read()))
-        xbmc.executebuiltin('Notification(NBA League Pass,Failed to get a video URL. Are you logged in?,5000,)')
+        littleErrorPopup('Failed to get a video URL. Are you logged in?')
         return ''
 
     xml = parseString(str(content))
@@ -232,7 +232,7 @@ def playGame():
         item = xbmcgui.ListItem(path=currentvideo_url)
         xbmcplugin.setResolvedUrl(handle=int(sys.argv[1]), succeeded=True, listitem=item) 
     else:
-        xbmc.executebuiltin('Notification(NBA League Pass,Video not found.,5000,)')
+        littleErrorPopup('Video not found.')
 
 def chooseGameVideoMenu():
     currentvideo_id = vars.params.get("video_id")

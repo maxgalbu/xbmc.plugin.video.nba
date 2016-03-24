@@ -4,6 +4,7 @@ from xml.dom.minidom import parseString
 import re
 
 from common import *
+from utils import *
 import vars
 
 def playLiveTV():
@@ -38,7 +39,7 @@ def playLiveTV():
         content = response.read()
     except urllib2.HTTPError as e:
         log("nba live tv: failed getting url: %s %s" % (url, e.read()), xbmc.LOGDEBUG)
-        xbmc.executebuiltin('Notification(NBA League Pass,Failed to get a video URL. Are you logged in?,5000,)')
+        littleErrorPopup('Failed to get a video URL. Are you logged in?')
         return
 
     # Get the adaptive video url
@@ -77,12 +78,12 @@ def playLiveTV():
             content = response.read()
         except urllib2.HTTPError as e:
             log("nba live tv: failed getting url: %s %s" % (video_play_url, e.read()))
-            xbmc.executebuiltin('Notification(NBA League Pass,Failed to get a video URL (response != 200),5000,)')
+            littleErrorPopup('Failed to get a video URL (response != 200)')
             return
 
         if not content:
             log("nba live tv: empty response from video play url")
-            xbmc.executebuiltin('Notification(NBA League Pass,Failed to get a video URL (response was empty),5000,)')
+            littleErrorPopup('Failed to get a video URL (response was empty)')
             return
         else:
             log("nba live tv: parsing response: %s" % content, xbmc.LOGDEBUG)
