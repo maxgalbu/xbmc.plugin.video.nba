@@ -1,9 +1,10 @@
-0.xx-   (xx/xx/2015)
-        Show live/upcoming games in local timezone, according to setting
+0.8-    (22/03/2016)
+        Added Shaqtin' a fool, The starters, and more videos
+        Show live/upcoming games in local timezone, according to settings
         Added 720p at 60fps video quality
         Added list of upcoming live games
         Force the bitrate of live games
-        Show the start time of live games
+        Show the start time of upcoming games
         Move condensed link inside archive, alongside home/away feeds
         Move highlights link inside archive, alongside home/away feeds
         Enable playing 2012/2013 season
