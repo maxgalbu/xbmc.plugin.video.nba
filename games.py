@@ -44,7 +44,8 @@ def getGameUrl(video_id, video_type, video_ishomefeed):
         content = response.read()
     except urllib2.HTTPError as e:
         log("Failed to get video url. The url was %s, the content was %s" % (url, e.read()))
-        littleErrorPopup('Failed to get a video URL. Are you logged in?')
+
+        littleErrorPopup( xbmcaddon.Addon().getLocalizedString(50020) )
         return ''
 
     xml = parseString(str(content))
@@ -219,6 +220,8 @@ def playGame():
     # Authenticate
     if vars.cookies == '':
         vars.cookies = login()
+    if not vars.cookies:
+        return
 
     currentvideo_id = vars.params.get("video_id")
     currentvideo_type  = vars.params.get("video_type")
@@ -231,8 +234,6 @@ def playGame():
     if currentvideo_url:
         item = xbmcgui.ListItem(path=currentvideo_url)
         xbmcplugin.setResolvedUrl(handle=int(sys.argv[1]), succeeded=True, listitem=item) 
-    else:
-        littleErrorPopup('Video not found.')
 
 def chooseGameVideoMenu():
     currentvideo_id = vars.params.get("video_id")

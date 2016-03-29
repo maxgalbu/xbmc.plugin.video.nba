@@ -109,7 +109,9 @@ def addListItem(name, url, mode, iconimage, isfolder=False, usefullurl=False, cu
     liz.setInfo( type="Video", infoLabels={ "Title": name } )
 
     if addListItem.fanart_image:
-        liz.setProperty('fanart_image', addListItem.fanart_image)
+        liz.setArt({
+            "fanart": addListItem.fanart_image
+        })
 
     if not isfolder:
         liz.setProperty("IsPlayable", "true")

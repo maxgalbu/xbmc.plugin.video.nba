@@ -90,31 +90,25 @@ def getDate( default= '', heading='Please enter date (YYYY/MM/DD)', hidden=False
     return ret
 
 def login():
+    url = 'https://watch.nba.com/nba/secure/login?'
+    body = {'username': vars.settings.getSetting( id="username"), 'password': vars.settings.getSetting( id="password")}
+    body = urllib.urlencode(body)
+    headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+
     try:
-        # Login
-        url = 'https://watch.nba.com/nba/secure/login?'
-        body = {'username': vars.settings.getSetting( id="username"), 'password': vars.settings.getSetting( id="password")}
-        body = urllib.urlencode(body)
-        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
-
-        try:
-            request = urllib2.Request(url, body, headers)
-            response = urllib2.urlopen(request)
-            content = response.read()
-        except urllib2.HTTPError as e:
-            log("Login failed with code: %d and content: %s" % (e.getcode(), e.read()))
-            littleErrorPopup('Failed to login (response != 200)')
-            return ''
-
-        # Check the response xml
-        xml = parseString(str(content))
-        if xml.getElementsByTagName("code")[0].firstChild.nodeValue == "loginlocked":
-            littleErrorPopup('Cannot login: invalid username and password, or your account is locked.')
-        else:
-            # logged in
-            vars.cookies = response.info().getheader('Set-Cookie').partition(';')[0]
-        return vars.cookies
-    except:
-        vars.cookies = ''
-        littleErrorPopup('Failed to login!')
+        request = urllib2.Request(url, body, headers)
+        response = urllib2.urlopen(request)
+        content = response.read()
+    except urllib2.HTTPError as e:
+        log("Login failed with code: %d and content: %s" % (e.getcode(), e.read()))
+        littleErrorPopup( xbmcaddon.Addon().getLocalizedString(50022) )
         return ''
+
+    # Check the response xml
+    xml = parseString(str(content))
+    if xml.getElementsByTagName("code")[0].firstChild.nodeValue == "loginlocked":
+        littleErrorPopup( xbmcaddon.Addon().getLocalizedString(50021) )
+    else:
+        # logged in
+        vars.cookies = response.info().getheader('Set-Cookie').partition(';')[0]
+    return vars.cookies

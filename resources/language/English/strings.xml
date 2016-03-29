@@ -9,4 +9,9 @@
     <string id="50005">Debug</string>
     <string id="50007">Show Live games in local timezone</string>
     <string id="50008">next page...</string>
+
+    <string id="50020">Failed to get a video URL. Are you logged in?</string>
+    <string id="50021">Cannot login: invalid username and password, or your account is locked.</string>
+    <string id="50022">Failed to login (response != 200)</string>
+    <string id="50023">Failed to get video URL (response != 200)</string>
 </strings>

@@ -164,7 +164,7 @@ def videoPlay():
 
     if response.getcode() != 200:
         log("videoPlay: failed getting video url: %s %s" % (url, response), xbmc.LOGDEBUG)
-        littleErrorPopup('Failed to get a video URL. Are you logged in?')
+        littleErrorPopup( xbmcaddon.Addon().getLocalizedString(50020) )
         return ''
 
     xml = parseString(str(content))

@@ -10,6 +10,8 @@ import vars
 def playLiveTV():
     if not vars.cookies:
         login()
+    if not vars.cookies:
+        return
 
     failsafe = True;
 
@@ -39,7 +41,7 @@ def playLiveTV():
         content = response.read()
     except urllib2.HTTPError as e:
         log("nba live tv: failed getting url: %s %s" % (url, e.read()), xbmc.LOGDEBUG)
-        littleErrorPopup('Failed to get a video URL. Are you logged in?')
+        littleErrorPopup( xbmcaddon.Addon().getLocalizedString(50020) )
         return
 
     # Get the adaptive video url
@@ -78,7 +80,7 @@ def playLiveTV():
             content = response.read()
         except urllib2.HTTPError as e:
             log("nba live tv: failed getting url: %s %s" % (video_play_url, e.read()))
-            littleErrorPopup('Failed to get a video URL (response != 200)')
+            littleErrorPopup( xbmcaddon.Addon().getLocalizedString(50023) )
             return
 
         if not content:
