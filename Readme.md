@@ -1,5 +1,6 @@
-Introduction
-======================
+#NBA League pass [![Build Status](https://travis-ci.org/maxgalbu/xbmc.plugin.video.nba.svg?branch=master)](https://travis-ci.org/maxgalbu/xbmc.plugin.video.nba)
+
+## Introduction
 
 [International NBA League Pass](http://www.nba.com/leaguepass/) is an online service offering streaming video of NBA games.
 
@@ -15,12 +16,15 @@ This [XBMC](http://xbmc.org/) plugin features:
 The first version of this plugin was written by [robla](http://forum.xbmc.org/showthread.php?tid=124716). Petros Tsampoukas then modified it to work with the 2012 and 2013 NBA seasons, and added images. It requires a valid International League Pass account.
 
 
-Installation
-=======================
+## Installation
 
 ### Requirements
 
 As of 24 March 2014, all games require XBMC/Kodi v13 (Gotham) or higher versions. The archive and condensed games used to work in Frodo but the streams switched to using encryption with HLS, which does not work with Frodo due to faulty cookie support.
+
+### From the kodi repositories
+
+Go into Addons > Install from repository > Video Addons > NBA League Pass > Install
 
 ### Using a zip file
 
