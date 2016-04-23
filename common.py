@@ -104,7 +104,7 @@ def login():
         littleErrorPopup( xbmcaddon.Addon().getLocalizedString(50022) )
         return ''
 
-    log("Login reponse: %s" % content, xmbc.LOGNOTICE)
+    log("Login reponse: %s" % content, xbmc.LOGNOTICE)
 
     # Check the response xml
     xml = parseString(str(content))
