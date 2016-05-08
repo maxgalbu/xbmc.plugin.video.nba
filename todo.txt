@@ -1,0 +1,4 @@
+- proxy setting
+- fix live games interrupting
+- different cameras in live games?
+- detect the type of the league pass account (single team, normal, premium)
