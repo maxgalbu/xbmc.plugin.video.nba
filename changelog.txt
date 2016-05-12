@@ -1,5 +1,6 @@
 0.8.x   (xx/xx/2016)
         Added ability to watch NBA TV Live programming
+        Added playoff game number and series status
 0.8.0-  (22/03/2016)
         Added Shaqtin' a fool, The starters, and more videos
         Show live/upcoming games in local timezone, according to settings
