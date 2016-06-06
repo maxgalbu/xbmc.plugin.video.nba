@@ -116,33 +116,36 @@ def getHighlightGameUrl(video_id):
     
     return url
 
+def downloadScoreboardJson(date):
+    #Download the scoreboard file for all playoffs
+    scoreboard = 'http://data.nba.com/data/5s/json/cms/noseason/scoreboard/%d/playoff_all_games.json' % \
+        (date.year-1)
+    log('Requesting scoreboard: %s' % scoreboard, xbmc.LOGDEBUG)
+        
+    #Continue trying files when the http request fails (eg: 404)
+    try:
+        request = urllib2.Request(scoreboard, None)
+        response = str(urllib2.urlopen(request).read())
+        response = response[response.find("{"):response.rfind("}")+1]
+
+        scoreboard_json = json.loads(response)
+        if scoreboard_json.get("code", "") == "noaccess":
+            return False
+        return scoreboard_json
+    except:
+        return False
+
 def addGamesLinks(date = '', video_type = "archive"):
     try:
-        schedule = 'http://smb.cdnak.neulion.com/fs/nba/feeds_s2012/schedule/%04d/%d_%d.js?t=%d' % \
-            (date.year, date.month, date.day, time.time())
-
-        #Download the scoreboard file for each day of the week
-        scoreboards_jsons = {}
-        for day_of_week in range(7):
-            scoreboard = 'http://data.nba.com/jsonp/5s/json/cms/noseason/scoreboard/%04d%02d%02d/games.json?callback=ciao' % \
-                (date.year, date.month, date.day+day_of_week)
-            
-            #Continue trying files when the http request fails (eg: 404)
-            try:
-                scoreboard_request = urllib2.Request(scoreboard, None)
-                scoreboard_response = str(urllib2.urlopen(scoreboard_request).read())
-                scoreboard_response = scoreboard_response[scoreboard_response.find("{"):scoreboard_response.rfind("}")+1]
-            except:
-                continue
-
-            key = "%04d-%02d-%02d" % (date.year, date.month, date.day+day_of_week)
-            scoreboards_jsons[key] = json.loads(scoreboard_response)
-
-        log('Requesting %s' % schedule, xbmc.LOGDEBUG)
+        scoreboards_json = downloadScoreboardJson(date)
 
         now_datetime_est = nowEST()
 
-        # http://smb.cdnak.neulion.com/fs/nba/feeds_s2012/schedule/2013/10_7.js?t=1381054350000
+        #example: http://smb.cdnak.neulion.com/fs/nba/feeds_s2012/schedule/2013/10_7.js?t=1381054350000
+        schedule = 'http://smb.cdnak.neulion.com/fs/nba/feeds_s2012/schedule/%04d/%d_%d.js?t=%d' % \
+            (date.year, date.month, date.day, time.time())
+        log('Requesting %s' % schedule, xbmc.LOGDEBUG)
+
         schedule_request = urllib2.Request(schedule, None);
         schedule_response = str(urllib2.urlopen(schedule_request).read())
         schedule_json = json.loads(schedule_response[schedule_response.find("{"):])
@@ -182,9 +185,8 @@ def addGamesLinks(date = '', video_type = "archive"):
                 #Get playoff game number, if available
                 playoff_game_number = 0
                 playoff_status = ""
-                game_date = game_start_datetime_est.strftime('%Y-%m-%d')
-                if game_date in scoreboards_jsons:
-                    for game_more_data in scoreboards_jsons[game_date]['sports_content']['games']['game']:
+                if scoreboards_json:
+                    for game_more_data in scoreboards_json['sports_content']['games']['game']:
                         if game_more_data['game_url'] == seo_name and game_more_data.get('playoffs', ''):
                             playoff_game_number = int(game_more_data['playoffs']['game_number'])
 
