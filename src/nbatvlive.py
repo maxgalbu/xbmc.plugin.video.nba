@@ -111,7 +111,7 @@ class LiveTV:
         xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, item)
 
     @staticmethod
-    def playLive():
+    def getLiveUrl():
         if not vars.cookies:
             login()
         if not vars.cookies:
@@ -230,6 +230,14 @@ class LiveTV:
 
             # Add the cookies in the format "videourl|Cookie=[cookies]""
             video_url = "%s?%s|Cookie=%s" % (video_url, querystring, video_cookies_encoded)
+
+        return video_url
+
+    @staticmethod
+    def playLive():
+        video_url = LiveTV.getLiveUrl()
+
+        vars.cache.set("playing", "nba_tv_live")
 
         item = xbmcgui.ListItem(path=video_url)
         xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, item)
