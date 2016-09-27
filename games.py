@@ -18,7 +18,13 @@ def getGameUrl(video_id, video_type, video_ishomefeed):
     if video_type not in ["live", "archive", "condensed"]:
         video_type = "archive"
 
-    url = 'http://watch.nba.com/nba/servlets/publishpoint'
+    gt = 1
+    if not video_ishomefeed:
+        gt = 2
+    if video_type == "condensed":
+        gt = 8
+
+    url = 'https://watch.nba.com/service/publishpoint'
     headers = { 
         'Cookie': vars.cookies, 
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -26,8 +32,9 @@ def getGameUrl(video_id, video_type, video_ishomefeed):
             else "AppleCoreMedia/1.0.0.8C148a (iPad; U; CPU OS 6_2_1 like Mac OS X; en_us)",
     }
     body = { 
-        'id': str(video_id), 
-        'gt': video_type + ("away" if not video_ishomefeed else ""), 
+        'extid': str(video_id), 
+        'gt': gt, 
+        'gs': 3,
         'type': 'game',
         'plid': vars.player_id,
         'nt': '1'
@@ -43,7 +50,12 @@ def getGameUrl(video_id, video_type, video_ishomefeed):
         response = urllib2.urlopen(request)
         content = response.read()
     except urllib2.HTTPError as e:
-        log("Failed to get video url. The url was %s, the content was %s" % (url, e.read()))
+        if hasattr(e, 'reason'):
+            log("Failed to get video url: %s. The url was %s" % (e.reason, url))
+        elif hasattr(e, 'code'):
+            log("Failed to get video url: code %d. The url was %s" % (e.code, url))
+        else:
+            log("Failed to get video url. The url was %s" % (url))
 
         littleErrorPopup( xbmcaddon.Addon().getLocalizedString(50020) )
         return ''
@@ -81,7 +93,7 @@ def getGameUrl(video_id, video_type, video_ishomefeed):
     return selected_video_url
 
 def getHighlightGameUrl(video_id):
-    url = 'http://watch.nba.com/nba/servlets/publishpoint'
+    url = 'https://watch.nba.com/service/publishpoint'
     headers = {
         'Cookie': vars.cookies, 
         'Content-Type': 'application/x-www-form-urlencoded',
