@@ -32,12 +32,12 @@ def getGameUrl(video_id, video_type, video_ishomefeed):
             else "AppleCoreMedia/1.0.0.8C148a (iPad; U; CPU OS 6_2_1 like Mac OS X; en_us)",
     }
     body = { 
-        'extid': str(video_id), 
+        'extid': str(video_id),
+        'format': "xml",
         'gt': gt, 
-        'gs': 3,
+        'gs': vars.params.get("game_state", "3"),
         'type': 'game',
         'plid': vars.player_id,
-        'nt': '1'
     }
     if video_type != "live":
         body['format'] = 'xml'
@@ -256,7 +256,8 @@ def addGamesLinks(date = '', video_type = "archive"):
                         params = {
                             'video_id': game_id,
                             'video_type': video_type,
-                            'video_hasawayfeed': 1 if video_has_away_feed else 0
+                            'video_hasawayfeed': 1 if video_has_away_feed else 0,
+                            'game_state': gs
                         }
 
                         # Add a directory item that contains home/away/condensed items
@@ -289,9 +290,10 @@ def playGame():
 
 def chooseGameVideoMenu():
     currentvideo_id = vars.params.get("video_id")
-    currentvideo_type  = vars.params.get("video_type")
+    currentvideo_type = vars.params.get("video_type")
     currentvideo_hasawayfeed = vars.params.get("video_hasawayfeed", "0")
     currentvideo_hasawayfeed = currentvideo_hasawayfeed == "1"
+    currentvideo_gamestate = vars.params.get("game_state")
 
     if currentvideo_hasawayfeed:
         # Create the "Home" and "Away" list items
@@ -300,14 +302,16 @@ def chooseGameVideoMenu():
             params = {
                 'video_id': currentvideo_id,
                 'video_type': currentvideo_type,
-                'video_ishomefeed': 1 if ishomefeed else 0
+                'video_ishomefeed': 1 if ishomefeed else 0,
+                'game_state': currentvideo_gamestate
             }
             addListItem(listitemname, url="", mode="playgame", iconimage="", customparams=params)
     else:
         #Add a "Home" list item
         params = {
             'video_id': currentvideo_id,
-            'video_type': currentvideo_type
+            'video_type': currentvideo_type,
+            'game_state': currentvideo_gamestate
         }
         addListItem("Full game", url="", mode="playgame", iconimage="", customparams=params)
 
@@ -315,7 +319,8 @@ def chooseGameVideoMenu():
     if currentvideo_type != "live":
         params = {
             'video_id': currentvideo_id,
-            'video_type': 'condensed'
+            'video_type': 'condensed',
+            'game_state': currentvideo_gamestate
         }
         addListItem("Condensed game", url="", mode="playgame", iconimage="", customparams=params)
 
