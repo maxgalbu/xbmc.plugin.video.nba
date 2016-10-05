@@ -18,12 +18,6 @@ def getGameUrl(video_id, video_type, video_ishomefeed):
     if video_type not in ["live", "archive", "condensed"]:
         video_type = "archive"
 
-    gt = 1
-    if not video_ishomefeed:
-        gt = 2
-    if video_type == "condensed":
-        gt = 8
-
     url = 'https://watch.nba.com/service/publishpoint'
     headers = { 
         'Cookie': vars.cookies, 
