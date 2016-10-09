@@ -42,6 +42,10 @@ msgid "Show Live games in local timezone"
 msgstr ""
 
 msgctxt "#50008"
+msgid "Favourite Team"
+msgstr ""
+
+msgctxt "#50008"
 msgid "next page..."
 msgstr ""
 

@@ -10,6 +10,6 @@
     <setting id="local_timezone" type="enum" label="50007" values="on|off" default="0" />
     <setting id="debug" type="enum" label="50005" values="on|off" default="1" />
     <setting id="fanart_image" type="text" label="50006" visible="false" default=""/>
+    <setting id="fav_team" type="text" label="50008" default="orl" />
   </category>
-
 </settings>
