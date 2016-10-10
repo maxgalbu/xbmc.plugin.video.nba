@@ -13,7 +13,7 @@ settings = xbmcaddon.Addon( id="plugin.video.nba")
 scores = settings.getSetting( id="scores")
 debug = settings.getSetting( id="debug")
 use_local_timezone = settings.getSetting( id="local_timezone") == "0"
-fav_team = settings.getSetting( id="fav_team")
+fav_team_name = settings.getSetting( id="fav_team")
 
 # map the quality_id to a video height
 # Ex: 720p
@@ -83,3 +83,8 @@ teams = {
     'mos' : "UCKA Moscow",
     'mac' : "Maccabi Haifa",
 }
+
+if fav_team_name:
+    for abbr, name in teams.items():
+        if fav_team_name == name:
+            fav_team = abbr
