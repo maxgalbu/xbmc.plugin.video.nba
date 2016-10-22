@@ -155,7 +155,7 @@ def videoListMenu():
 def videoPlay():
     video_id = vars.params.get("url")
 
-    url = 'http://watch.nba.com/nba/servlets/publishpoint'
+    url = 'https://watch.nba.com/service/publishpoint'
     headers = { 
         'Cookie': vars.cookies, 
         'Content-type': 'application/x-www-form-urlencoded',
@@ -169,13 +169,13 @@ def videoPlay():
         'isFlex:': 'true',
     })
 
-    request = urllib2.Request(url, headers=headers)
-    response = urllib2.urlopen(request, body)
-    content = response.read()
-
-    if response.getcode() != 200:
-        log("videoPlay: failed getting video url: %s %s" % (url, response), xbmc.LOGDEBUG)
-        littleErrorPopup( xbmcaddon.Addon().getLocalizedString(50020) )
+    try:
+        request = urllib2.Request(url, headers=headers)
+        response = urllib2.urlopen(request, body)
+        content = response.read()
+    except urllib2.HTTPError as e:
+        logHttpException(e, url, body)
+        littleErrorPopup("Failed to get video url. Please check log for details")
         return ''
 
     xml = parseString(str(content))

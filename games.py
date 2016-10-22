@@ -50,13 +50,7 @@ def getGameUrl(video_id, video_type, video_ishomefeed):
         response = urllib2.urlopen(request)
         content = response.read()
     except urllib2.HTTPError as e:
-        if hasattr(e, 'reason'):
-            log("Failed to get video url: %s. The url was %s" % (e.reason, url))
-        elif hasattr(e, 'code'):
-            log("Failed to get video url: code %d. The url was %s" % (e.code, url))
-        else:
-            log("Failed to get video url. The url was %s" % (url))
-
+        logHttpException(e, url)
         littleErrorPopup( xbmcaddon.Addon().getLocalizedString(50020) )
         return ''
 
