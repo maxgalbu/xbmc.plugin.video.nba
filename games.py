@@ -174,6 +174,7 @@ def addGamesLinks(date = '', video_type = "archive"):
                 hs = game.get('hs', '')
                 gs = game.get('gs', '')
                 seo_name = game.get("seoName", "")
+                has_condensed_video = game.get("video", {}).get("c", False)
 
                 video_has_away_feed = False
                 video_details = game.get('video', {})
@@ -257,6 +258,7 @@ def addGamesLinks(date = '', video_type = "archive"):
                             'video_id': game_id,
                             'video_type': video_type,
                             'video_hasawayfeed': 1 if video_has_away_feed else 0,
+                            'has_condensed_game': 1 if has_condensed_video else 0,
                             'game_state': gs
                         }
 
@@ -289,43 +291,47 @@ def playGame():
         xbmcplugin.setResolvedUrl(handle=int(sys.argv[1]), succeeded=True, listitem=item) 
 
 def chooseGameVideoMenu():
-    currentvideo_id = vars.params.get("video_id")
-    currentvideo_type = vars.params.get("video_type")
-    currentvideo_hasawayfeed = vars.params.get("video_hasawayfeed", "0")
-    currentvideo_hasawayfeed = currentvideo_hasawayfeed == "1"
-    currentvideo_gamestate = vars.params.get("game_state")
+    video_id = vars.params.get("video_id")
+    video_type = vars.params.get("video_type")
+    video_hasawayfeed = vars.params.get("video_hasawayfeed", "0")
+    video_hasawayfeed = video_hasawayfeed == "1"
+    game_state = vars.params.get("game_state")
+    has_condensed_game = vars.params.get("has_condensed_game", "0")
+    has_condensed_game = has_condensed_game == "1"
 
-    if currentvideo_hasawayfeed:
+    if video_hasawayfeed:
         # Create the "Home" and "Away" list items
         for ishomefeed in [True, False]:
             listitemname = "Full game, " + ("away feed" if not ishomefeed else "home feed")
             params = {
-                'video_id': currentvideo_id,
-                'video_type': currentvideo_type,
+                'video_id': video_id,
+                'video_type': video_type,
                 'video_ishomefeed': 1 if ishomefeed else 0,
-                'game_state': currentvideo_gamestate
+                'game_state': game_state
             }
             addListItem(listitemname, url="", mode="playgame", iconimage="", customparams=params)
     else:
         #Add a "Home" list item
         params = {
-            'video_id': currentvideo_id,
-            'video_type': currentvideo_type,
-            'game_state': currentvideo_gamestate
+            'video_id': video_id,
+            'video_type': video_type,
+            'game_state': game_state
         }
         addListItem("Full game", url="", mode="playgame", iconimage="", customparams=params)
 
-    # Create the "Condensed" list item
-    if currentvideo_type != "live":
-        params = {
-            'video_id': currentvideo_id,
-            'video_type': 'condensed',
-            'game_state': currentvideo_gamestate
-        }
-        addListItem("Condensed game", url="", mode="playgame", iconimage="", customparams=params)
+    #Live games have no condensed or highlight link
+    if video_type != "live":
+        # Create the "Condensed" list item
+        if has_condensed_game:
+            params = {
+                'video_id': video_id,
+                'video_type': 'condensed',
+                'game_state': game_state
+            }
+            addListItem("Condensed game", url="", mode="playgame", iconimage="", customparams=params)
 
         # Get the highlights video if available
-        highlights_url = getHighlightGameUrl(currentvideo_id)
+        highlights_url = getHighlightGameUrl(video_id)
         if highlights_url:
             addVideoListItem("Highlights", highlights_url, iconimage="")
 
