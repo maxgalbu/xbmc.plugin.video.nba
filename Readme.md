@@ -32,20 +32,6 @@ First download the latest version from the [download page](https://bitbucket.org
 
 You can also download an unreleased (nightly) version from [GitHub releases](https://github.com/maxgalbu/xbmc.plugin.video.nba/releases/download/latest/plugin.video.nba-latest.zip). This version is automatically updated every time a commit is made to the repository, so it always has the latest changes.
 
-### Using mercurial
-
-    #if you are on OSX/linux:
-    cd ~/.xbmc/addons
-
-    #if you are on Windows:
-    cd c:\Users\<username>\AppData\Roaming\XBMC\addons
-
-    #Clone the repository:
-    hg clone https://bitbucket.org/maxgalbu/plugin.video.nba
-
-    #To get the latest changes:
-    hg pull
-
 ### Using git
 
     #if you are on OSX/linux:
