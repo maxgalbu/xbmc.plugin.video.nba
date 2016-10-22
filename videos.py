@@ -102,7 +102,7 @@ def videoListMenu():
     for video in jsonresponse['response']['docs']:
         name = video['name']
 
-        #Release date
+        #Parse release date - nba uses different formats :facepalm:
         date_formats = ["%Y-%m-%dT%H:%M:%SZ", "%Y-%m-%dT%H:%M:%S.%fZ"]
         try:
             for date_format in date_formats:
