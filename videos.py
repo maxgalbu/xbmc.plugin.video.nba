@@ -103,10 +103,21 @@ def videoListMenu():
         name = video['name']
 
         #Release date
+        date_formats = ["%Y-%m-%dT%H:%M:%SZ", "%Y-%m-%dT%H:%M:%S.%fZ"]
         try:
-            release_date = datetime.datetime.strptime(video['releaseDate'], "%Y-%m-%dT%H:%M:%SZ" )
+            for date_format in date_formats:
+                try:
+                    release_date = datetime.datetime.strptime(video['releaseDate'], date_format)
+                except ValueError:
+                    pass
         except:
-            release_date = datetime.datetime.fromtimestamp(time.mktime(time.strptime(video['releaseDate'], "%Y-%m-%dT%H:%M:%SZ")))
+            for date_format in date_formats:
+                try:
+                    release_date = datetime.datetime.fromtimestamp(
+                        time.mktime(time.strptime(video['releaseDate'], date_format)))
+                except ValueError:
+                    pass
+
         release_date = release_date.strftime('%d/%m/%Y')
 
         #Runtime formatting
