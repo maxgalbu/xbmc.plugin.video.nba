@@ -5,7 +5,7 @@ env:
         - GITHUB_USERNAME: maxgalbu
         - GITHUB_REPO: xbmc.plugin.video.nba
         - GITHUB_REPOPATH: ${GITHUB_USERNAME}/${GITHUB_REPO}
-        - GITHUB_TAGNAME: ${TRAVIS_BRANCH}
+        - GITHUB_TAGNAME: nightly-${TRAVIS_BRANCH}
         - ZIP_FILENAME: plugin.video.nba-${TRAVIS_BRANCH}.zip
         - secure: "cZKjC9WwpG6izxaCnxnVcS7qT1ZOL2YB6JNnQvW3vcskQIHYLjUo0MrzQopb3/MExGE+GkaG6SeDwIQokLu+m2ESSi1SVr1j9fdZcWtjATkd5+mkvu8NlyO4vzTPbmlb6zjiXJ8LAQ8YQA4qBpoU92Y/FRuT2dt4an09+lyRaLE="
 
@@ -13,6 +13,7 @@ env:
 branches:
   except:
     - /^[0-9\.]+$/
+    - /^nightly-/
 
 before_script:
     - cd ..
@@ -45,5 +46,5 @@ after_success:
 
     #Uso https://github.com/aktau/github-release
     - bin/linux/amd64/github-release delete --user $GITHUB_USERNAME --repo $GITHUB_REPO --tag $GITHUB_TAGNAME
-    - bin/linux/amd64/github-release release --user $GITHUB_USERNAME --repo $GITHUB_REPO --tag $GITHUB_TAGNAME --name "Latest version"
+    - bin/linux/amd64/github-release release --user $GITHUB_USERNAME --repo $GITHUB_REPO --tag $GITHUB_TAGNAME --name "Latest version for branch ${TRAVIS_BRANCH}"
     - bin/linux/amd64/github-release upload --user $GITHUB_USERNAME --repo $GITHUB_REPO --tag $GITHUB_TAGNAME --name "$ZIP_FILENAME" --file $ZIP_FILENAME
