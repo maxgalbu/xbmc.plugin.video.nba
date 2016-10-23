@@ -6,6 +6,7 @@ import re
 
 from common import *
 from utils import *
+from shareddata import SharedData
 import vars
  
 class LiveTV:
@@ -237,7 +238,8 @@ class LiveTV:
     def playLive():
         video_url = LiveTV.getLiveUrl()
 
-        vars.cache.set("playing", "nba_tv_live")
+        shared_data = SharedData()
+        shared_data.set("playing", "nba_tv_live")
 
         item = xbmcgui.ListItem(path=video_url)
         xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, item)

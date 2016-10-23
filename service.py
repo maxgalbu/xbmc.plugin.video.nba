@@ -1,18 +1,25 @@
 import threading
 import xbmc
-import sched, time
+import time, urllib
+from urlparse import urlparse, parse_qs
 
-import vars
 import utils
 from nbatvlive import LiveTV
+from shareddata import SharedData
 
 class MyPlayer(xbmc.Player):
 
     def onPlayBackEnded(self):
-        vars.cache.delete("playing")
+        utils.log("Playback ENDED...")
+
+        shared_data = SharedData()
+        shared_data.set("playing", "")
 
     def onPlayBackStopped(self):
-        vars.cache.delete("playing")
+        utils.log("Playback STOPPED...")
+
+        shared_data = SharedData()
+        shared_data.set("playing", "")
 
 class BaseThread(threading.Thread):
     """ Convenience class for creating stoppable threads. """
@@ -66,68 +73,77 @@ class PollingThread(BaseThread):
     def __init__(self):
         super(PollingThread, self).__init__()
 
-        self.scheduler = None
+        self.expires = 0
+        self.last_refresh = time.time()
         self.player = MyPlayer()
 
     def updateLiveUrl(self):
-        utils.log("updating live url from service")
-
         video_url = LiveTV.getLiveUrl()
+        self.readExpiresFromUrl(video_url)
+        utils.log("Updating live url from service, new url (%s) and expire (%d)" 
+            % (video_url, self.expires))
+
         self.player.play(video_url)
 
-    def cancelScheduler(self):
-        utils.log("cancelling scheduler")
-        self.scheduler.cancel(self.scheduler_event)
-        del self.scheduler
-        self.scheduler = None
+    def readExpiresFromUrl(self, url):
+        url_parts = urlparse(url)
 
-    def callAfter(self, timeout, func):
-        if not self.scheduler:
-            utils.log("starting scheduler")
+        #Parse query string to dictionary
+        query_params = parse_qs(url_parts.query)
 
-            def funcWrapper():
-                utils.log("called wrapper scheduler")
-                func()
-                self.scheduler.enter(timeout, 1, funcWrapper, ())
+        #Get the hdnea param, where the "expires" param is
+        hdnea_params = query_params.get("hdnea")[0]
+        hdnea_params = hdnea_params.replace('~', '&')
+        hdnea_params = urllib.unquote(hdnea_params)
 
-            self.scheduler = sched.scheduler(time.time, xbmc.sleep)
-            self.scheduler_event = self.scheduler.enter(timeout, 1, funcWrapper, ())
-            self.scheduler.run()
+        self.expires = parse_qs(hdnea_params).get("expires", 0)[0]
+        self.expires = int(self.expires)
 
     def run(self):
+        shared_data = SharedData()
+
         while True:
             try:
-                utils.log("Playing url: %s" % self.player.getPlayingFile())
+                current_playing_url = self.player.getPlayingFile()
+                self.readExpiresFromUrl(current_playing_url)
+                utils.log("Playing url: %s - playing cache: %s" % 
+                    (current_playing_url, shared_data.get("playing")), xbmc.LOGDEBUG)
             except:
                 pass
 
-            '''if vars.cache.get("playing") == "nba_tv_live" and not self.scheduler:
-                self.callAfter(20, self.updateLiveUrl)
-            elif not vars.cache.get("playing") and self.scheduler:
-                self.cancelScheduler()'''
+            if shared_data.get("playing") == "nba_tv_live":
+                timestamp = time.time()
+
+                #Avoid refreshing too fast, let at least one minute pass from the last refresh
+                expire_timestamp = max(self.expires, self.last_refresh + 60)
+
+                utils.log("%d seconds to url refresh" % (expire_timestamp - timestamp))
+                if timestamp > expire_timestamp:
+                    self.updateLiveUrl()
+                    self.last_refresh = timestamp
 
             xbmc.sleep(1000)
 
             if not self.should_keep_running():
-                utils.log("interrupting loop")
+                utils.log("Interrupting service loop")
                 break 
 
 def main():
-    utils.log("starting...")
-
-    vars.cache.delete("playing")
+    utils.log("starting service...")
 
     polling_thread = PollingThread()
     polling_thread.start()
 
     if xbmc.__version__ >= '2.19.0':
         monitor = xbmc.Monitor()
-        monitor.waitForAbort()
+        while not monitor.abortRequested():
+            if monitor.waitForAbort(100):
+                break
     else:
         while not xbmc.abortRequested:
             xbmc.sleep(100)
 
-    utils.log("stopping..")
+    utils.log("stopping service..")
 
     polling_thread.stop()
 
