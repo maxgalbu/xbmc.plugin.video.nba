@@ -10,6 +10,6 @@
     <setting id="local_timezone" type="enum" label="50007" values="on|off" default="0" />
     <setting id="debug" type="enum" label="50005" values="on|off" default="1" />
     <setting id="fanart_image" type="text" label="50006" visible="false" default=""/>
-    <setting id="fav_team" type="labelenum" label="50009" lvalues="50100|50101|50102|50103|50104|50105|50106|50107|50108|50109|50110|50111|50112|50113|50114|50115|50116|50117|50118|50119|50120|50121|50122|50123|50124|50125|50126|50127|50128|50129" />
+    <setting id="fav_team" type="labelenum" label="50009" lvalues="50100|50101|50102|50103|50104|50105|50106|50107|50108|50109|50110|50111|50112|50113|50114|50115|50116|50117|50118|50119|50120|50121|50122|50123|50124|50125|50126|50127|50128|50129|50130" />
   </category>
 </settings>

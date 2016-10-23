@@ -7,13 +7,13 @@ except:
     import storageserverdummy as StorageServer
 
 __addon_name__ = "NBA League Pass"
+__addon_id__ = "plugin.video.nba"
 
 # global variables
-settings = xbmcaddon.Addon( id="plugin.video.nba")
+settings = xbmcaddon.Addon( id=__addon_id__)
 scores = settings.getSetting( id="scores")
 debug = settings.getSetting( id="debug")
 use_local_timezone = settings.getSetting( id="local_timezone") == "0"
-fav_team_name = settings.getSetting( id="fav_team")
 
 # map the quality_id to a video height
 # Ex: 720p
@@ -34,7 +34,7 @@ cookies = ''
 player_id = binascii.b2a_hex(os.urandom(16))
 media_dir = os.path.join(
     xbmc.translatePath("special://home/" ), 
-    "addons", "plugin.video.nba"
+    "addons", __addon_id__
     # "resources", "media"
 )
 
@@ -84,7 +84,16 @@ teams = {
     'mac' : "Maccabi Haifa",
 }
 
-if fav_team_name:
-    for abbr, name in teams.items():
-        if fav_team_name == name:
-            fav_team = abbr
+def updateFavTeam():
+    global fav_team
+    global fav_team_name
+    fav_team = None
+    fav_team_name = settings.getSetting( id="fav_team")
+    if fav_team_name:
+        for abbr, name in teams.items():
+            if fav_team_name == name:
+                fav_team = abbr
+
+updateFavTeam()
+
+xbmc.log(msg="fav_team set to %s" % (fav_team), level=xbmc.LOGWARNING)

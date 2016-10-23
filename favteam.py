@@ -118,6 +118,14 @@ def getCurrentMonday():
     return tday - timedelta(tday.isoweekday() - 1) # start on Monday
 
 def favTeamMenu():
+    if vars.fav_team is None:
+        xbmcgui.Dialog().ok(vars.__addon_name__, 'Set your favourite team in the settings')
+        xbmcaddon.Addon().openSettings()
+        vars.updateFavTeam()
+        if vars.fav_team is None:
+            addListItem('Set your favourite team in the settings', '', 'favteam', '', False)
+            return
+
     log("Loading games for: " + vars.fav_team)
     tday = getCurrentMonday()
     addFavTeamGameLinks(tday, vars.fav_team, 'live')
