@@ -5,14 +5,14 @@ env:
         - GITHUB_USERNAME: maxgalbu
         - GITHUB_REPO: xbmc.plugin.video.nba
         - GITHUB_REPOPATH: ${GITHUB_USERNAME}/${GITHUB_REPO}
-        - GITHUB_TAGNAME: latest
-        - ZIP_FILENAME: plugin.video.nba-latest.zip
+        - GITHUB_TAGNAME: ${TRAVIS_BRANCH}
+        - ZIP_FILENAME: plugin.video.nba-${TRAVIS_BRANCH}.zip
         - secure: "cZKjC9WwpG6izxaCnxnVcS7qT1ZOL2YB6JNnQvW3vcskQIHYLjUo0MrzQopb3/MExGE+GkaG6SeDwIQokLu+m2ESSi1SVr1j9fdZcWtjATkd5+mkvu8NlyO4vzTPbmlb6zjiXJ8LAQ8YQA4qBpoU92Y/FRuT2dt4an09+lyRaLE="
 
 #Evito che travis lanci una compilazione ogni volta che si crea un tag
 branches:
-  only:
-    - master
+  except:
+    - /^[0-9\.]+$/
 
 before_script:
     - cd ..
