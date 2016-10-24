@@ -79,11 +79,12 @@ class PollingThread(BaseThread):
 
     def updateLiveUrl(self):
         video_url = LiveTV.getLiveUrl()
-        self.readExpiresFromUrl(video_url)
-        utils.log("Updating live url from service, new url (%s) and expire (%d)" 
-            % (video_url, self.expires))
+        if video_url:
+            self.readExpiresFromUrl(video_url)
+            utils.log("Updating live url from service, new url (%s) and expire (%d)" 
+                % (video_url, self.expires))
 
-        self.player.play(video_url)
+            self.player.play(video_url)
 
     def readExpiresFromUrl(self, url):
         url_parts = urlparse(url)

@@ -147,7 +147,7 @@ class LiveTV:
         except urllib2.HTTPError as e:
             log("nba live tv: failed getting url: %s %s" % (url, e.read()), xbmc.LOGDEBUG)
             littleErrorPopup( xbmcaddon.Addon().getLocalizedString(50020) )
-            return
+            return ""
 
         # Get the adaptive video url
         xml = parseString(str(content))
