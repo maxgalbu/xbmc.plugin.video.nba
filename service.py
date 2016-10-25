@@ -14,12 +14,14 @@ class MyPlayer(xbmc.Player):
 
         shared_data = SharedData()
         shared_data.set("playing", "")
+        shared_data.set("playing_waited", "")
 
     def onPlayBackStopped(self):
         utils.log("Playback STOPPED...")
 
         shared_data = SharedData()
         shared_data.set("playing", "")
+        shared_data.set("playing_waited", "")
 
 class BaseThread(threading.Thread):
     """ Convenience class for creating stoppable threads. """
@@ -114,6 +116,12 @@ class PollingThread(BaseThread):
                 pass
 
             if shared_data.get("playing") == "nba_tv_live":
+                #Wait second iteration before checking the expiration
+                if shared_data.get("playing_waited") != "1":
+                    xbmc.sleep(2000);
+                    shared_data.set("playing_waited", "1")
+                    continue;
+
                 timestamp = time.time()
 
                 #Avoid refreshing too fast, let at least one minute pass from the last refresh
