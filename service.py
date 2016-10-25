@@ -78,7 +78,8 @@ class PollingThread(BaseThread):
         self.player = MyPlayer()
 
     def updateLiveUrl(self):
-        video_url = LiveTV.getLiveUrl()
+        #True=force login (refresh cookie)
+        video_url = LiveTV.getLiveUrl(True)
         if video_url:
             self.readExpiresFromUrl(video_url)
             utils.log("Updating live url from service, new url (%s) and expire (%d)" 

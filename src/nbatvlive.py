@@ -112,11 +112,11 @@ class LiveTV:
         xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, item)
 
     @staticmethod
-    def getLiveUrl():
-        if not vars.cookies:
+    def getLiveUrl(force_login=False):
+        if not vars.cookies or force_login:
             login()
         if not vars.cookies:
-            return
+            return ""
 
         failsafe = True;
 
