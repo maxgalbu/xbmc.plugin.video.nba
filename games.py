@@ -89,18 +89,16 @@ def getGameUrl(video_id, video_type, video_ishomefeed):
 def getHighlightGameUrl(video_id):
     url = 'https://watch.nba.com/service/publishpoint'
     headers = {
-        'Cookie': vars.cookies, 
         'Content-Type': 'application/x-www-form-urlencoded',
         'User-Agent': "AppleCoreMedia/1.0.0.8C148a (iPad; U; CPU OS 6_2_1 like Mac OS X; en_us)",
     }
     
     body = urllib.urlencode({ 
-        'id': str(video_id), 
-        'gt': "recapf", 
-        'type': 'game',
+        'extid': str(video_id),
         'plid': vars.player_id,
-        'isFlex': "true",
-        'bitrate': "1600" # forced bitrate
+        'gt': "64",
+        'type': 'game',
+        'bitrate': "1600"
     })
 
     log("the body of publishpoint request is: %s" % body, xbmc.LOGDEBUG)
@@ -109,7 +107,8 @@ def getHighlightGameUrl(video_id):
         request = urllib2.Request(url, body, headers)
         response = urllib2.urlopen(request)
         content = response.read()
-    except urllib2.HTTPError:
+    except urllib2.HTTPError as ex:
+        log("Highlight url not found. Error: %s - body: %s" % (str(ex), ex.read()), xbmc.LOGERROR)
         return ''
 
     xml = parseString(str(content))
