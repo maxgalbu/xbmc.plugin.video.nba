@@ -20,7 +20,7 @@ def getGameUrl(video_id, video_type, video_ishomefeed):
 
     gt = 1
     if not video_ishomefeed:
-        gt = 2
+        gt = 4
     if video_type == "condensed":
         gt = 8
 
