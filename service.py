@@ -13,15 +13,13 @@ class MyPlayer(xbmc.Player):
         utils.log("Playback ENDED...")
 
         shared_data = SharedData()
-        shared_data.set("playing", "")
-        shared_data.set("playing_waited", "")
+        shared_data.set("playing", {})
 
     def onPlayBackStopped(self):
         utils.log("Playback STOPPED...")
 
         shared_data = SharedData()
-        shared_data.set("playing", "")
-        shared_data.set("playing_waited", "")
+        shared_data.set("playing", {})
 
 class BaseThread(threading.Thread):
     """ Convenience class for creating stoppable threads. """
@@ -78,10 +76,17 @@ class PollingThread(BaseThread):
         self.expires = 0
         self.last_refresh = time.time()
         self.player = MyPlayer()
+        self.shared_data = SharedData()
 
-    def updateLiveUrl(self):
-        #True=force login (refresh cookie)
-        video_url = LiveTV.getLiveUrl(True)
+    def refreshLiveUrl(self):
+        if self.shared_data.get("playing.what") == "nba_tv_live":
+            #True=force login (refresh cookie)
+            video_url = LiveTV.getLiveUrl(True)
+        elif self.shared_data.get("playing.what") == "nba_tv_episode":
+            start_timestamp = self.shared_data.get("playing.data.start_timestamp")
+            duration = self.shared_data.get("playing.data.duration")
+            video_url = LiveTV.getEpisodeUrl(start_timestamp, duration)
+
         if video_url:
             self.readExpiresFromUrl(video_url)
             utils.log("Updating live url from service, new url (%s) and expire (%d)" 
@@ -104,22 +109,20 @@ class PollingThread(BaseThread):
         self.expires = int(self.expires)
 
     def run(self):
-        shared_data = SharedData()
-
         while True:
             try:
                 current_playing_url = self.player.getPlayingFile()
                 self.readExpiresFromUrl(current_playing_url)
                 utils.log("Playing url: %s - playing cache: %s" % 
-                    (current_playing_url, shared_data.get("playing")), xbmc.LOGDEBUG)
+                    (current_playing_url, self.shared_data.get("playing")), xbmc.LOGDEBUG)
             except:
                 pass
 
-            if shared_data.get("playing") == "nba_tv_live":
+            if self.shared_data.get("playing.what"):
                 #Wait second iteration before checking the expiration
-                if shared_data.get("playing_waited") != "1":
+                if self.shared_data.get("playing.second_iteration") != "1":
                     xbmc.sleep(2000);
-                    shared_data.set("playing_waited", "1")
+                    self.shared_data.set("playing.second_iteration", "1")
                     continue;
 
                 timestamp = time.time()
@@ -129,7 +132,7 @@ class PollingThread(BaseThread):
 
                 utils.log("%d seconds to url refresh" % (expire_timestamp - timestamp))
                 if timestamp > expire_timestamp:
-                    self.updateLiveUrl()
+                    self.refreshLiveUrl()
                     self.last_refresh = timestamp
 
             xbmc.sleep(1000)
@@ -143,7 +146,7 @@ def main():
 
     #Reset currently playing video
     shared_data = SharedData()
-    shared_data.set("playing", "")
+    shared_data.set("playing", {})
 
     polling_thread = PollingThread()
     polling_thread.start()

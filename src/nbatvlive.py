@@ -60,11 +60,42 @@ class LiveTV:
                 iconimage=entry['image'], customparams=params)
 
     @staticmethod
+    def playLive():
+        video_url = LiveTV.getLiveUrl()
+        if video_url:
+            shared_data = SharedData()
+            shared_data.set("playing", {
+                "what": "nba_tv_live",
+            })
+
+            item = xbmcgui.ListItem(path=video_url)
+            xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, item)
+
+    @staticmethod
     def playEpisode():
+        start_timestamp = vars.params.get("start_timestamp")
+        duration = vars.params.get("duration")
+
+        video_url = LiveTV.getEpisodeUrl(start_timestamp, duration)
+        if video_url:
+            shared_data = SharedData()
+            shared_data.set("playing", {
+                "what": "nba_tv_episode",
+                "data": {
+                    "start_timestamp": start_timestamp,
+                    "nba_tv_episode.duration": duration,
+                }
+            })
+
+            item = xbmcgui.ListItem(path=video_url)
+            xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, item)
+
+    @staticmethod
+    def getEpisodeUrl(start_timestamp, duration):
         if not vars.cookies:
             login()
         if not vars.cookies:
-            return
+            return ""
 
         url = vars.config['publish_endpoint']
         headers = { 
@@ -77,8 +108,8 @@ class LiveTV:
             'type': 'channel',
             'ppid': vars.player_id,
             'nt': "1",
-            'st': vars.params.get("start_timestamp"),
-            'dur': vars.params.get("duration"),
+            'st': start_timestamp,
+            'dur': duration,
         })
 
         log("nba tv live: the body of publishpoint request is: %s" % body, xbmc.LOGDEBUG)
@@ -90,7 +121,7 @@ class LiveTV:
         except urllib2.HTTPError as e:
             log("nba live tv: failed getting url: %s %s" % (url, e.read()), xbmc.LOGDEBUG)
             littleErrorPopup( xbmcaddon.Addon().getLocalizedString(50020) )
-            return
+            return ""
 
         # Get the adaptive video url
         xml = parseString(str(content))
@@ -108,8 +139,7 @@ class LiveTV:
         log("live cookie: %s %s" % (querystring, livecookies), xbmc.LOGDEBUG)
 
         video_url = "http://%s/%s?%s|Cookie=%s" % (domain, arguments, querystring, livecookiesencoded)
-        item = xbmcgui.ListItem(path=video_url)
-        xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, item)
+        return video_url
 
     @staticmethod
     def getLiveUrl(force_login=False):
@@ -233,13 +263,3 @@ class LiveTV:
             video_url = "%s?%s|Cookie=%s" % (video_url, querystring, video_cookies_encoded)
 
         return video_url
-
-    @staticmethod
-    def playLive():
-        video_url = LiveTV.getLiveUrl()
-
-        shared_data = SharedData()
-        shared_data.set("playing", "nba_tv_live")
-
-        item = xbmcgui.ListItem(path=video_url)
-        xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, item)
