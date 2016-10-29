@@ -83,7 +83,7 @@ class LiveTV:
                 "what": "nba_tv_episode",
                 "data": {
                     "start_timestamp": start_timestamp,
-                    "nba_tv_episode.duration": duration,
+                    "duration": duration,
                 }
             })
 
