@@ -141,6 +141,10 @@ class PollingThread(BaseThread):
 def main():
     utils.log("starting service...")
 
+    #Reset currently playing video
+    shared_data = SharedData()
+    shared_data.set("playing", "")
+
     polling_thread = PollingThread()
     polling_thread.start()
 
