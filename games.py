@@ -230,7 +230,7 @@ def addGamesLinks(date = '', video_type = "archive"):
                         if playoff_status:
                             name += " (series: %s)" % playoff_status
 
-                    thumbnail_url = ("http://e1.cdnl3.neulion.com/nba/player-v4/nba/images/teams/%s.png" % h)
+                    thumbnail_url = ("http://i.cdn.turner.com/nba/nba/.element/img/1.0/teamsites/logos/teamlogos_500x500/%s.png" % h.lower())
 
                     if video_type == "live":
                         if future_video:

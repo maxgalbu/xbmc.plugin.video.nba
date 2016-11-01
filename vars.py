@@ -47,7 +47,6 @@ if setting_fanart_image != '':
 teams = {
     "bkn" : "Nets",
     "nyk" : "Knicks",
-    "njn" : "Nets",
     "atl" : "Hawks",
     "was" : "Wizards",
     "phi" : "Sixers",
