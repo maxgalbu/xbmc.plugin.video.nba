@@ -54,7 +54,7 @@ teams = {
     "chi" : "Bulls",
     "min" : "Timberwolves",
     "mil" : "Bucks",
-    "cha" : "Bobcats",
+    "cha" : "Hornets",
     "dal" : "Mavericks",
     "lac" : "Clippers",
     "lal" : "Lakers",
