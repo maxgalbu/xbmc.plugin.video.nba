@@ -90,7 +90,7 @@ def getDate( default= '', heading='Please enter date (YYYY/MM/DD)', hidden=False
     return ret
 
 def login():
-    url = 'https://watch.nba.com/nba/secure/login?'
+    url = vars.config['login_endpoint']
     body = {'username': vars.settings.getSetting( id="username"), 'password': vars.settings.getSetting( id="password")}
     body = urllib.urlencode(body)
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}

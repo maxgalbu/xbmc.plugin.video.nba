@@ -24,7 +24,7 @@ def getGameUrl(video_id, video_type, video_ishomefeed):
     if video_type == "condensed":
         gt = 8
 
-    url = 'https://watch.nba.com/service/publishpoint'
+    url = vars.config['publish_endpoint']
     headers = { 
         'Cookie': vars.cookies, 
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -201,12 +201,12 @@ def addGamesLinks(date = '', video_type = "archive"):
 
                 if game_id != '':
                     # Get pretty names for the team names
-                    if v.lower() in vars.teams:
-                        visitor_name = vars.teams[v.lower()]
+                    if v.lower() in vars.config['teams']:
+                        visitor_name = vars.config['teams'][v.lower()]
                     else:
                         visitor_name = v
-                    if h.lower() in vars.teams:
-                        host_name = vars.teams[h.lower()]
+                    if h.lower() in vars.config['teams']:
+                        host_name = vars.config['teams'][h.lower()]
                     else:
                         host_name = h
 

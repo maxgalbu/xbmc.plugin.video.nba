@@ -1,4 +1,5 @@
-import xbmc,xbmcplugin,xbmcgui,xbmcaddon
+import xbmc,xbmcaddon
+import json
 import os,binascii
 
 try:
@@ -43,41 +44,6 @@ setting_fanart_image = settings.getSetting("fanart_image")
 if setting_fanart_image != '':
     fanart_image = setting_fanart_image
 
-
-teams = {
-    "bkn" : "Nets",
-    "nyk" : "Knicks",
-    "atl" : "Hawks",
-    "was" : "Wizards",
-    "phi" : "Sixers",
-    "bos" : "Celtics",
-    "chi" : "Bulls",
-    "min" : "Timberwolves",
-    "mil" : "Bucks",
-    "cha" : "Hornets",
-    "dal" : "Mavericks",
-    "lac" : "Clippers",
-    "lal" : "Lakers",
-    "sas" : "Spurs",
-    "okc" : "Thunder",
-    "nop" : "Pelicans",
-    "por" : "Blazers",
-    "mem" : "Grizzlies",
-    "mia" : "Heat",
-    "orl" : "Magic",
-    "sac" : "Kings",
-    "tor" : "Raptors",
-    "ind" : "Pacers",
-    "det" : "Pistons",
-    "cle" : "Cavaliers",
-    "den" : "Nuggets",
-    "uta" : "Jazz",
-    "phx" : "Suns",
-    "gsw" : "Warriors",
-    "hou" : "Rockets",
-    # non nba
-    "fbu" : "Fenerbahce",
-    "ubb" : "Bilbao",
-    'mos' : "UCKA Moscow",
-    'mac' : "Maccabi Haifa",
-}
+config_path = os.path.join(media_dir, "config", "config.json")
+config_json = open(config_path).read()
+config = json.loads(config_json)

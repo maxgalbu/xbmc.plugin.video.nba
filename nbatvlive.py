@@ -65,7 +65,7 @@ class LiveTV:
         if not vars.cookies:
             return
 
-        url = 'https://watch.nba.com/service/publishpoint'
+        url = vars.config['publish_endpoint']
         headers = { 
             'Cookie': vars.cookies, 
             'Content-Type': 'application/x-www-form-urlencoded',
@@ -119,7 +119,7 @@ class LiveTV:
 
         failsafe = True;
 
-        url = 'https://watch.nba.com/service/publishpoint'
+        url = vars.config['publish_endpoint']
         headers = { 
             'Cookie': vars.cookies, 
             'Content-Type': 'application/x-www-form-urlencoded',
