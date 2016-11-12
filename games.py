@@ -121,7 +121,7 @@ def getHighlightGameUrl(video_id):
     
     return url
 
-def downloadScoreboardJson(date):
+def downloadPlayoffJson(date):
     #Download the scoreboard file for all playoffs
     scoreboard = 'http://data.nba.com/data/5s/json/cms/noseason/scoreboard/%d/playoff_all_games.json' % \
         (date.year-1)
@@ -142,7 +142,7 @@ def downloadScoreboardJson(date):
 
 def addGamesLinks(date = '', video_type = "archive"):
     try:
-        scoreboards_json = downloadScoreboardJson(date)
+        playoff_json = downloadPlayoffJson(date)
 
         now_datetime_est = nowEST()
 
@@ -191,8 +191,8 @@ def addGamesLinks(date = '', video_type = "archive"):
                 #Get playoff game number, if available
                 playoff_game_number = 0
                 playoff_status = ""
-                if scoreboards_json:
-                    for game_more_data in scoreboards_json['sports_content']['games']['game']:
+                if playoff_json:
+                    for game_more_data in playoff_json['sports_content']['games']['game']:
                         if game_more_data['game_url'] == seo_name and game_more_data.get('playoffs', ''):
                             playoff_game_number = int(game_more_data['playoffs']['game_number'])
 
