@@ -95,7 +95,7 @@ def addVideoListItem(name, url, iconimage):
 
 def addListItem(name, url, mode, iconimage, isfolder=False, usefullurl=False, customparams={}):
     if not hasattr(addListItem, "fanart_image"):
-        settings = xbmcaddon.Addon( id="plugin.video.nba")
+        settings = xbmcaddon.Addon( id=vars.__addon_id__)
         addListItem.fanart_image = settings.getSetting("fanart_image")
 
     params = {
