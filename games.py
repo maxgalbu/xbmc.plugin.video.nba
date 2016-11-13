@@ -173,7 +173,7 @@ def addGamesLinks(date = '', video_type = "archive"):
 
                 has_away_feed = False
                 video_details = game.get('video', {})
-                has_away_feed = video_details.get("af", False)
+                has_away_feed = bool(video_details.get("af", {}))
 
                 # Try to convert start date to datetime
                 try:
@@ -253,7 +253,7 @@ def addGamesLinks(date = '', video_type = "archive"):
                             'video_id': game_id,
                             'video_type': video_type,
                             'seo_name': seo_name,
-                            'has_away_feed': has_away_feed,
+                            'has_away_feed': 1 if has_away_feed else 0,
                             'has_condensed_game': 1 if has_condensed_video else 0,
                         }
 
