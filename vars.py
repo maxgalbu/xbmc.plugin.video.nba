@@ -8,9 +8,10 @@ except:
     import storageserverdummy as StorageServer
 
 __addon_name__ = "NBA League Pass"
+__addon_id__ = "plugin.video.nba"
 
 # global variables
-settings = xbmcaddon.Addon( id="plugin.video.nba")
+settings = xbmcaddon.Addon( id=__addon_id__)
 scores = settings.getSetting( id="scores")
 debug = settings.getSetting( id="debug")
 use_local_timezone = settings.getSetting( id="local_timezone") == "0"
@@ -34,7 +35,7 @@ cookies = ''
 player_id = binascii.b2a_hex(os.urandom(16))
 media_dir = os.path.join(
     xbmc.translatePath("special://home/" ), 
-    "addons", "plugin.video.nba"
+    "addons", __addon_id__
     # "resources", "media"
 )
 
@@ -47,3 +48,6 @@ if setting_fanart_image != '':
 config_path = os.path.join(media_dir, "config", "config.json")
 config_json = open(config_path).read()
 config = json.loads(config_json)
+
+fav_team = None
+
