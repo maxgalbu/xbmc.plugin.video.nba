@@ -10,7 +10,7 @@
     <import addon="script.module.six" version="1.9.0"/>
     <import addon="script.module.dateutil" version="2.4.0"/>
   </requires>
-  <extension point="xbmc.python.pluginsource" library="leaguepass.py">
+  <extension point="xbmc.python.pluginsource" library="main.py">
     <provides>video</provides>
   </extension>
   <extension point="xbmc.addon.metadata">
