@@ -78,14 +78,14 @@ class LiveTV:
 
         video_url = LiveTV.getEpisodeUrl(start_timestamp, duration)
         if video_url:
-            shared_data = SharedData()
-            shared_data.set("playing", {
-                "what": "nba_tv_episode",
-                "data": {
-                    "start_timestamp": start_timestamp,
-                    "duration": duration,
-                }
-            })
+            # shared_data = SharedData()
+            # shared_data.set("playing", {
+            #     "what": "nba_tv_episode",
+            #     "data": {
+            #         "start_timestamp": start_timestamp,
+            #         "duration": duration,
+            #     }
+            # })
 
             item = xbmcgui.ListItem(path=video_url)
             xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, item)
