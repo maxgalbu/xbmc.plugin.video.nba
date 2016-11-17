@@ -84,7 +84,7 @@ class Schedule:
 
                         # Create the title
                         name = game_start_datetime_est.strftime("%Y-%m-%d")
-                        if live_video:
+                        if future_video:
                             name = toLocalTimezone(game_start_datetime_est).strftime("%Y-%m-%d (at %I:%M %p)")
 
                         # Add the teams' names and the scores if needed
