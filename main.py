@@ -5,5 +5,6 @@ my_addon = xbmcaddon.Addon('plugin.video.nba')
 addon_dir = xbmc.translatePath( my_addon.getAddonInfo('path') )
 
 sys.path.append(os.path.join(addon_dir, 'src'))
+sys.path.append(os.path.join(addon_dir, 'src', 'classes'))
 
 from leaguepass import *

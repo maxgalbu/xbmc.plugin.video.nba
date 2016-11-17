@@ -1,16 +1,10 @@
 from datetime import date
-from datetime import timedelta
-import urllib
-import xbmc,xbmcplugin,xbmcgui,xbmcaddon
-import sys
+import xbmcplugin
 
-from utils import *
-from games import *
-from common import *
-from videos import *
+from games import Games
 from nbatvlive import LiveTV
-from favteam import *
-import vars
+from favteam import FavTeam
+from videos import *
 
 log("Chosen quality_id %s and target_video_height %d" % (vars.quality_id, vars.target_video_height))
 
@@ -51,8 +45,7 @@ def archiveMenu():
             iconimage='', isfolder=True, customparams=params)
 
 def liveMenu():
-    chooseGameMenu('', 'live')
-
+    Games.chooseGameMenu('', 'live')
 
 def previousSeasonMenu():
     season_year = vars.params.get("oldseasonyear")
@@ -61,7 +54,7 @@ def previousSeasonMenu():
 
     # Get the games for 36 weeks
     for week in range(1, 36):
-        chooseGameMenu(mode, url, start_date)
+        Games.chooseGameMenu(mode, url, start_date)
         start_date = start_date + timedelta(7)
 
 params = getParams()
@@ -69,7 +62,7 @@ url = urllib.unquote_plus(params.get("url", ""))
 mode = params.get("mode", None)
 
 # Save the params in 'vars' to retrieve it in the functions
-vars.params = params;
+vars.params = params
 
 if mode == None:
     getFanartImage()
@@ -77,9 +70,9 @@ if mode == None:
 elif mode == "archive":
     archiveMenu()
 elif mode == "playgame":
-    playGame()
+    Games.playGame()
 elif mode == "gamechoosevideo":
-    chooseGameVideoMenu()
+    Games.chooseGameVideoMenu()
 elif mode == "oldseason":
     previousSeasonMenu()
 elif mode == "live":
@@ -103,10 +96,10 @@ elif mode == "nbatvliveepisode":
     LiveTV.playEpisode()
 elif mode == "favteam":
     if url == "older":
-        favTeamOlderMenu()
+        FavTeam.olderMenu()
     else:
-        favTeamMenu()
+        FavTeam.menu()
 else:
-    chooseGameMenu(mode, url)
+    Games.chooseGameMenu(mode, url)
 
 xbmcplugin.endOfDirectory(int(sys.argv[1]))
