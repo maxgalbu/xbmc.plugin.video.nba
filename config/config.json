@@ -3,6 +3,7 @@
 	"login_endpoint": "https://watch.nba.com/nba/secure/login?",
 	"game_data_endpoint": "http://watch.nba.com/game/%s?format=json",
 	"config_endpoint": "https://watch.nba.com/service/config?format=json&cameras=true",
+	"thumbnail_url": "http://i.cdn.turner.com/nba/nba/.element/img/1.0/teamsites/logos/teamlogos_500x500/%s.png",
 	"teams": {
 	    "bkn" : "Nets",
 	    "nyk" : "Knicks",

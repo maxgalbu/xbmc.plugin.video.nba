@@ -97,7 +97,7 @@ class Schedule:
                             if playoff_status:
                                 name += " (series: %s)" % playoff_status
 
-                        thumbnail_url = ("http://i.cdn.turner.com/nba/nba/.element/img/1.0/teamsites/logos/teamlogos_500x500/%s.png" % h.lower())
+                        thumbnail_url = vars.config['thumbnail_url'] % h.lower()
 
                         if future_video:
                             name = "UPCOMING: " + name

@@ -183,7 +183,11 @@ class Games:
                     'video_ishomefeed': 1 if ishomefeed else 0,
                     'game_state': game_state
                 }
-                addListItem(listitemname, url="", mode="playgame", iconimage="", customparams=params)
+
+                thumbnail_url = vars.config['thumbnail_url'] % \
+                    game_data_json[ 'homeTeam' if ishomefeed else 'awayTeam' ]['code'].lower()
+
+                addListItem(listitemname, url="", mode="playgame", iconimage=thumbnail_url, customparams=params)
         else:
             # Add a "Home" list item
             params = {
@@ -191,7 +195,11 @@ class Games:
                 'video_type': video_type,
                 'game_state': game_state
             }
-            addListItem("Full game", url="", mode="playgame", iconimage="", customparams=params)
+
+            thumbnail_url = vars.config['thumbnail_url'] % \
+                game_data_json['homeTeam']['code'].lower()
+
+            addListItem("Full game", url="", mode="playgame", iconimage=thumbnail_url, customparams=params)
 
         # Add all the cameras available
         for camera_number in game_cameras:
