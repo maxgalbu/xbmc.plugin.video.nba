@@ -33,7 +33,7 @@ if cache.get("target_video_height") != str(target_video_height):
 cookies = ''
 player_id = binascii.b2a_hex(os.urandom(16))
 media_dir = os.path.join(
-    xbmc.translatePath("special://home/" ), 
+    xbmc.translatePath("special://home/").decode('utf-8'), 
     "addons", "plugin.video.nba"
     # "resources", "media"
 )
