@@ -34,7 +34,7 @@ if cache.get("target_video_height") != str(target_video_height):
 cookies = ''
 player_id = binascii.b2a_hex(os.urandom(16))
 media_dir = os.path.join(
-    xbmc.translatePath("special://home/" ), 
+    xbmc.translatePath("special://home/").decode('utf-8'),
     "addons", __addon_id__
     # "resources", "media"
 )
@@ -50,4 +50,3 @@ config_json = open(config_path).read()
 config = json.loads(config_json)
 
 fav_team = None
-
