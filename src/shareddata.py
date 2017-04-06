@@ -9,10 +9,10 @@ class SharedData:
 
 	def __getFileContent(self):
 		try:
-			file = open(self.file_path)
-			file_content = file.read()
-			file.close()
-		except:
+			with open(self.file_path) as file:
+            	file_content = file.read()
+				file.close()
+		except IOError:
 			file_content = "{}"
 
 		json_content = json.loads(file_content)
