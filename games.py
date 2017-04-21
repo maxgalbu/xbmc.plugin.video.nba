@@ -78,7 +78,7 @@ def getGameUrl(video_id, video_type, video_ishomefeed):
     else:
         # Archive and condensed flow: We now work with HLS. 
         # The cookies are already in the URL and the server will supply them to ffmpeg later.
-        selected_video_url = getGameUrlWithBitrate(url, video_type)
+        selected_video_url = "%s|User-Agent=iTunes-AppleTV/4.1" % getGameUrlWithBitrate(url, video_type)
         
         
     if selected_video_url:
