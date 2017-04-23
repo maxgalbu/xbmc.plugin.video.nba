@@ -77,7 +77,7 @@ def getGameUrl(video_id, video_type, video_ishomefeed):
         url = "http://%s/%s?%s" % (domain, arguments, querystring)
         url = getGameUrlWithBitrate(url, video_type)
 
-        selected_video_url = "%s|Cookie=%s" % (url, livecookiesencoded)
+        selected_video_url = "%s&Cookie=%s" % (url, livecookiesencoded)
     else:
         # Archive and condensed flow: We now work with HLS. 
         # The cookies are already in the URL and the server will supply them to ffmpeg later.

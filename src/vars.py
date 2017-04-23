@@ -15,6 +15,7 @@ settings = xbmcaddon.Addon( id=__addon_id__)
 scores = settings.getSetting( id="scores")
 debug = settings.getSetting( id="debug")
 use_local_timezone = settings.getSetting( id="local_timezone") == "0"
+useragent = "iTunes-AppleTV/4.1"
 
 # map the quality_id to a video height
 # Ex: 720p
