@@ -106,7 +106,7 @@ class LiveTV:
         livecookiesencoded = urllib.quote(livecookies)
         log("live cookie: %s %s" % (querystring, livecookies), xbmc.LOGDEBUG)
 
-        video_url = "http://%s/%s?%s|Cookie=%s" % (domain, arguments, querystring, livecookiesencoded)
+        video_url = "http://%s/%s?%s|User-Agent=%s&Cookie=%s" % (domain, arguments, querystring, vars.useragent, livecookiesencoded)
         item = xbmcgui.ListItem(path=video_url)
         xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, item)
 
@@ -165,7 +165,7 @@ class LiveTV:
             livecookiesencoded = urllib.quote(livecookies)
             log("live cookie: %s %s" % (querystring, livecookies), xbmc.LOGDEBUG)
 
-            video_url = "http://%s/%s?%s|Cookie=%s" % (domain, arguments, querystring, livecookiesencoded)
+            video_url = "http://%s/%s?%s|User-Agent=%s&Cookie=%s" % (domain, arguments, querystring, vars.useragent, livecookiesencoded)
         else:
             # Transform the link from adaptive://domain/url?querystring to
             # http://domain/play?url=url&querystring
@@ -228,8 +228,8 @@ class LiveTV:
                         # break from the video quality loop
                         break
 
-            # Add the cookies in the format "videourl|Cookie=[cookies]""
-            video_url = "%s?%s|Cookie=%s" % (video_url, querystring, video_cookies_encoded)
+            # Add the cookies in the format "videourl|User-Agent=[useragent]&Cookie=[cookies]""
+            video_url = "%s?%s|User-Agent=%s&Cookie=%s" % (video_url, querystring, vars.useragent, video_cookies_encoded)
 
         item = xbmcgui.ListItem(path=video_url)
         xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, item)

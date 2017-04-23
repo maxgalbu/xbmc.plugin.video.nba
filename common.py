@@ -56,7 +56,7 @@ def getGameUrlWithBitrate(url, video_type):
 
         log("video of bitrate %d not found, trying with next height" % target_bitrate, xbmc.LOGDEBUG)
 
-    return selected_video_url
+    return "%s|User-Agent=%s" % (selected_video_url, vars.useragent)
 
 def getFanartImage():
     # get the feed url
