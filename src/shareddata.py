@@ -10,7 +10,7 @@ class SharedData:
 	def __getFileContent(self):
 		try:
 			with open(self.file_path) as file:
-            	file_content = file.read()
+				file_content = file.read()
 				file.close()
 		except IOError:
 			file_content = "{}"
