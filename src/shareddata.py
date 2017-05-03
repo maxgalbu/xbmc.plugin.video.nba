@@ -16,7 +16,6 @@ class SharedData:
 			file_content = "{}"
 
 		json_content = json.loads(file_content)
-		file.close()
 
 		return json_content
 
