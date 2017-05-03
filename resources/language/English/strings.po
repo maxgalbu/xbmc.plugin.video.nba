@@ -86,7 +86,7 @@ msgid "Wizards"
 msgstr ""
 
 msgctxt "#50105"
-msgid "Sixers"
+msgid "76ers"
 msgstr ""
 
 msgctxt "#50106"
@@ -106,7 +106,7 @@ msgid "Bucks"
 msgstr ""
 
 msgctxt "#50110"
-msgid "Bobcats"
+msgid "Hornets"
 msgstr ""
 
 msgctxt "#50111"
@@ -134,7 +134,7 @@ msgid "Pelicans"
 msgstr ""
 
 msgctxt "#50117"
-msgid "Blazers"
+msgid "Trail Blazers"
 msgstr ""
 
 msgctxt "#50118"
