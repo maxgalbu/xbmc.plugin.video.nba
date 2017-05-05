@@ -23,5 +23,9 @@
     <website>https://github.com/maxgalbu/xbmc.plugin.video.nba</website>
     <email></email>
     <source>https://github.com/maxgalbu/xbmc.plugin.video.nba</source>
+    <assets>
+      <icon>resources/icon.png</icon>
+      <fanart>resources/fanart.jpg</fanart>
+    </assets>
   </extension>
 </addon>
