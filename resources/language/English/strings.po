@@ -70,122 +70,122 @@ msgid "None"
 msgstr ""
 
 msgctxt "#50101"
-msgid "Nets"
-msgstr ""
-
-msgctxt "#50102"
-msgid "Knicks"
-msgstr ""
-
-msgctxt "#50103"
 msgid "Hawks"
 msgstr ""
 
-msgctxt "#50104"
-msgid "Wizards"
-msgstr ""
-
-msgctxt "#50105"
-msgid "76ers"
-msgstr ""
-
-msgctxt "#50106"
+msgctxt "#50102"
 msgid "Celtics"
 msgstr ""
 
-msgctxt "#50107"
-msgid "Bulls"
+msgctxt "#50103"
+msgid "Nets"
 msgstr ""
 
-msgctxt "#50108"
-msgid "Timberwolves"
-msgstr ""
-
-msgctxt "#50109"
-msgid "Bucks"
-msgstr ""
-
-msgctxt "#50110"
+msgctxt "#50104"
 msgid "Hornets"
 msgstr ""
 
-msgctxt "#50111"
-msgid "Mavericks"
+msgctxt "#50105"
+msgid "Bulls"
 msgstr ""
 
-msgctxt "#50112"
-msgid "Clippers"
-msgstr ""
-
-msgctxt "#50113"
-msgid "Lakers"
-msgstr ""
-
-msgctxt "#50114"
-msgid "Spurs"
-msgstr ""
-
-msgctxt "#50115"
-msgid "Thunder"
-msgstr ""
-
-msgctxt "#50116"
-msgid "Pelicans"
-msgstr ""
-
-msgctxt "#50117"
-msgid "Trail Blazers"
-msgstr ""
-
-msgctxt "#50118"
-msgid "Grizzlies"
-msgstr ""
-
-msgctxt "#50119"
-msgid "Heat"
-msgstr ""
-
-msgctxt "#50120"
-msgid "Magic"
-msgstr ""
-
-msgctxt "#50121"
-msgid "Kings"
-msgstr ""
-
-msgctxt "#50122"
-msgid "Raptors"
-msgstr ""
-
-msgctxt "#50123"
-msgid "Pacers"
-msgstr ""
-
-msgctxt "#50124"
-msgid "Pistons"
-msgstr ""
-
-msgctxt "#50125"
+msgctxt "#50106"
 msgid "Cavaliers"
 msgstr ""
 
-msgctxt "#50126"
+msgctxt "#50107"
+msgid "Mavericks"
+msgstr ""
+
+msgctxt "#50108"
 msgid "Nuggets"
 msgstr ""
 
-msgctxt "#50127"
-msgid "Jazz"
+msgctxt "#50109"
+msgid "Pistons"
 msgstr ""
 
-msgctxt "#50128"
-msgid "Suns"
-msgstr ""
-
-msgctxt "#50129"
+msgctxt "#50110"
 msgid "Warriors"
 msgstr ""
 
-msgctxt "#50130"
+msgctxt "#50111"
 msgid "Rockets"
+msgstr ""
+
+msgctxt "#50112"
+msgid "Pacers"
+msgstr ""
+
+msgctxt "#50113"
+msgid "Clippers"
+msgstr ""
+
+msgctxt "#50114"
+msgid "Lakers"
+msgstr ""
+
+msgctxt "#50115"
+msgid "Grizzlies"
+msgstr ""
+
+msgctxt "#50116"
+msgid "Heat"
+msgstr ""
+
+msgctxt "#50117"
+msgid "Bucks"
+msgstr ""
+
+msgctxt "#50118"
+msgid "Timberwolves"
+msgstr ""
+
+msgctxt "#50119"
+msgid "Pelicans"
+msgstr ""
+
+msgctxt "#50120"
+msgid "Knicks"
+msgstr ""
+
+msgctxt "#50121"
+msgid "Thunder"
+msgstr ""
+
+msgctxt "#50122"
+msgid "Magic"
+msgstr ""
+
+msgctxt "#50123"
+msgid "76ers"
+msgstr ""
+
+msgctxt "#50124"
+msgid "Suns"
+msgstr ""
+
+msgctxt "#50125"
+msgid "Trail Blazers"
+msgstr ""
+
+msgctxt "#50126"
+msgid "Kings"
+msgstr ""
+
+msgctxt "#50127"
+msgid "Spurs"
+msgstr ""
+
+msgctxt "#50128"
+msgid "Raptors"
+msgstr ""
+
+msgctxt "#50129"
+msgid "Jazz"
+msgstr ""
+
+msgctxt "#50130"
+msgid "Wizards"
 msgstr ""
 
