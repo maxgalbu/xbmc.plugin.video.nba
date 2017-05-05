@@ -295,7 +295,7 @@ def chooseGameVideoMenu():
     game_data_json = Request.getJson(vars.config['game_data_endpoint'] % seo_name)
     game_state = game_data_json['gameState']
     game_cameras = []
-    if game_data_json['multiCameras']:
+    if 'multiCameras' in game_data_json:
         game_cameras = game_data_json['multiCameras'].split(",")
 
     nba_config = Request.getJson(vars.config['config_endpoint'])
