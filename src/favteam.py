@@ -22,8 +22,10 @@ def addFavTeamGameLinks(fromDate, favTeam, video_type = 'archive'):
         response = str(urllib2.urlopen(req).read())
         js = json.loads(response[response.find("{"):])
 
+        unknown_teams = set()
         for game in reversed(js['games']):
             log(game, xbmc.LOGDEBUG)
+
             for details in game:
                 h = details.get('h', '')
                 v = details.get('v', '')
@@ -54,14 +56,8 @@ def addFavTeamGameLinks(fromDate, favTeam, video_type = 'archive'):
 
                 if game_id != '' and (v.lower() == favTeam or h.lower() == favTeam):
                     # Get pretty names for the team names
-                    if v.lower() in vars.config['teams']:
-                        visitor_name = vars.config['teams'][v.lower()]
-                    else:
-                        visitor_name = v
-                    if h.lower() in vars.config['teams']:
-                        host_name = vars.config['teams'][h.lower()]
-                    else:
-                        host_name = h
+                    [visitor_name, host_name] = [vars.config['teams'].get(t.lower(), t) for t in [v, h]]
+                    [unknown_teams.add(t) for t in [v, h] if t.lower() not in vars.config['teams']]
 
                     has_video = "video" in details
                     future_video = game_start_datetime_est > now_datetime_est and \
@@ -104,6 +100,9 @@ def addFavTeamGameLinks(fromDate, favTeam, video_type = 'archive'):
                         name = name + (' (away)' if awayFeed else ' (home)')
                                 
                         addListItem(name, url="", mode="playgame", iconimage="", customparams=params)
+
+        if unknown_teams:
+            log("Unknown teams: %s" % str(unknown_teams), xbmc.LOGDEBUG)
 
     except Exception, e:
         xbmc.executebuiltin('Notification(NBA League Pass,'+str(e)+',5000,)')

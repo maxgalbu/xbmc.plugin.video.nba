@@ -158,6 +158,7 @@ def addGamesLinks(date = '', video_type = "archive"):
         schedule_response = str(urllib2.urlopen(schedule_request).read())
         schedule_json = json.loads(schedule_response[schedule_response.find("{"):])
 
+        unknown_teams = set()
         for daily_games in schedule_json['games']:
             log(daily_games, xbmc.LOGDEBUG)
 
@@ -190,7 +191,7 @@ def addGamesLinks(date = '', video_type = "archive"):
                 #guess end date by adding 4 hours to start date
                 game_end_datetime_est = game_start_datetime_est + timedelta(hours=4)
 
-                #Get playoff game number, if available
+                # Get playoff game number, if available
                 playoff_game_number = 0
                 playoff_status = ""
                 if playoff_json:
@@ -203,14 +204,8 @@ def addGamesLinks(date = '', video_type = "archive"):
 
                 if game_id != '':
                     # Get pretty names for the team names
-                    if v.lower() in vars.config['teams']:
-                        visitor_name = vars.config['teams'][v.lower()]
-                    else:
-                        visitor_name = v
-                    if h.lower() in vars.config['teams']:
-                        host_name = vars.config['teams'][h.lower()]
-                    else:
-                        host_name = h
+                    [visitor_name, host_name] = [vars.config['teams'].get(t.lower(), t) for t in [v, h]]
+                    [unknown_teams.add(t) for t in [v, h] if t.lower() not in vars.config['teams']]
 
                     has_video = "video" in game
                     future_video = game_start_datetime_est > now_datetime_est and \
@@ -260,6 +255,9 @@ def addGamesLinks(date = '', video_type = "archive"):
                         # Add a directory item that contains home/away/condensed items
                         addListItem(name, url="", mode="gamechoosevideo", 
                             iconimage=thumbnail_url, isfolder=True, customparams=params)
+
+        if unknown_teams:
+            log("Unknown teams: %s" % str(unknown_teams), xbmc.LOGDEBUG)
 
     except Exception, e:
         littleErrorPopup("Error: %s" % str(e))
