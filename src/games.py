@@ -158,7 +158,7 @@ def addGamesLinks(date = '', video_type = "archive"):
         schedule_response = str(urllib2.urlopen(schedule_request).read())
         schedule_json = json.loads(schedule_response[schedule_response.find("{"):])
 
-        unknown_teams = set()
+        unknown_teams = {}
         for daily_games in schedule_json['games']:
             log(daily_games, xbmc.LOGDEBUG)
 
@@ -205,7 +205,8 @@ def addGamesLinks(date = '', video_type = "archive"):
                 if game_id != '':
                     # Get pretty names for the team names
                     [visitor_name, host_name] = [vars.config['teams'].get(t.lower(), t) for t in [v, h]]
-                    [unknown_teams.add(t) for t in [v, h] if t.lower() not in vars.config['teams']]
+                    [unknown_teams.setdefault(t, []).append(game_start_datetime_est.strftime("%Y-%m-%d"))
+                        for t in [v, h] if t.lower() not in vars.config['teams']]
 
                     has_video = "video" in game
                     future_video = game_start_datetime_est > now_datetime_est and \
@@ -257,7 +258,7 @@ def addGamesLinks(date = '', video_type = "archive"):
                             iconimage=thumbnail_url, isfolder=True, customparams=params)
 
         if unknown_teams:
-            log("Unknown teams: %s" % str(unknown_teams), xbmc.LOGDEBUG)
+            log("Unknown teams: %s" % str(unknown_teams), xbmc.LOGWARNING)
 
     except Exception, e:
         littleErrorPopup("Error: %s" % str(e))

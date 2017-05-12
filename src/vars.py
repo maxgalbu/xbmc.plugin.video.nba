@@ -50,4 +50,4 @@ config_path = os.path.join(media_dir, "config", "config.json")
 config_json = open(config_path).read()
 config = json.loads(config_json)
 
-fav_team = None
+fav_team_abbrs = None

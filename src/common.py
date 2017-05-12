@@ -9,15 +9,15 @@ import vars
 from utils import *
 
 def updateFavTeam():
-    vars.fav_team = None
+    vars.fav_team_abbrs = None
 
-    settings = xbmcaddon.Addon( id=vars.__addon_id__)
-    fav_team_name = settings.getSetting( id="fav_team")
+    settings = xbmcaddon.Addon(id=vars.__addon_id__)
+    fav_team_name = settings.getSetting(id="fav_team")
     if fav_team_name:
-        for abbr, name in vars.config['teams'].items():
-            if fav_team_name == name:
-                vars.fav_team = abbr
-                xbmc.log(msg="fav_team set to %s" % (vars.fav_team), level=xbmc.LOGWARNING)
+        for franchise, abbrs in vars.config['franchises'].items():
+            if fav_team_name == franchise:
+                vars.fav_team_abbrs = abbrs
+                xbmc.log(msg="fav_team_abbrs set to %s" % str(vars.fav_team_abbrs), level=xbmc.LOGWARNING)
 
 def getGameUrlWithBitrate(url, video_type):
     # Force the bitrate by modifying the HLS url and adding the bitrate
