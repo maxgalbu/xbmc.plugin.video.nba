@@ -3,6 +3,7 @@
 	"login_endpoint": "https://watch.nba.com/nba/secure/login?",
 	"game_data_endpoint": "http://watch.nba.com/game/%s?format=json",
 	"config_endpoint": "https://watch.nba.com/service/config?format=json&cameras=true",
+
 	"teams": {
 		"atl": "Hawks",
 		"bos": "Celtics",
@@ -48,5 +49,38 @@
 		"ubb": "Uxúe Bilbao Basket",
 		"mos": "CSKA Moscow",
 		"mac": "Maccabi Haifa"
+	},
+
+	"franchises": {
+		"Hawks": ["atl"],
+		"Celtics": ["bos"],
+		"Nets": ["bkn"],
+		"Hornets": ["cha"],
+		"Bulls": ["chi"],
+		"Cavaliers": ["cle"],
+		"Mavericks": ["dal"],
+		"Nuggets": ["den"],
+		"Pistons": ["det"],
+		"Warriors": ["gsw"],
+		"Rockets": ["hou"],
+		"Pacers": ["ind"],
+		"Clippers": ["lac"],
+		"Lakers": ["lal"],
+		"Grizzlies": ["mem"],
+		"Heat": ["mia"],
+		"Bucks": ["mil"],
+		"Timberwolves": ["min"],
+		"Pelicans": ["nop", "noh"],
+		"Knicks": ["nyk"],
+		"Thunder": ["okc"],
+		"Magic": ["orl"],
+		"76ers": ["phi"],
+		"Suns": ["phx"],
+		"Trail Blazers": ["por"],
+		"Kings": ["sac"],
+		"Spurs": ["sas"],
+		"Raptors": ["tor"],
+		"Jazz": ["uta"],
+		"Wizards": ["was"]
 	}
 }
