@@ -263,9 +263,7 @@ def addGamesLinks(date = '', video_type = "archive"):
                     elif not future_video and not has_video:
                         add_link = False
 
-                    # if not live and st, et in game:
-                    #     st = calendar.timegm(time.strptime(game['st'], '%Y-%m-%dT%H:%M:%S.%f')) * 1000
-                    #     et = calendar.timegm(time.strptime(game['et'], '%Y-%m-%dT%H:%M:%S.%f')) * 1000
+
                     if add_link == True:
                         params = {
                             'video_id': game_id,
@@ -273,9 +271,14 @@ def addGamesLinks(date = '', video_type = "archive"):
                             'seo_name': seo_name,
                             'has_away_feed': 1 if has_away_feed else 0,
                             'has_condensed_game': 1 if has_condensed_video else 0,
-                            'st' : calendar.timegm(time.strptime(game['st'], '%Y-%m-%dT%H:%M:%S.%f')) * 1000,
-                            'et' : calendar.timegm(time.strptime(game['et'], '%Y-%m-%dT%H:%M:%S.%f')) * 1000,
                         }
+                        if game['st']:
+                            st = calendar.timegm(time.strptime(game['st'], '%Y-%m-%dT%H:%M:%S.%f')) * 1000
+                            params['st'] = st
+                        if game['et']:
+                            et = calendar.timegm(time.strptime(game['et'], '%Y-%m-%dT%H:%M:%S.%f')) * 1000
+                            params['et'] = et
+
 
                         # Add a directory item that contains home/away/condensed items
                         addListItem(name, url="", mode="gamechoosevideo", 
