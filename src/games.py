@@ -6,18 +6,20 @@ import xbmc,xbmcplugin,xbmcgui
 from xml.dom.minidom import parseString
 import re
 import sys, traceback
-
+import calendar
 from utils import *
 from common import * 
 from request import Request
 import vars
 
-def getGameUrl(video_id, video_type, video_ishomefeed):
+def getGameUrl(video_id, video_type, video_ishomefeed, st, et):
     log("cookies: %s %s" % (video_type, vars.cookies), xbmc.LOGDEBUG)
 
     # video_type could be archive, live, condensed or oldseason
     if video_type not in ["live", "archive", "condensed"]:
         video_type = "archive"
+
+
 
     gt = 1
     if not video_ishomefeed:
@@ -40,6 +42,18 @@ def getGameUrl(video_id, video_type, video_ishomefeed):
         'type': 'game',
         'plid': vars.player_id,
     }
+    if video_type == "live":
+        line1 = "Start from Beginning"
+        line2 = "Go LIVE"
+        ret = xbmcgui.Dialog().select("Game Options", [line1, line2])
+        if ret == -1:
+            return
+        elif ret ==0:
+            body['st'] = str(st)
+    else:
+        if vars.params.get("game_state") == 2:
+            body['st'] = str(st)
+            body['dur'] = str(et - st)
     if vars.params.get("camera_number"):
         body['cam'] = vars.params.get("camera_number")
     if video_type != "live":
@@ -193,6 +207,7 @@ def addGamesLinks(date = '', video_type = "archive"):
                 #Get playoff game number, if available
                 playoff_game_number = 0
                 playoff_status = ""
+
                 if playoff_json:
                     for game_more_data in playoff_json['sports_content']['games']['game']:
                         if game_more_data['game_url'] == seo_name and game_more_data.get('playoffs', ''):
@@ -248,6 +263,9 @@ def addGamesLinks(date = '', video_type = "archive"):
                     elif not future_video and not has_video:
                         add_link = False
 
+                    # if not live and st, et in game:
+                    #     st = calendar.timegm(time.strptime(game['st'], '%Y-%m-%dT%H:%M:%S.%f')) * 1000
+                    #     et = calendar.timegm(time.strptime(game['et'], '%Y-%m-%dT%H:%M:%S.%f')) * 1000
                     if add_link == True:
                         params = {
                             'video_id': game_id,
@@ -255,6 +273,8 @@ def addGamesLinks(date = '', video_type = "archive"):
                             'seo_name': seo_name,
                             'has_away_feed': 1 if has_away_feed else 0,
                             'has_condensed_game': 1 if has_condensed_video else 0,
+                            'st' : calendar.timegm(time.strptime(game['st'], '%Y-%m-%dT%H:%M:%S.%f')) * 1000,
+                            'et' : calendar.timegm(time.strptime(game['et'], '%Y-%m-%dT%H:%M:%S.%f')) * 1000,
                         }
 
                         # Add a directory item that contains home/away/condensed items
@@ -275,12 +295,15 @@ def playGame():
 
     currentvideo_id = vars.params.get("video_id")
     currentvideo_type  = vars.params.get("video_type")
+
+    st = vars.params.get("st")
+    et = vars.params.get("et")
     currentvideo_ishomefeed = vars.params.get("video_ishomefeed", "1")
     currentvideo_ishomefeed = currentvideo_ishomefeed == "1"
 
     # Get the video url. 
     # Authentication is needed over this point!
-    currentvideo_url = getGameUrl(currentvideo_id, currentvideo_type, currentvideo_ishomefeed)
+    currentvideo_url = getGameUrl(currentvideo_id, currentvideo_type, currentvideo_ishomefeed, st , et)
     if currentvideo_url:
         item = xbmcgui.ListItem(path=currentvideo_url)
         xbmcplugin.setResolvedUrl(handle=int(sys.argv[1]), succeeded=True, listitem=item) 
