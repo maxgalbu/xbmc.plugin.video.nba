@@ -42,6 +42,7 @@ def getGameUrl(video_id, video_type, video_ishomefeed, st, et):
         'type': 'game',
         'plid': vars.player_id,
     }
+
     if video_type == "live":
         line1 = "Start from Beginning"
         line2 = "Go LIVE"
@@ -49,11 +50,25 @@ def getGameUrl(video_id, video_type, video_ishomefeed, st, et):
         if ret == -1:
             return
         elif ret ==0:
-            body['st'] = str(st)
+            if st:
+                body['st'] = str(st)
+            else:
+                log("No start time can't start from beginning", xbmc.LOGERROR)
     else:
         if vars.params.get("game_state") == 2:
-            body['st'] = str(st)
-            body['dur'] = str(et - st)
+            if st:
+                body['st'] = str(st)
+                log("start_time: %s" % st, xbmc.LOGDEBUG)
+
+                if et:
+                    body['dur'] = str(et - st)
+                    log("Duration: %s"% str(et - st), xbmc.LOGDEBUG)
+
+                else:
+                    log("No end time for game", xbmc.LOGDEBUG)
+            else:
+                log("No start time can't start from beginning", xbmc.LOGERROR)
+
     if vars.params.get("camera_number"):
         body['cam'] = vars.params.get("camera_number")
     if video_type != "live":
