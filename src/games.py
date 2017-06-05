@@ -152,29 +152,8 @@ def getHighlightGameUrl(video_id):
     
     return url
 
-def downloadPlayoffJson(date):
-    #Download the scoreboard file for all playoffs
-    scoreboard = 'http://data.nba.com/data/5s/json/cms/noseason/scoreboard/%d/playoff_all_games.json' % \
-        (date.year-1)
-    log('Requesting scoreboard: %s' % scoreboard, xbmc.LOGDEBUG)
-        
-    #Continue trying files when the http request fails (eg: 404)
-    try:
-        request = urllib2.Request(scoreboard, None)
-        response = str(urllib2.urlopen(request).read())
-        response = response[response.find("{"):response.rfind("}")+1]
-
-        scoreboard_json = json.loads(response)
-        if scoreboard_json.get("code", "") == "noaccess":
-            return False
-        return scoreboard_json
-    except:
-        return False
-
 def addGamesLinks(date = '', video_type = "archive"):
     try:
-        playoff_json = downloadPlayoffJson(date)
-
         now_datetime_est = nowEST()
 
         #example: http://smb.cdnak.neulion.com/fs/nba/feeds_s2012/schedule/2013/10_7.js?t=1381054350000
@@ -223,13 +202,11 @@ def addGamesLinks(date = '', video_type = "archive"):
                 playoff_game_number = 0
                 playoff_status = ""
 
-                if playoff_json:
-                    for game_more_data in playoff_json['sports_content']['games']['game']:
-                        if game_more_data['game_url'] == seo_name and game_more_data.get('playoffs', ''):
-                            playoff_game_number = int(game_more_data['playoffs']['game_number'])
-
-                            if game_more_data['playoffs'].get('home_wins', None) and game_more_data['playoffs'].get('visitor_wins', None):
-                                playoff_status = "%s-%s" % (game_more_data['playoffs']['visitor_wins'], game_more_data['playoffs']['home_wins'])
+                if 'playoff' in game:
+                    playoff_home_wins = int(game['playoff']['hr'].split("-")[0])
+                    playoff_visitor_wins = int(game['playoff']['vr'].split("-")[0])
+                    playoff_status = "%d-%d" % (playoff_visitor_wins, playoff_home_wins)
+                    playoff_game_number = playoff_home_wins + playoff_visitor_wins
 
                 if game_id != '':
                     # Get pretty names for the team names
