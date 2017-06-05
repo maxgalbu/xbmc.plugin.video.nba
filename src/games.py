@@ -12,7 +12,7 @@ from common import *
 from request import Request
 import vars
 
-def getGameUrl(video_id, video_type, video_ishomefeed, st, dur):
+def getGameUrl(video_id, video_type, video_ishomefeed, start_time, duration):
     log("cookies: %s %s" % (video_type, vars.cookies), xbmc.LOGDEBUG)
 
     # video_type could be archive, live, condensed or oldseason
@@ -39,33 +39,34 @@ def getGameUrl(video_id, video_type, video_ishomefeed, st, dur):
         'type': 'game',
         'plid': vars.player_id,
     }
+
     if video_type == "live":
         line1 = "Start from Beginning"
         line2 = "Go LIVE"
         ret = xbmcgui.Dialog().select("Game Options", [line1, line2])
         if ret == -1:
             return
-        elif ret ==0:
-            if st:
-                body['st'] = str(st)
-                if dur:
-                    body['dur'] = str(dur)
+        elif ret == 0:
+            if start_time:
+                body['st'] = str(start_time)
+                if duration:
+                    body['dur'] = str(duration)
                 else:
-                    log("No end time can't start from beginning", xbmc.LOGERROR)
+                    log("No end time, can't start from beginning", xbmc.LOGERROR)
             else:
                 log("No start time can't start from beginning", xbmc.LOGERROR)
     else:
-        if st:
-            body['st'] = str(st)
-            log("start_time: %s" % st, xbmc.LOGDEBUG)
+        if start_time:
+            body['st'] = str(start_time)
+            log("start_time: %s" % start_time, xbmc.LOGDEBUG)
 
-            if dur:
-                body['dur'] = str(dur)
-                log("Duration: %s"% str(dur), xbmc.LOGDEBUG)
+            if duration:
+                body['dur'] = str(duration)
+                log("Duration: %s"% str(duration), xbmc.LOGDEBUG)
             else:
                 log("No end time for game", xbmc.LOGDEBUG)
         else:
-            log("No start time can't start from beginning", xbmc.LOGERROR)
+            log("No start time, can't start from beginning", xbmc.LOGERROR)
 
     if vars.params.get("camera_number"):
         body['cam'] = vars.params.get("camera_number")
@@ -284,19 +285,21 @@ def addGamesLinks(date = '', video_type = "archive"):
                             'has_away_feed': 1 if has_away_feed else 0,
                             'has_condensed_game': 1 if has_condensed_video else 0,
                         }
+
                         if 'st' in game:
-                            st = calendar.timegm(time.strptime(game['st'], '%Y-%m-%dT%H:%M:%S.%f')) * 1000
-                            params['st'] = st
+                            start_time = calendar.timegm(time.strptime(game['st'], '%Y-%m-%dT%H:%M:%S.%f')) * 1000
+                            params['st'] = start_time
                             if 'et' in game:
-                                et = calendar.timegm(time.strptime(game['et'], '%Y-%m-%dT%H:%M:%S.%f')) * 1000
-                                params['et'] = et
-                                params['dur'] = et - st
+                                end_time = calendar.timegm(time.strptime(game['et'], '%Y-%m-%dT%H:%M:%S.%f')) * 1000
+                                params['end_time'] = end_time
+                                params['duration'] = end_time - start_time
                             else:
                                 # create my own et for game (now)
-                                new_et = str(datetime.datetime.now()).replace(' ', 'T')
-                                try_et = calendar.timegm(time.strptime(new_et, '%Y-%m-%dT%H:%M:%S.%f')) * 1000
-                                params['et'] = try_et
-                                params['dur'] = try_et - st
+                                end_time = str(datetime.datetime.now()).replace(' ', 'T')
+                                end_time = calendar.timegm(time.strptime(end_time, '%Y-%m-%dT%H:%M:%S.%f')) * 1000
+                                params['end_time'] = end_time
+                                params['duration'] = end_time - start_time
+
                         # Add a directory item that contains home/away/condensed items
                         addListItem(name, url="", mode="gamechoosevideo", 
                             iconimage=thumbnail_url, isfolder=True, customparams=params)
@@ -315,14 +318,14 @@ def playGame():
 
     currentvideo_id = vars.params.get("video_id")
     currentvideo_type  = vars.params.get("video_type")
-    st = vars.params.get("st")
-    dur = vars.params.get("dur")
+    start_time = vars.params.get("start_time")
+    duration = vars.params.get("duration")
     currentvideo_ishomefeed = vars.params.get("video_ishomefeed", "1")
     currentvideo_ishomefeed = currentvideo_ishomefeed == "1"
 
     # Get the video url. 
     # Authentication is needed over this point!
-    currentvideo_url = getGameUrl(currentvideo_id, currentvideo_type, currentvideo_ishomefeed, st , dur)
+    currentvideo_url = getGameUrl(currentvideo_id, currentvideo_type, currentvideo_ishomefeed, start_time, duration)
     if currentvideo_url:
         item = xbmcgui.ListItem(path=currentvideo_url)
         xbmcplugin.setResolvedUrl(handle=int(sys.argv[1]), succeeded=True, listitem=item) 
@@ -333,8 +336,8 @@ def chooseGameVideoMenu():
     seo_name = vars.params.get("seo_name")
     has_away_feed = vars.params.get("has_away_feed", "0") == "1"
     has_condensed_game = vars.params.get("has_condensed_game", "0") == "1"
-    st = vars.params.get("st")
-    dur = vars.params.get("dur")
+    start_time = vars.params.get("start_time")
+    duration = vars.params.get("duration")
     game_data_json = Request.getJson(vars.config['game_data_endpoint'] % seo_name)
     game_state = game_data_json['gameState']
     game_cameras = []
@@ -355,8 +358,8 @@ def chooseGameVideoMenu():
                 'video_type': video_type,
                 'video_ishomefeed': 1 if ishomefeed else 0,
                 'game_state': game_state,
-                'st': st,
-                'dur': dur,
+                'start_time': start_time,
+                'duration': duration,
             }
             addListItem(listitemname, url="", mode="playgame", iconimage="", customparams=params)
     else:
@@ -365,8 +368,8 @@ def chooseGameVideoMenu():
             'video_id': video_id,
             'video_type': video_type,
             'game_state': game_state,
-            'st': st,
-            'dur': dur,
+            'start_time': start_time,
+            'duration': duration,
         }
         addListItem("Full game", url="", mode="playgame", iconimage="", customparams=params)
 
@@ -382,8 +385,8 @@ def chooseGameVideoMenu():
             'video_type': video_type,
             'game_state': game_state,
             'camera_number': camera_number,
-            'st': st,
-            'dur': dur,
+            'start_time': start_time,
+            'duration': duration,
         }
 
         name = "Camera %d: %s" % (camera_number, nba_cameras[camera_number])
