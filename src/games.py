@@ -6,19 +6,18 @@ import xbmc,xbmcplugin,xbmcgui
 from xml.dom.minidom import parseString
 import re
 import sys, traceback
-
+import calendar
 from utils import *
 from common import * 
 from request import Request
 import vars
 
-def getGameUrl(video_id, video_type, video_ishomefeed):
+def getGameUrl(video_id, video_type, video_ishomefeed, start_time, duration):
     log("cookies: %s %s" % (video_type, vars.cookies), xbmc.LOGDEBUG)
 
     # video_type could be archive, live, condensed or oldseason
     if video_type not in ["live", "archive", "condensed"]:
         video_type = "archive"
-
     gt = 1
     if not video_ishomefeed:
         gt = 4
@@ -40,6 +39,35 @@ def getGameUrl(video_id, video_type, video_ishomefeed):
         'type': 'game',
         'plid': vars.player_id,
     }
+
+    if video_type == "live":
+        line1 = "Start from Beginning"
+        line2 = "Go LIVE"
+        ret = xbmcgui.Dialog().select("Game Options", [line1, line2])
+        if ret == -1:
+            return
+        elif ret == 0:
+            if start_time:
+                body['st'] = str(start_time)
+                if duration:
+                    body['dur'] = str(duration)
+                else:
+                    log("No end time, can't start from beginning", xbmc.LOGERROR)
+            else:
+                log("No start time can't start from beginning", xbmc.LOGERROR)
+    else:
+        if start_time:
+            body['st'] = str(start_time)
+            log("start_time: %s" % start_time, xbmc.LOGDEBUG)
+
+            if duration:
+                body['dur'] = str(duration)
+                log("Duration: %s"% str(duration), xbmc.LOGDEBUG)
+            else:
+                log("No end time for game", xbmc.LOGDEBUG)
+        else:
+            log("No start time, can't start from beginning", xbmc.LOGERROR)
+
     if vars.params.get("camera_number"):
         body['cam'] = vars.params.get("camera_number")
     if video_type != "live":
@@ -157,7 +185,6 @@ def addGamesLinks(date = '', video_type = "archive"):
         schedule_request = urllib2.Request(schedule, None);
         schedule_response = str(urllib2.urlopen(schedule_request).read())
         schedule_json = json.loads(schedule_response[schedule_response.find("{"):])
-
         for daily_games in schedule_json['games']:
             log(daily_games, xbmc.LOGDEBUG)
 
@@ -193,6 +220,7 @@ def addGamesLinks(date = '', video_type = "archive"):
                 #Get playoff game number, if available
                 playoff_game_number = 0
                 playoff_status = ""
+
                 if playoff_json:
                     for game_more_data in playoff_json['sports_content']['games']['game']:
                         if game_more_data['game_url'] == seo_name and game_more_data.get('playoffs', ''):
@@ -248,6 +276,7 @@ def addGamesLinks(date = '', video_type = "archive"):
                     elif not future_video and not has_video:
                         add_link = False
 
+
                     if add_link == True:
                         params = {
                             'video_id': game_id,
@@ -256,6 +285,20 @@ def addGamesLinks(date = '', video_type = "archive"):
                             'has_away_feed': 1 if has_away_feed else 0,
                             'has_condensed_game': 1 if has_condensed_video else 0,
                         }
+
+                        if 'st' in game:
+                            start_time = calendar.timegm(time.strptime(game['st'], '%Y-%m-%dT%H:%M:%S.%f')) * 1000
+                            params['st'] = start_time
+                            if 'et' in game:
+                                end_time = calendar.timegm(time.strptime(game['et'], '%Y-%m-%dT%H:%M:%S.%f')) * 1000
+                                params['end_time'] = end_time
+                                params['duration'] = end_time - start_time
+                            else:
+                                # create my own et for game (now)
+                                end_time = str(datetime.datetime.now()).replace(' ', 'T')
+                                end_time = calendar.timegm(time.strptime(end_time, '%Y-%m-%dT%H:%M:%S.%f')) * 1000
+                                params['end_time'] = end_time
+                                params['duration'] = end_time - start_time
 
                         # Add a directory item that contains home/away/condensed items
                         addListItem(name, url="", mode="gamechoosevideo", 
@@ -275,12 +318,14 @@ def playGame():
 
     currentvideo_id = vars.params.get("video_id")
     currentvideo_type  = vars.params.get("video_type")
+    start_time = vars.params.get("start_time")
+    duration = vars.params.get("duration")
     currentvideo_ishomefeed = vars.params.get("video_ishomefeed", "1")
     currentvideo_ishomefeed = currentvideo_ishomefeed == "1"
 
     # Get the video url. 
     # Authentication is needed over this point!
-    currentvideo_url = getGameUrl(currentvideo_id, currentvideo_type, currentvideo_ishomefeed)
+    currentvideo_url = getGameUrl(currentvideo_id, currentvideo_type, currentvideo_ishomefeed, start_time, duration)
     if currentvideo_url:
         item = xbmcgui.ListItem(path=currentvideo_url)
         xbmcplugin.setResolvedUrl(handle=int(sys.argv[1]), succeeded=True, listitem=item) 
@@ -291,7 +336,8 @@ def chooseGameVideoMenu():
     seo_name = vars.params.get("seo_name")
     has_away_feed = vars.params.get("has_away_feed", "0") == "1"
     has_condensed_game = vars.params.get("has_condensed_game", "0") == "1"
-
+    start_time = vars.params.get("start_time")
+    duration = vars.params.get("duration")
     game_data_json = Request.getJson(vars.config['game_data_endpoint'] % seo_name)
     game_state = game_data_json['gameState']
     game_cameras = []
@@ -311,7 +357,9 @@ def chooseGameVideoMenu():
                 'video_id': video_id,
                 'video_type': video_type,
                 'video_ishomefeed': 1 if ishomefeed else 0,
-                'game_state': game_state
+                'game_state': game_state,
+                'start_time': start_time,
+                'duration': duration,
             }
             addListItem(listitemname, url="", mode="playgame", iconimage="", customparams=params)
     else:
@@ -319,7 +367,9 @@ def chooseGameVideoMenu():
         params = {
             'video_id': video_id,
             'video_type': video_type,
-            'game_state': game_state
+            'game_state': game_state,
+            'start_time': start_time,
+            'duration': duration,
         }
         addListItem("Full game", url="", mode="playgame", iconimage="", customparams=params)
 
@@ -334,7 +384,9 @@ def chooseGameVideoMenu():
             'video_id': video_id,
             'video_type': video_type,
             'game_state': game_state,
-            'camera_number': camera_number
+            'camera_number': camera_number,
+            'start_time': start_time,
+            'duration': duration,
         }
 
         name = "Camera %d: %s" % (camera_number, nba_cameras[camera_number])
