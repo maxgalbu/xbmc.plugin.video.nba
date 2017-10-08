@@ -1,7 +1,9 @@
 import urllib,urllib2
 import xbmc,xbmcplugin,xbmcgui,xbmcaddon
 from xml.dom.minidom import parseString
-import time,calendar
+import time
+import calendar
+import json
 import re
 
 from common import *
@@ -148,7 +150,7 @@ class LiveTV:
         if not vars.cookies:
             return ""
 
-        failsafe = True;
+        failsafe = True
 
         url = vars.config['publish_endpoint']
         headers = {

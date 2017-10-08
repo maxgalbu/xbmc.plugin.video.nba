@@ -47,7 +47,7 @@ def archiveMenu():
         params = {
             'oldseasonyear': year
         }
-        addListItem('%d-%d season' % (year, year+1), url="", mode='oldseason', 
+        addListItem('%d-%d season' % (year, year+1), url="", mode='oldseason',
             iconimage='', isfolder=True, customparams=params)
 
 def liveMenu():
@@ -78,6 +78,8 @@ elif mode == "archive":
     archiveMenu()
 elif mode == "playgame":
     playGame()
+elif mode == "downloadgame":
+    downloadGame()
 elif mode == "gamechoosevideo":
     chooseGameVideoMenu()
 elif mode == "oldseason":

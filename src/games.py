@@ -1,3 +1,4 @@
+import os
 import json
 import datetime, time
 from datetime import timedelta
@@ -8,8 +9,9 @@ import re
 import sys, traceback
 import calendar
 from utils import *
-from common import * 
+from common import *
 from request import Request
+import SimpleDownloader as downloader
 import vars
 
 def getGameUrl(video_id, video_type, video_ishomefeed, start_time, duration):
@@ -25,16 +27,16 @@ def getGameUrl(video_id, video_type, video_ishomefeed, start_time, duration):
         gt = 8
 
     url = vars.config['publish_endpoint']
-    headers = { 
-        'Cookie': vars.cookies, 
+    headers = {
+        'Cookie': vars.cookies,
         'Content-Type': 'application/x-www-form-urlencoded',
-        'User-Agent': 'iPad' if video_type == "live" 
+        'User-Agent': 'iPad' if video_type == "live"
             else "AppleCoreMedia/1.0.0.8C148a (iPad; U; CPU OS 6_2_1 like Mac OS X; en_us)",
     }
-    body = { 
+    body = {
         'extid': str(video_id),
         'format': "xml",
-        'gt': gt, 
+        'gt': gt,
         'gs': vars.params.get("game_state", "3"),
         'type': 'game',
         'plid': vars.player_id,
@@ -107,7 +109,7 @@ def getGameUrl(video_id, video_type, video_ishomefeed, start_time, duration):
 
         selected_video_url = "%s&Cookie=%s" % (url, livecookiesencoded)
     else:
-        # Archive and condensed flow: We now work with HLS. 
+        # Archive and condensed flow: We now work with HLS.
         # The cookies are already in the URL and the server will supply them to ffmpeg later.
         selected_video_url = getGameUrlWithBitrate(url, video_type)
         
@@ -124,7 +126,7 @@ def getHighlightGameUrl(video_id):
         'User-Agent': "AppleCoreMedia/1.0.0.8C148a (iPad; U; CPU OS 6_2_1 like Mac OS X; en_us)",
     }
     
-    body = urllib.urlencode({ 
+    body = urllib.urlencode({
         'extid': str(video_id),
         'plid': vars.player_id,
         'gt': "64",
@@ -283,7 +285,7 @@ def addGamesLinks(date = '', video_type = "archive"):
                                 params['duration'] = end_time - start_time
 
                         # Add a directory item that contains home/away/condensed items
-                        addListItem(name, url="", mode="gamechoosevideo", 
+                        addListItem(name, url="", mode="gamechoosevideo",
                             iconimage=thumbnail_url, isfolder=True, customparams=params)
 
     except Exception, e:
@@ -305,12 +307,40 @@ def playGame():
     currentvideo_ishomefeed = vars.params.get("video_ishomefeed", "1")
     currentvideo_ishomefeed = currentvideo_ishomefeed == "1"
 
-    # Get the video url. 
+    # Get the video url.
     # Authentication is needed over this point!
     currentvideo_url = getGameUrl(currentvideo_id, currentvideo_type, currentvideo_ishomefeed, start_time, duration)
     if currentvideo_url:
         item = xbmcgui.ListItem(path=currentvideo_url)
-        xbmcplugin.setResolvedUrl(handle=int(sys.argv[1]), succeeded=True, listitem=item) 
+        xbmcplugin.setResolvedUrl(handle=int(sys.argv[1]), succeeded=True, listitem=item)
+
+def downloadGame():
+    # Authenticate
+    if vars.cookies == '':
+        vars.cookies = login()
+    if not vars.cookies:
+        return
+
+    currentvideo_id = vars.params.get("video_id")
+    currentvideo_type  = vars.params.get("video_type")
+    currentvideo_ishomefeed = vars.params.get("video_ishomefeed", "1")
+    currentvideo_ishomefeed = currentvideo_ishomefeed == "1"
+
+    # Get the video url.
+    # Authentication is needed over this point!
+    currentvideo_url = getGameUrl(currentvideo_id, currentvideo_type, currentvideo_ishomefeed, 0, 0)
+    if currentvideo_url:
+        dialog = xbmcgui.Dialog()
+        directory = dialog.browseSingle(3, "Select folder where the file will be downloaded", "files")
+
+        dl = downloader.SimpleDownloader()
+        dl.download(os.path.basename(currentvideo_url), {
+            "url": currentvideo_url,
+            "cookie": currentvideo_url.split("?")[1],
+            "download_path": directory,
+            "use_vlc": True,
+            "Title": "my video"
+        })
 
 def chooseGameVideoMenu():
     video_id = vars.params.get("video_id")
@@ -390,6 +420,15 @@ def chooseGameVideoMenu():
         highlights_url = getHighlightGameUrl(video_id)
         if highlights_url:
             addVideoListItem("Highlights", highlights_url, iconimage="")
+        
+        params = {
+            'video_id': video_id,
+            'video_type': video_type,
+            'game_state': game_state,
+            'download': 1
+        }
+        addListItem("Download game", url="", mode="downloadgame", iconimage="", customparams=params)
+        
 
     xbmcplugin.endOfDirectory(handle = int(sys.argv[1]) )
 
@@ -418,4 +457,3 @@ def chooseGameMenu(mode, video_type, date2Use = None):
     except:
         xbmcplugin.endOfDirectory(handle = int(sys.argv[1]),succeeded=False)
         return None
-
