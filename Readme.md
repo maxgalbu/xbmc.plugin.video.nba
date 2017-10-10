@@ -1,10 +1,10 @@
-#NBA League pass [![Build Status](https://travis-ci.org/maxgalbu/xbmc.plugin.video.nba.svg?branch=master)](https://travis-ci.org/maxgalbu/xbmc.plugin.video.nba)
+# NBA League pass [![Build Status](https://travis-ci.org/maxgalbu/xbmc.plugin.video.nba.svg?branch=master)](https://travis-ci.org/maxgalbu/xbmc.plugin.video.nba)
 
 ## Introduction
 
 [International NBA League Pass](http://www.nba.com/leaguepass/) is an online service offering streaming video of NBA games.
 
-This [XBMC](http://xbmc.org/) plugin features: 
+This [XBMC](http://xbmc.org/) plugin features:
 
 * Archive and condensed games for the current NBA season and previous seasons, starting from 2012/2013
 * Home and Away feeds for archive games

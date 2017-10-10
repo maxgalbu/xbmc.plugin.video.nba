@@ -8,7 +8,7 @@ import re
 import sys, traceback
 import calendar
 from utils import *
-from common import * 
+from common import *
 from request import Request
 import vars
 
@@ -25,16 +25,16 @@ def getGameUrl(video_id, video_type, video_ishomefeed, start_time, duration):
         gt = 8
 
     url = vars.config['publish_endpoint']
-    headers = { 
-        'Cookie': vars.cookies, 
+    headers = {
+        'Cookie': vars.cookies,
         'Content-Type': 'application/x-www-form-urlencoded',
-        'User-Agent': 'iPad' if video_type == "live" 
+        'User-Agent': 'iPad' if video_type == "live"
             else "AppleCoreMedia/1.0.0.8C148a (iPad; U; CPU OS 6_2_1 like Mac OS X; en_us)",
     }
-    body = { 
+    body = {
         'extid': str(video_id),
         'format': "xml",
-        'gt': gt, 
+        'gt': gt,
         'gs': vars.params.get("game_state", "3"),
         'type': 'game',
         'plid': vars.player_id,
@@ -107,7 +107,7 @@ def getGameUrl(video_id, video_type, video_ishomefeed, start_time, duration):
 
         selected_video_url = "%s&Cookie=%s" % (url, livecookiesencoded)
     else:
-        # Archive and condensed flow: We now work with HLS. 
+        # Archive and condensed flow: We now work with HLS.
         # The cookies are already in the URL and the server will supply them to ffmpeg later.
         selected_video_url = getGameUrlWithBitrate(url, video_type)
         
@@ -124,7 +124,7 @@ def getHighlightGameUrl(video_id):
         'User-Agent': "AppleCoreMedia/1.0.0.8C148a (iPad; U; CPU OS 6_2_1 like Mac OS X; en_us)",
     }
     
-    body = urllib.urlencode({ 
+    body = urllib.urlencode({
         'extid': str(video_id),
         'plid': vars.player_id,
         'gt': "64",
@@ -164,10 +164,10 @@ def addGamesLinks(date = '', video_type = "archive"):
         schedule_request = urllib2.Request(schedule, None);
         schedule_response = str(urllib2.urlopen(schedule_request).read())
         schedule_json = json.loads(schedule_response[schedule_response.find("{"):])
-        
+
         unknown_teams = {}
-        for daily_games in schedule_json['games']:
-            log(daily_games, xbmc.LOGDEBUG)
+        for index, daily_games in enumerate(schedule_json['games']):
+            log("daily games for day %d are %s" % (index, daily_games), xbmc.LOGDEBUG)
 
             for game in daily_games:
                 h = game.get('h', '')
@@ -267,7 +267,7 @@ def addGamesLinks(date = '', video_type = "archive"):
 
                         if 'st' in game:
                             start_time = calendar.timegm(time.strptime(game['st'], '%Y-%m-%dT%H:%M:%S.%f')) * 1000
-                            params['st'] = start_time
+                            params['start_time'] = start_time
                             if 'et' in game:
                                 end_time = calendar.timegm(time.strptime(game['et'], '%Y-%m-%dT%H:%M:%S.%f')) * 1000
                                 params['end_time'] = end_time
@@ -280,7 +280,7 @@ def addGamesLinks(date = '', video_type = "archive"):
                                 params['duration'] = end_time - start_time
 
                         # Add a directory item that contains home/away/condensed items
-                        addListItem(name, url="", mode="gamechoosevideo", 
+                        addListItem(name, url="", mode="gamechoosevideo",
                             iconimage=thumbnail_url, isfolder=True, customparams=params)
 
         if unknown_teams:
@@ -305,12 +305,12 @@ def playGame():
     currentvideo_ishomefeed = vars.params.get("video_ishomefeed", "1")
     currentvideo_ishomefeed = currentvideo_ishomefeed == "1"
 
-    # Get the video url. 
+    # Get the video url.
     # Authentication is needed over this point!
     currentvideo_url = getGameUrl(currentvideo_id, currentvideo_type, currentvideo_ishomefeed, start_time, duration)
     if currentvideo_url:
         item = xbmcgui.ListItem(path=currentvideo_url)
-        xbmcplugin.setResolvedUrl(handle=int(sys.argv[1]), succeeded=True, listitem=item) 
+        xbmcplugin.setResolvedUrl(handle=int(sys.argv[1]), succeeded=True, listitem=item)
 
 def chooseGameVideoMenu():
     video_id = vars.params.get("video_id")
@@ -418,4 +418,3 @@ def chooseGameMenu(mode, video_type, date2Use = None):
     except:
         xbmcplugin.endOfDirectory(handle = int(sys.argv[1]),succeeded=False)
         return None
-

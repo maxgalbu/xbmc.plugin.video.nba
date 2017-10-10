@@ -20,6 +20,9 @@ def updateFavTeam():
                 xbmc.log(msg="fav_team_abbrs set to %s" % str(vars.fav_team_abbrs), level=xbmc.LOGWARNING)
 
 def getGameUrlWithBitrate(url, video_type):
+    if vars.target_video_height == -1:
+        return "%s|User-Agent=%s" % (url, vars.useragent)
+
     # Force the bitrate by modifying the HLS url and adding the bitrate
     available_bitrates = [
         (72060, 6000),
