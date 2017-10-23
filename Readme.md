@@ -1,5 +1,7 @@
 # NBA League pass [![Build Status](https://travis-ci.org/maxgalbu/xbmc.plugin.video.nba.svg?branch=master)](https://travis-ci.org/maxgalbu/xbmc.plugin.video.nba)
 
+***As of October 2017, in order to login correctly, you need to go into the addon settings and change your username with your account's email.***
+
 ## Introduction
 
 [International NBA League Pass](http://www.nba.com/leaguepass/) is an online service offering streaming video of NBA games.
