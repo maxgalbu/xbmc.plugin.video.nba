@@ -87,22 +87,23 @@ def getGameUrl(video_id, video_type, video_ishomefeed, start_time, duration):
 
     xml = parseString(str(content))
     url = xml.getElementsByTagName("path")[0].childNodes[0].nodeValue
-    log(url, xbmc.LOGDEBUG)
+    log("response URL from publishpoint: %s" % url, xbmc.LOGDEBUG)
 
     selected_video_url = ''
     if video_type == "live":
         # transform the url
-        match = re.search('http://([^:]+)/([^?]+?)\?(.+)$', url)
-        domain = match.group(1)
-        arguments = match.group(2)
-        querystring = match.group(3)
+        match = re.search('(https?)://([^:]+)/([^?]+?)\?(.+)$', url)
+        protocol = match.group(1)
+        domain = match.group(2)
+        arguments = match.group(3)
+        querystring = match.group(4)
 
         livecookies = "nlqptid=%s" % (querystring)
         livecookiesencoded = urllib.quote(livecookies)
 
         log("live cookie: %s %s" % (querystring, livecookies), xbmc.LOGDEBUG)
 
-        url = "http://%s/%s?%s" % (domain, arguments, querystring)
+        url = "%s://%s/%s?%s" % (protocol, domain, arguments, querystring)
         url = getGameUrlWithBitrate(url, video_type)
 
         selected_video_url = "%s&Cookie=%s" % (url, livecookiesencoded)
