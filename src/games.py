@@ -237,7 +237,7 @@ def addGamesLinks(date = '', video_type = "archive"):
                             if playoff_status:
                                 name += " (series: %s)" % playoff_status
 
-                        thumbnail_url = ("http://i.cdn.turner.com/nba/nba/.element/img/1.0/teamsites/logos/teamlogos_500x500/%s.png" % h.lower())
+                        thumbnail_url = generateCombinedThumbnail(v, h)
                     elif image:
                         thumbnail_url = "https://neulionmdnyc-a.akamaihd.net/u/nba/nba/thumbs/%s" % image
 

@@ -9,6 +9,7 @@
     <import addon="script.module.pytz" version="2014.2"/>
     <import addon="script.module.six" version="1.9.0"/>
     <import addon="script.module.dateutil" version="2.4.0"/>
+    <import addon="script.module.pil"/> <!-- TODO? specify version -->
   </requires>
   <extension point="xbmc.python.pluginsource" library="main.py">
     <provides>video</provides>

@@ -75,7 +75,7 @@ def addFavTeamGameLinks(fromDate, favTeamAbbrs, video_type = 'archive'):
                     if vars.scores == '1' and not future_video:
                         name += ' %s:%s' % (str(vs), str(hs))
 
-                    thumbnail_url = ("http://i.cdn.turner.com/nba/nba/.element/img/1.0/teamsites/logos/teamlogos_500x500/%s.png" % h.lower())
+                    thumbnail_url = generateCombinedThumbnail(v, h)
 
                     if video_type == "live":
                         if future_video:
