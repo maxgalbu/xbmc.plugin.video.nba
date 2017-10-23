@@ -21,7 +21,7 @@ def mainMenu():
     if isLiveUsable():
         addListItem('NBA TV Live', '', 'nbatvlivemenu','', True)
     addListItem('Video', '', 'video', '', True)
-    addListItem('Favourite team\'s games', '', 'favteam', '', True)
+    addListItem('Favorite team\'s games', '', 'favteam', '', True)
 
 def archiveMenu():
     addListItem('This week', "archive", 'thisweek' ,'', True)

@@ -118,11 +118,11 @@ def favTeamMenu():
     updateFavTeam()
 
     if vars.fav_team_abbrs is None:
-        xbmcgui.Dialog().ok(vars.__addon_name__, 'Set your favourite team in the settings')
+        xbmcgui.Dialog().ok(vars.__addon_name__, 'Set your favorite team in the settings')
         xbmcaddon.Addon().openSettings()
         updateFavTeam()
         if vars.fav_team_abbrs is None:
-            addListItem('Set your favourite team in the settings', '', 'favteam', '', False)
+            addListItem('Set your favorite team in the settings', '', 'favteam', '', False)
             return
 
     log("Loading games for: %s" % str(vars.fav_team_abbrs))

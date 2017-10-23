@@ -108,7 +108,7 @@ def login():
 
     try:
         body = urllib.urlencode({
-            'username': vars.settings.getSetting( id="username"), 
+            'username': vars.settings.getSetting( id="email"), 
             'password': vars.settings.getSetting( id="password")
         })
 

@@ -18,7 +18,7 @@ msgid "Main settings"
 msgstr ""
 
 msgctxt "#50001"
-msgid "Email"
+msgid "E-mail"
 msgstr ""
 
 msgctxt "#50002"
@@ -46,7 +46,7 @@ msgid "next page..."
 msgstr ""
 
 msgctxt "#50009"
-msgid "Favourite Team"
+msgid "Favorite Team"
 msgstr ""
 
 msgctxt "#50020"
