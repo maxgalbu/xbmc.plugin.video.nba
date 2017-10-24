@@ -12,5 +12,7 @@
 		<setting type="sep" />
 		<setting id="debug" type="bool" label="50005" default="false" />
 		<setting id="fanart_image" type="text" label="50006" visible="false" default="" />
+		<setting type="sep" />
+		<!-- TODO <setting type="action" label="50010" action="RunScript..." /> -->
 	</category>
 </settings>

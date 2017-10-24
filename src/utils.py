@@ -1,4 +1,4 @@
-import xbmc,xbmcplugin,xbmcgui,xbmcaddon
+import xbmc,xbmcplugin,xbmcgui,xbmcaddon,xbmcvfs
 import urllib,urllib2,urlparse,datetime,json,sys,pytz
 import os
 from dateutil.tz import tzlocal
@@ -156,7 +156,10 @@ def prepareSingleThumbnail(im, width, height):
     return im
 
 def generateCombinedThumbnail(v, h, width=2*500, height=500, padding=10, load_if_exists=True):
-    combined_thumbnail_fullname = os.path.join(vars.addon_dir, ("%s-%s.png" % (v.lower(), h.lower()))) # TODO Re-locate? Which folder is appropriate?
+    combined_thumbnail_path = os.path.join(xbmc.translatePath(xbmcaddon.Addon().getAddonInfo('profile')).decode("utf-8"), "thumbnails")
+    if not xbmcvfs.exists(combined_thumbnail_path):
+        xbmcvfs.mkdir(combined_thumbnail_path)
+    combined_thumbnail_fullname = os.path.join(combined_thumbnail_path, ("%s-%s.png" % (v.lower(), h.lower())))
     if load_if_exists and os.path.isfile(combined_thumbnail_fullname):
         return combined_thumbnail_fullname
 
