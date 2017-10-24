@@ -70,9 +70,9 @@ def addFavTeamGameLinks(fromDate, favTeamAbbrs, video_type = 'archive'):
                     if video_type == "live":
                         name = toLocalTimezone(game_start_datetime_est).strftime("%Y-%m-%d (at %I:%M %p)")
 
-                    #Add the teams' names and the scores if needed
+                    # Add the teams' names and the scores if needed
                     name += ' %s vs %s' % (visitor_name, host_name)
-                    if vars.scores == '1' and not future_video:
+                    if vars.show_scores and not future_video:
                         name += ' %s:%s' % (str(vs), str(hs))
 
                     thumbnail_url = generateCombinedThumbnail(v, h)

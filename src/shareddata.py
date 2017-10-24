@@ -8,17 +8,17 @@ class SharedData:
 		if not xbmcvfs.exists(self.folder):
 			xbmcvfs.mkdir(self.folder)
 		self.file_path = self.folder + "shared_data.json"
+		with open(self.file_path, "w") as file:
+			file.write("{}")
 
 	def __getFileContent(self):
 		try:
 			with open(self.file_path) as file:
 				file_content = file.read()
-				file.close()
 		except IOError:
 			file_content = "{}"
 
 		json_content = json.loads(file_content)
-
 		return json_content
 
 	def set(self, key, value):
@@ -40,10 +40,8 @@ class SharedData:
 				item[key] = value
 
 		file_content = json.dumps(json_content)
-
-		file = open(self.file_path, "w")
-		file.write(file_content)
-		file.close()
+		with open(self.file_path, "w") as file:
+			file.write(file_content)
 
 	def get(self, key):
 		json_content = self.__getFileContent()

@@ -12,7 +12,7 @@ from nbatvlive import LiveTV
 from favteam import *
 import vars
 
-log("Chosen quality_id %s and target_video_height %d" % (vars.quality_id, vars.target_video_height))
+log("Chosen quality_id %d and target_video_height %d" % (vars.quality_id, vars.target_video_height))
 
 def mainMenu():
     if isLiveUsable():

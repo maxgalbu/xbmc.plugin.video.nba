@@ -1,15 +1,16 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <settings>
-
-  <!-- General -->
-  <category label="50000">
-    <setting id="email" type="text" label="50001" default=""/>
-    <setting id="password" type="text" label="50002" option="hidden" default=""/>
-    <setting id="quality_id" type="enum" label="50003" values="auto|720p @ 60fps (6000 kbps)|720p (3000 kbps)|540p (1600 kbps)|432p (1200 kbps)|360p (800 kbps)" default="0" />
-    <setting id="scores" type="enum" label="50004" values="hide|show" default="0" />
-    <setting id="local_timezone" type="enum" label="50007" values="on|off" default="0" />
-    <setting id="debug" type="enum" label="50005" values="on|off" default="1" />
-    <setting id="fanart_image" type="text" label="50006" visible="false" default=""/>
-    <setting id="fav_team" type="labelenum" label="50009" lvalues="50100|50101|50102|50103|50104|50105|50106|50107|50108|50109|50110|50111|50112|50113|50114|50115|50116|50117|50118|50119|50120|50121|50122|50123|50124|50125|50126|50127|50128|50129|50130" />
-  </category>
+	<!-- General -->
+	<category label="50000">
+		<setting id="email" type="text" label="50001" default="" />
+		<setting id="password" type="text" label="50002" option="hidden" default="" />
+		<setting type="sep" />
+		<setting id="quality_id" type="enum" label="50003" values="auto|720p @ 60fps (6000 kbps)|720p (3000 kbps)|540p (1600 kbps)|432p (1200 kbps)|360p (800 kbps)" default="0" />
+		<setting id="scores" type="bool" label="50004" default="false" />
+		<setting id="local_timezone" type="bool" label="50007" default="true" />
+		<setting id="fav_team" type="select" label="50009" values="None|Hawks|Celtics|Nets|Hornets|Bulls|Cavaliers|Mavericks|Nuggets|Pistons|Warriors|Rockets|Pacers|Clippers|Lakers|Grizzlies|Heat|Bucks|Timberwolves|Pelicans|Knicks|Thunder|Magic|76ers|Suns|Trail Blazers|Kings|Spurs|Raptors|Jazz|Wizards" default="None" />
+		<setting type="sep" />
+		<setting id="debug" type="bool" label="50005" default="false" />
+		<setting id="fanart_image" type="text" label="50006" visible="false" default="" />
+	</category>
 </settings>

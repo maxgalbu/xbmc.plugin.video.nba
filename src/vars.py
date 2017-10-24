@@ -10,18 +10,18 @@ except:
 __addon_name__ = "NBA League Pass"
 __addon_id__ = "plugin.video.nba"
 
-# global variables
-settings = xbmcaddon.Addon( id=__addon_id__)
-scores = settings.getSetting( id="scores")
-debug = settings.getSetting( id="debug")
-use_local_timezone = settings.getSetting( id="local_timezone") == "0"
+# Global variables
+settings = xbmcaddon.Addon(id=__addon_id__)
+show_scores = json.loads(settings.getSetting(id="scores"))
+debug = json.loads(settings.getSetting(id="debug"))
+use_local_timezone = json.loads(settings.getSetting(id="local_timezone"))
 useragent = "iTunes-AppleTV/4.1"
 
 # map the quality_id to a video height
 # Ex: 720p
-quality_id = settings.getSetting( id="quality_id")
+quality_id = int(settings.getSetting(id="quality_id"))
 video_heights_per_quality = [-1, 72060, 720, 540, 432, 360]
-target_video_height = video_heights_per_quality[int(quality_id)]
+target_video_height = video_heights_per_quality[quality_id]
 
 cache = StorageServer.StorageServer("nbaleaguepass", 1)
 cache.table_name = "nbaleaguepass"
