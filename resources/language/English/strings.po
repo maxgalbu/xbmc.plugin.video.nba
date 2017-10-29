@@ -68,3 +68,7 @@ msgstr ""
 msgctxt "#50023"
 msgid "Failed to get video URL (response != 200)"
 msgstr ""
+
+msgctxt "#50024"
+msgid "Please fill E-mail and Password in the addon's settings menu"
+msgstr ""

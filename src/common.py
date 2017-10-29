@@ -104,12 +104,18 @@ def getDate( default= '', heading='Please enter date (YYYY/MM/DD)', hidden=False
     return ret
 
 def login():
-    headers = {'Content-Type': 'application/x-www-form-urlencoded'}
-
+    username = vars.settings.getSetting( id="username")
+    password = vars.settings.getSetting( id="password")
+    
+    if not username or not password:
+        littleErrorPopup( xbmcaddon.Addon().getLocalizedString(50024) )
+        return ''
+    
     try:
+        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
         body = urllib.urlencode({
-            'username': vars.settings.getSetting( id="username"), 
-            'password': vars.settings.getSetting( id="password")
+            'username': username,
+            'password': password
         })
 
         request = urllib2.Request(vars.config['login_endpoint'], body, headers)
