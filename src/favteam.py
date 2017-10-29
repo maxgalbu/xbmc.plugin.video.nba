@@ -8,7 +8,7 @@ from utils import *
 from common import * 
 import vars
 
-def addFavTeamGameLinks(fromDate, favTeam, video_type = 'archive'):
+def addFavTeamGameLinks(fromDate, favTeamAbbrs, video_type = 'archive'):
     try:
         if type(fromDate) is datetime.datetime:
             fromDate = "%04d/%d_%d" % (fromDate.year, fromDate.month, fromDate.day)
@@ -22,8 +22,10 @@ def addFavTeamGameLinks(fromDate, favTeam, video_type = 'archive'):
         response = str(urllib2.urlopen(req).read())
         js = json.loads(response[response.find("{"):])
 
+        unknown_teams = {}
         for game in reversed(js['games']):
             log(game, xbmc.LOGDEBUG)
+
             for details in game:
                 h = details.get('h', '')
                 v = details.get('v', '')
@@ -52,16 +54,11 @@ def addFavTeamGameLinks(fromDate, favTeam, video_type = 'archive'):
                 #guess end date by adding 4 hours to start date
                 game_end_datetime_est = game_start_datetime_est + timedelta(hours=4)
 
-                if game_id != '' and (v.lower() == favTeam or h.lower() == favTeam):
+                if game_id != '' and (v.lower() in favTeamAbbrs or h.lower() in favTeamAbbrs):
                     # Get pretty names for the team names
-                    if v.lower() in vars.config['teams']:
-                        visitor_name = vars.config['teams'][v.lower()]
-                    else:
-                        visitor_name = v
-                    if h.lower() in vars.config['teams']:
-                        host_name = vars.config['teams'][h.lower()]
-                    else:
-                        host_name = h
+                    [visitor_name, host_name] = [vars.config['teams'].get(t.lower(), t) for t in [v, h]]
+                    [unknown_teams.setdefault(t, []).append(game_start_datetime_est.strftime("%Y-%m-%d"))
+                        for t in [v, h] if t.lower() not in vars.config['teams']]
 
                     has_video = "video" in details
                     future_video = game_start_datetime_est > now_datetime_est and \
@@ -73,12 +70,12 @@ def addFavTeamGameLinks(fromDate, favTeam, video_type = 'archive'):
                     if video_type == "live":
                         name = toLocalTimezone(game_start_datetime_est).strftime("%Y-%m-%d (at %I:%M %p)")
 
-                    #Add the teams' names and the scores if needed
+                    # Add the teams' names and the scores if needed
                     name += ' %s vs %s' % (visitor_name, host_name)
-                    if vars.scores == '1' and not future_video:
+                    if vars.show_scores and not future_video:
                         name += ' %s:%s' % (str(vs), str(hs))
 
-                    thumbnail_url = ("http://e1.cdnl3.neulion.com/nba/player-v4/nba/images/teams/%s.png" % h)
+                    thumbnail_url = generateCombinedThumbnail(v, h)
 
                     if video_type == "live":
                         if future_video:
@@ -95,7 +92,7 @@ def addFavTeamGameLinks(fromDate, favTeam, video_type = 'archive'):
                         add_link = False
 
                     if add_link == True:
-                        awayFeed = video_has_away_feed and favTeam == v.lower()
+                        awayFeed = video_has_away_feed and v.lower() in favTeamAbbrs
                         params = {
                             'video_id': game_id,
                             'video_type': video_type,
@@ -103,7 +100,10 @@ def addFavTeamGameLinks(fromDate, favTeam, video_type = 'archive'):
                         }
                         name = name + (' (away)' if awayFeed else ' (home)')
                                 
-                        addListItem(name, url="", mode="playgame", iconimage="", customparams=params)
+                        addListItem(name, url="", mode="playgame", iconimage=thumbnail_url, customparams=params)
+
+        if unknown_teams:
+            log("Unknown teams: %s" % str(unknown_teams), xbmc.LOGWARNING)
 
     except Exception, e:
         xbmc.executebuiltin('Notification(NBA League Pass,'+str(e)+',5000,)')
@@ -117,20 +117,20 @@ def getCurrentMonday():
 def favTeamMenu():
     updateFavTeam()
 
-    if vars.fav_team is None:
-        xbmcgui.Dialog().ok(vars.__addon_name__, 'Set your favourite team in the settings')
+    if vars.fav_team_abbrs is None:
+        xbmcgui.Dialog().ok(vars.__addon_name__, 'Set your favorite team in the settings')
         xbmcaddon.Addon().openSettings()
         updateFavTeam()
-        if vars.fav_team is None:
-            addListItem('Set your favourite team in the settings', '', 'favteam', '', False)
+        if vars.fav_team_abbrs is None:
+            addListItem('Set your favorite team in the settings', '', 'favteam', '', False)
             return
 
-    log("Loading games for: " + vars.fav_team)
+    log("Loading games for: %s" % str(vars.fav_team_abbrs))
     tday = getCurrentMonday()
-    addFavTeamGameLinks(tday, vars.fav_team, 'live')
+    addFavTeamGameLinks(tday, vars.fav_team_abbrs, 'live')
     weeksBack = 0
     while monthIsInSeason(tday.month) and weeksBack < 3:
-        addFavTeamGameLinks(tday, vars.fav_team)
+        addFavTeamGameLinks(tday, vars.fav_team_abbrs)
         tday = tday - timedelta(7)
         weeksBack = weeksBack + 1
 
@@ -140,10 +140,10 @@ def favTeamMenu():
 def favTeamOlderMenu():
     updateFavTeam()
     
-    log("Loading older games for: " + vars.fav_team)
+    log("Loading older games for: %s" % str(vars.fav_team_abbrs))
     tday = getCurrentMonday() - timedelta(14)
     while monthIsInSeason(tday.month):
-        addFavTeamGameLinks(tday, vars.fav_team)
+        addFavTeamGameLinks(tday, vars.fav_team_abbrs)
         tday = tday - timedelta(7)
 
 def monthIsInSeason(month):

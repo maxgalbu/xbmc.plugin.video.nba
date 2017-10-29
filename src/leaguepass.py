@@ -12,7 +12,7 @@ from nbatvlive import LiveTV
 from favteam import *
 import vars
 
-log("Chosen quality_id %s and target_video_height %d" % (vars.quality_id, vars.target_video_height))
+log("Chosen quality_id %d and target_video_height %d" % (vars.quality_id, vars.target_video_height))
 
 def mainMenu():
     if isLiveUsable():
@@ -21,7 +21,7 @@ def mainMenu():
     if isLiveUsable():
         addListItem('NBA TV Live', '', 'nbatvlivemenu','', True)
     addListItem('Video', '', 'video', '', True)
-    addListItem('Favourite team\'s games', '', 'favteam', '', True)
+    addListItem('Favorite team\'s games', '', 'favteam', '', True)
 
 def archiveMenu():
     addListItem('This week', "archive", 'thisweek' ,'', True)

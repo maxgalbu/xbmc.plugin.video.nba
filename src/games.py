@@ -165,7 +165,9 @@ def addGamesLinks(date = '', video_type = "archive"):
         schedule_request = urllib2.Request(schedule, None);
         schedule_response = str(urllib2.urlopen(schedule_request).read())
         schedule_json = json.loads(schedule_response[schedule_response.find("{"):])
-        for index,daily_games in enumerate(schedule_json['games']):
+
+        unknown_teams = {}
+        for index, daily_games in enumerate(schedule_json['games']):
             log("daily games for day %d are %s" % (index, daily_games), xbmc.LOGDEBUG)
 
             for game in daily_games:
@@ -199,7 +201,7 @@ def addGamesLinks(date = '', video_type = "archive"):
                 #guess end date by adding 4 hours to start date
                 game_end_datetime_est = game_start_datetime_est + timedelta(hours=4)
 
-                #Get playoff game number, if available
+                # Get playoff game number, if available
                 playoff_game_number = 0
                 playoff_status = ""
 
@@ -211,14 +213,9 @@ def addGamesLinks(date = '', video_type = "archive"):
 
                 if game_id != '':
                     # Get pretty names for the team names
-                    if v.lower() in vars.config['teams']:
-                        visitor_name = vars.config['teams'][v.lower()]
-                    else:
-                        visitor_name = v
-                    if h.lower() in vars.config['teams']:
-                        host_name = vars.config['teams'][h.lower()]
-                    else:
-                        host_name = h
+                    [visitor_name, host_name] = [vars.config['teams'].get(t.lower(), t) for t in [v, h]]
+                    [unknown_teams.setdefault(t, []).append(game_start_datetime_est.strftime("%Y-%m-%d"))
+                        for t in [v, h] if t.lower() not in vars.config['teams']]
 
                     has_video = "video" in game
                     future_video = game_start_datetime_est > now_datetime_est and \
@@ -231,17 +228,17 @@ def addGamesLinks(date = '', video_type = "archive"):
                         if video_type == "live":
                             name = toLocalTimezone(game_start_datetime_est).strftime("%Y-%m-%d (at %I:%M %p)")
 
-                        #Add the teams' names and the scores if needed
+                        # Add the teams' names and the scores if needed
                         name += ' %s vs %s' % (visitor_name, host_name)
                         if playoff_game_number != 0:
                             name += ' (game %d)' % (playoff_game_number)
-                        if vars.scores == '1' and not future_video:
+                        if vars.show_scores and not future_video:
                             name += ' %s:%s' % (str(vs), str(hs))
 
                             if playoff_status:
                                 name += " (series: %s)" % playoff_status
 
-                        thumbnail_url = ("http://i.cdn.turner.com/nba/nba/.element/img/1.0/teamsites/logos/teamlogos_500x500/%s.png" % h.lower())
+                        thumbnail_url = generateCombinedThumbnail(v, h)
                     elif image:
                         thumbnail_url = "https://neulionmdnyc-a.akamaihd.net/u/nba/nba/thumbs/%s" % image
 
@@ -287,6 +284,9 @@ def addGamesLinks(date = '', video_type = "archive"):
                         addListItem(name, url="", mode="gamechoosevideo",
                             iconimage=thumbnail_url, isfolder=True, customparams=params)
 
+        if unknown_teams:
+            log("Unknown teams: %s" % str(unknown_teams), xbmc.LOGWARNING)
+
     except Exception, e:
         littleErrorPopup("Error: %s" % str(e))
         log(traceback.format_exc(), xbmc.LOGDEBUG)
@@ -324,7 +324,7 @@ def chooseGameVideoMenu():
     game_data_json = Request.getJson(vars.config['game_data_endpoint'] % seo_name)
     game_state = game_data_json['gameState']
     game_cameras = []
-    if game_data_json['multiCameras']:
+    if 'multiCameras' in game_data_json:
         game_cameras = game_data_json['multiCameras'].split(",")
 
     nba_config = Request.getJson(vars.config['config_endpoint'])
@@ -409,7 +409,7 @@ def chooseGameMenu(mode, video_type, date2Use = None):
         date = date - timedelta(day-1)
         if mode == "lastweek":
             date = date - timedelta(7)
-            
+
         addGamesLinks(date, video_type)
 
         # Can't sort the games list correctly because XBMC treats file items and directory

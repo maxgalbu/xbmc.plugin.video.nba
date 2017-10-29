@@ -9,6 +9,7 @@
     <import addon="script.module.pytz" version="2014.2"/>
     <import addon="script.module.six" version="1.9.0"/>
     <import addon="script.module.dateutil" version="2.4.0"/>
+    <import addon="script.module.pil"/> <!-- TODO? specify version -->
   </requires>
   <extension point="xbmc.python.pluginsource" library="main.py">
     <provides>video</provides>
@@ -23,5 +24,9 @@
     <website>https://github.com/maxgalbu/xbmc.plugin.video.nba</website>
     <email></email>
     <source>https://github.com/maxgalbu/xbmc.plugin.video.nba</source>
+    <assets>
+      <icon>resources/icon.png</icon>
+      <fanart>resources/fanart.jpg</fanart>
+    </assets>
   </extension>
 </addon>

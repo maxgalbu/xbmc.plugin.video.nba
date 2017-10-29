@@ -1,6 +1,8 @@
-import xbmc,xbmcplugin,xbmcgui,xbmcaddon
-import urllib,urlparse,datetime,json,sys,pytz
+import xbmc,xbmcplugin,xbmcgui,xbmcaddon,xbmcvfs
+import urllib,urllib2,urlparse,datetime,json,sys,pytz
+import os
 from dateutil.tz import tzlocal
+from PIL import Image,ImageOps
 
 import vars
 
@@ -130,3 +132,43 @@ def addListItem(name, url, mode, iconimage, isfolder=False, usefullurl=False, cu
 
     xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=generated_url, listitem=liz, isFolder=isfolder)
     return liz
+
+def prepareSingleThumbnail(im, width, height):
+    im_components = im.split()
+    if len(im_components) == 4:
+        im_temp = Image.new('RGBA', im.size)
+        im_temp.paste(im, mask=im_components[3])
+
+        # Crop if possible
+        if im.getbbox() != im_temp.getbbox():
+            im = im.crop(im_temp.getbbox())
+
+    # Achieve ratio width : height
+    im_temp = None
+    if im.size[0] * height > im.size[1] * width: # Pad to height
+        im_temp = Image.new('RGBA', (im.size[0], im.size[0] * height / width))
+    else: # Pad to width
+        im_temp = Image.new('RGBA', (im.size[1] * width / height, im.size[1]))
+    im_temp.paste(im, ((im_temp.size[0] - im.size[0]) / 2, (im_temp.size[1] - im.size[1]) / 2), im)
+
+    # Resize to fit (width, height)
+    im = ImageOps.fit(im_temp, (width, height), Image.ANTIALIAS)
+    return im
+
+def generateCombinedThumbnail(v, h, width=2*500, height=500, padding=10, load_if_exists=True):
+    combined_thumbnail_path = os.path.join(xbmc.translatePath(xbmcaddon.Addon().getAddonInfo('profile')).decode("utf-8"), "thumbnails")
+    if not xbmcvfs.exists(combined_thumbnail_path):
+        xbmcvfs.mkdir(combined_thumbnail_path)
+    combined_thumbnail_fullname = os.path.join(combined_thumbnail_path, ("%s-%s.png" % (v.lower(), h.lower())))
+    if load_if_exists and os.path.isfile(combined_thumbnail_fullname):
+        return combined_thumbnail_fullname
+
+    SINGLE_THUMBNAIL_URL_MASK = "http://i.cdn.turner.com/nba/nba/.element/img/1.0/teamsites/logos/teamlogos_500x500/%s.png"
+    [im_v, im_h] = [Image.open(urllib2.urlopen(SINGLE_THUMBNAIL_URL_MASK % t.lower())).convert('RGBA') for t in [v, h]]
+    [im_v, im_h] = [prepareSingleThumbnail(im, width / 2 - 2 * padding, height - 2 * padding) for im in [im_v, im_h]]
+
+    im_combined = Image.new('RGBA', (width, height))
+    im_combined.paste(im_v, (padding, padding), im_v)
+    im_combined.paste(im_h, (width / 2 + padding, padding), im_h)
+    im_combined.save(combined_thumbnail_fullname)
+    return combined_thumbnail_fullname
