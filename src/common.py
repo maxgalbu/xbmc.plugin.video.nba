@@ -53,7 +53,7 @@ def getGameUrlWithBitrate(url, video_type):
         regex_replacement_format = r'1_%s.mp4'
 
     #Try the target bitrate, and if it doesn't exists, try every bitrate lower than the chosen one
-    #(eg: if you chouse 3000k as bitrate, it will try 3000k, then 1600k, then 1200k, 
+    #(eg: if you chouse 3000k as bitrate, it will try 3000k, then 1600k, then 1200k,
     #and so on)
     selected_video_url = ""
     for target_bitrate in target_bitrates:
@@ -108,7 +108,7 @@ def login():
 
     try:
         body = urllib.urlencode({
-            'username': vars.settings.getSetting( id="email"), 
+            'username': vars.settings.getSetting( id="username"), 
             'password': vars.settings.getSetting( id="password")
         })
 
