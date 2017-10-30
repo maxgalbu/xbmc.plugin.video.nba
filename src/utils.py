@@ -163,14 +163,13 @@ def generateCombinedThumbnail(v, h, width=2*500, height=500, padding=10):
     if vars.use_cached_thumbnails and os.path.isfile(combined_thumbnail_fullname):
         return combined_thumbnail_fullname
 
-    [im_v, im_h] = [Image.open(os.path.join(combined_thumbnail_path, ("%s.png" % t.lower())))
-        if vars.use_cached_thumbnails and os.path.isfile(os.path.join(combined_thumbnail_path, ("%s.png" % t.lower()))) else None
-        for t in [v, h]]
+    single_thumbnail_fullnames = [os.path.join(combined_thumbnail_path, ("%s.png" % t.lower())) for t in [v, h]]
     SINGLE_THUMBNAIL_URL_MASK = "http://i.cdn.turner.com/nba/nba/.element/img/1.0/teamsites/logos/teamlogos_500x500/%s.png"
-    [im_v, im_h] = [Image.open(urllib2.urlopen(SINGLE_THUMBNAIL_URL_MASK % t.lower()))
-        if im is None else im
-        for (t, im) in zip([v, h], [im_v, im_h])]
-    [im_v, im_h] = [im.convert('RGBA') for im in [im_v, im_h]]
+    for (t, single_thumbnail_fullname) in zip([v, h], single_thumbnail_fullnames):
+        if not vars.use_cached_thumbnails or not os.path.isfile(single_thumbnail_fullname):
+            urllib.urlretrieve(SINGLE_THUMBNAIL_URL_MASK % t.lower(), single_thumbnail_fullname)
+    [im_v, im_h] = [Image.open(single_thumbnail_fullname).convert('RGBA')
+        for single_thumbnail_fullname in single_thumbnail_fullnames]
     [im_v, im_h] = [prepareSingleThumbnail(im, width / 2 - 2 * padding, height - 2 * padding) for im in [im_v, im_h]]
 
     im_combined = Image.new('RGBA', (width, height))
