@@ -10,9 +10,8 @@
 		<setting id="local_timezone" type="bool" label="50007" default="true" />
 		<setting id="fav_team" type="select" label="50009" values="None|Hawks|Celtics|Nets|Hornets|Bulls|Cavaliers|Mavericks|Nuggets|Pistons|Warriors|Rockets|Pacers|Clippers|Lakers|Grizzlies|Heat|Bucks|Timberwolves|Pelicans|Knicks|Thunder|Magic|76ers|Suns|Trail Blazers|Kings|Spurs|Raptors|Jazz|Wizards" default="None" />
 		<setting type="sep" />
+		<setting id="cached_thumbnails" type="bool" label="50010" default="true" />
 		<setting id="debug" type="bool" label="50005" default="false" />
 		<setting id="fanart_image" type="text" label="50006" visible="false" default="" />
-		<setting type="sep" />
-		<!-- TODO <setting type="action" label="50010" action="RunScript..." /> -->
 	</category>
 </settings>

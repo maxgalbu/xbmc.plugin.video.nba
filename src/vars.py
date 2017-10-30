@@ -14,6 +14,7 @@ __addon_id__ = "plugin.video.nba"
 settings = xbmcaddon.Addon(id=__addon_id__)
 show_scores = json.loads(settings.getSetting(id="scores"))
 debug = json.loads(settings.getSetting(id="debug"))
+use_cached_thumbnails = json.loads(settings.getSetting(id="cached_thumbnails"))
 use_local_timezone = json.loads(settings.getSetting(id="local_timezone"))
 useragent = "iTunes-AppleTV/4.1"
 
