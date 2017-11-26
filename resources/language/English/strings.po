@@ -50,7 +50,7 @@ msgid "Favorite team"
 msgstr ""
 
 msgctxt "#50010"
-msgid "Delete generated thumbnails"
+msgid "Use cached thumbnails"
 msgstr ""
 
 msgctxt "#50020"

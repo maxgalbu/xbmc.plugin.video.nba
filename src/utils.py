@@ -155,16 +155,21 @@ def prepareSingleThumbnail(im, width, height):
     im = ImageOps.fit(im_temp, (width, height), Image.ANTIALIAS)
     return im
 
-def generateCombinedThumbnail(v, h, width=2*500, height=500, padding=10, load_if_exists=True):
-    combined_thumbnail_path = os.path.join(xbmc.translatePath(xbmcaddon.Addon().getAddonInfo('profile')).decode("utf-8"), "thumbnails")
-    if not xbmcvfs.exists(combined_thumbnail_path):
-        xbmcvfs.mkdir(combined_thumbnail_path)
-    combined_thumbnail_fullname = os.path.join(combined_thumbnail_path, ("%s-%s.png" % (v.lower(), h.lower())))
-    if load_if_exists and os.path.isfile(combined_thumbnail_fullname):
+def generateCombinedThumbnail(v, h, width=2*500, height=500, padding=10):
+    thumbnails_path = os.path.join(xbmc.translatePath(xbmcaddon.Addon().getAddonInfo('profile')).decode("utf-8"), "thumbnails")
+    if not xbmcvfs.exists(thumbnails_path):
+        xbmcvfs.mkdir(thumbnails_path)
+    combined_thumbnail_fullname = os.path.join(thumbnails_path, ("%s-%s.png" % (v.lower(), h.lower())))
+    if vars.use_cached_thumbnails and os.path.isfile(combined_thumbnail_fullname):
         return combined_thumbnail_fullname
 
+    single_thumbnail_fullnames = [os.path.join(thumbnails_path, ("%s.png" % t.lower())) for t in [v, h]]
     SINGLE_THUMBNAIL_URL_MASK = "http://i.cdn.turner.com/nba/nba/.element/img/1.0/teamsites/logos/teamlogos_500x500/%s.png"
-    [im_v, im_h] = [Image.open(urllib2.urlopen(SINGLE_THUMBNAIL_URL_MASK % t.lower())).convert('RGBA') for t in [v, h]]
+    for (t, single_thumbnail_fullname) in zip([v, h], single_thumbnail_fullnames):
+        if not vars.use_cached_thumbnails or not os.path.isfile(single_thumbnail_fullname):
+            urllib.urlretrieve(SINGLE_THUMBNAIL_URL_MASK % t.lower(), single_thumbnail_fullname)
+    [im_v, im_h] = [Image.open(single_thumbnail_fullname).convert('RGBA')
+        for single_thumbnail_fullname in single_thumbnail_fullnames]
     [im_v, im_h] = [prepareSingleThumbnail(im, width / 2 - 2 * padding, height - 2 * padding) for im in [im_v, im_h]]
 
     im_combined = Image.new('RGBA', (width, height))

@@ -64,7 +64,6 @@ See changelog.txt
 
 ### Potential new features:
 
-* Better thumbnails: display both teams logos. If you are interested to help, let me know!
 * Playoff mode: hide the next game of a playoff series
 * Filter for favorite team: only show games from your three favorite teams
 
