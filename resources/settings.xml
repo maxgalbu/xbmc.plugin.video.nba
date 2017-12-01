@@ -13,5 +13,6 @@
 		<setting id="cached_thumbnails" type="bool" label="50010" default="true" />
 		<setting id="debug" type="bool" label="50005" default="false" />
 		<setting id="fanart_image" type="text" label="50006" visible="false" default="" />
+		<setting id="cameras" type="bool" label="50011" default="true" />
 	</category>
 </settings>
