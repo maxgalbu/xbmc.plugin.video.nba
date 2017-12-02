@@ -356,25 +356,27 @@ def chooseGameVideoMenu():
         }
         addListItem("Full game", url="", mode="playgame", iconimage="", customparams=params)
 
-    #Add all the cameras available
-    for camera_number in game_cameras:
-        #Skip camera number 0 (broadcast?) - the full game links are the same
-        camera_number = int(camera_number)
-        if camera_number == 0:
-            continue
+    if vars.show_cameras:
+		
+        #Add all the cameras available
+        for camera_number in game_cameras:
+            #Skip camera number 0 (broadcast?) - the full game links are the same
+            camera_number = int(camera_number)
+            if camera_number == 0:
+                continue
 
-        params = {
-            'video_id': video_id,
-            'video_type': video_type,
-            'game_state': game_state,
-            'camera_number': camera_number,
-            'start_time': start_time,
-            'duration': duration,
-        }
+            params = {
+                'video_id': video_id,
+                'video_type': video_type,
+                'game_state': game_state,
+                'camera_number': camera_number,
+                'start_time': start_time,
+                'duration': duration,
+            }
 
-        name = "Camera %d: %s" % (camera_number, nba_cameras[camera_number])
-        addListItem(name
-            , url="", mode="playgame", iconimage="", customparams=params)
+            name = "Camera %d: %s" % (camera_number, nba_cameras[camera_number])
+            addListItem(name
+                , url="", mode="playgame", iconimage="", customparams=params)
 
     #Live games have no condensed or highlight link
     if video_type != "live":

@@ -53,6 +53,10 @@ msgctxt "#50010"
 msgid "Use cached thumbnails"
 msgstr ""
 
+msgctxt "#50011"
+msgid "Show additional camera feeds"
+msgstr ""
+
 msgctxt "#50020"
 msgid "Failed to get a video URL. Are you logged in?"
 msgstr ""

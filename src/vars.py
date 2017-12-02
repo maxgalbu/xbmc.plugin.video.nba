@@ -16,6 +16,7 @@ show_scores = json.loads(settings.getSetting(id="scores"))
 debug = json.loads(settings.getSetting(id="debug"))
 use_cached_thumbnails = json.loads(settings.getSetting(id="cached_thumbnails"))
 use_local_timezone = json.loads(settings.getSetting(id="local_timezone"))
+show_cameras = json.loads(settings.getSetting(id="cameras"))
 useragent = "iTunes-AppleTV/4.1"
 
 # map the quality_id to a video height
