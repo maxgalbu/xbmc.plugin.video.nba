@@ -323,6 +323,7 @@ def chooseGameVideoMenu():
     duration = vars.params.get("duration")
     game_data_json = Request.getJson(vars.config['game_data_endpoint'] % seo_name)
     game_state = game_data_json['gameState']
+    game_name = vars.params.get("name")
     game_cameras = []
     if 'multiCameras' in game_data_json:
         game_cameras = game_data_json['multiCameras'].split(",")
@@ -336,6 +337,17 @@ def chooseGameVideoMenu():
         # Create the "Home" and "Away" list items
         for ishomefeed in [True, False]:
             listitemname = "Full game, " + ("away feed" if not ishomefeed else "home feed")
+
+            # Show actual team names instead of 'home feed' and 'away feed'
+            # game_name format should be 'yyyy-mm-dd away vs home'
+            if "vs" in game_name:
+                home_team = game_name.split("vs")[1].strip()
+                away_team = game_name.split("vs")[0].split(" ")[1].strip()
+                if ishomefeed:
+                    listitemname = "Full game, home feed (" + home_team + ")"
+                else:
+                    listitemname = "Full game, away feed (" + away_team + ")"
+
             params = {
                 'video_id': video_id,
                 'video_type': video_type,
