@@ -266,6 +266,8 @@ def addGamesLinks(date = '', video_type = "archive"):
                             'video_id': game_id,
                             'video_type': video_type,
                             'seo_name': seo_name,
+                            'visitor_team': visitor_name,
+                            'home_team': host_name,
                             'has_away_feed': 1 if has_away_feed else 0,
                             'has_condensed_game': 1 if has_condensed_video else 0,
                         }
@@ -337,7 +339,8 @@ def chooseGameVideoMenu():
     duration = vars.params.get("duration")
     game_data_json = Request.getJson(vars.config['game_data_endpoint'] % seo_name)
     game_state = game_data_json['gameState']
-    game_name = vars.params.get("name")
+    game_home_team = vars.params.get("home_team")
+    game_visitor_team = vars.params.get("visitor_team")
     game_cameras = []
     if 'multiCameras' in game_data_json:
         game_cameras = game_data_json['multiCameras'].split(",")
@@ -353,14 +356,11 @@ def chooseGameVideoMenu():
             listitemname = "Full game, " + ("away feed" if not ishomefeed else "home feed")
 
             # Show actual team names instead of 'home feed' and 'away feed'
-            # game_name format should be 'yyyy-mm-dd away vs home'
-            if "vs" in game_name:
-                home_team = game_name.split("vs")[1].strip()
-                away_team = game_name.split("vs")[0].split(" ")[1].strip()
+            if game_home_team and game_visitor_team:
                 if ishomefeed:
-                    listitemname = "Full game, home feed (" + home_team + ")"
+                    listitemname += " (" + game_home_team + ")"
                 else:
-                    listitemname = "Full game, away feed (" + away_team + ")"
+                    listitemname += " (" + game_visitor_team + ")"
 
             params = {
                 'video_id': video_id,
