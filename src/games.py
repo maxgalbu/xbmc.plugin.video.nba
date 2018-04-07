@@ -1,20 +1,14 @@
-import json
-import datetime, time
+import json, datetime, time, calendar, re, sys, traceback, urllib,urllib2
 from datetime import timedelta
-import urllib,urllib2
-import xbmc,xbmcplugin,xbmcgui
+import xbmc,xbmcplugin,xbmcgui,xbmcaddon
 from xml.dom.minidom import parseString
-import re
-import sys, traceback
-import calendar
-from utils import *
-from common import *
+import utils,common
 from request import Request
 import vars
 import inputstreamhelper
 
 def getGameUrl(video_id, video_type, video_ishomefeed, start_time, duration):
-    log("cookies: %s %s" % (video_type, vars.cookies), xbmc.LOGDEBUG)
+    utils.log("cookies: %s %s" % (video_type, vars.cookies), xbmc.LOGDEBUG)
 
     # video_type could be archive, live, condensed or oldseason
     if video_type not in ["live", "archive", "condensed"]:
@@ -54,21 +48,21 @@ def getGameUrl(video_id, video_type, video_ishomefeed, start_time, duration):
                 if duration:
                     body['dur'] = str(duration)
                 else:
-                    log("No end time, can't start from beginning", xbmc.LOGERROR)
+                    utils.log("No end time, can't start from beginning", xbmc.LOGERROR)
             else:
-                log("No start time can't start from beginning", xbmc.LOGERROR)
+                utils.log("No start time can't start from beginning", xbmc.LOGERROR)
     else:
         if start_time:
             body['st'] = str(start_time)
-            log("start_time: %s" % start_time, xbmc.LOGDEBUG)
+            utils.log("start_time: %s" % start_time, xbmc.LOGDEBUG)
 
             if duration:
                 body['dur'] = str(duration)
-                log("Duration: %s"% str(duration), xbmc.LOGDEBUG)
+                utils.log("Duration: %s"% str(duration), xbmc.LOGDEBUG)
             else:
-                log("No end time for game", xbmc.LOGDEBUG)
+                utils.log("No end time for game", xbmc.LOGDEBUG)
         else:
-            log("No start time, can't start from beginning", xbmc.LOGERROR)
+            utils.log("No start time, can't start from beginning", xbmc.LOGERROR)
 
     if vars.params.get("camera_number"):
         body['cam'] = vars.params.get("camera_number")
@@ -76,22 +70,22 @@ def getGameUrl(video_id, video_type, video_ishomefeed, start_time, duration):
         body['format'] = 'xml'
     body = urllib.urlencode(body)
 
-    log("the body of publishpoint request is: %s" % body, xbmc.LOGDEBUG)
+    utils.log("the body of publishpoint request is: %s" % body, xbmc.LOGDEBUG)
 
     try:
         request = urllib2.Request(url, body, headers)
         response = urllib2.urlopen(request)
         content = response.read()
     except urllib2.HTTPError as e:
-        logHttpException(e, url)
-        littleErrorPopup( xbmcaddon.Addon().getLocalizedString(50020) )
+        utils.logHttpException(e, url)
+        utils.littleErrorPopup( xbmcaddon.Addon().getLocalizedString(50020) )
         return ''
 
     xml = parseString(str(content))
     url = xml.getElementsByTagName("path")[0].childNodes[0].nodeValue
-    log("response URL from publishpoint: %s" % url, xbmc.LOGDEBUG)
+    utils.log("response URL from publishpoint: %s" % url, xbmc.LOGDEBUG)
     drm = xml.getElementsByTagName("drmToken")[0].childNodes[0].nodeValue
-    log(drm, xbmc.LOGDEBUG)
+    utils.log(drm, xbmc.LOGDEBUG)
 
     selected_video_url = ''
     if video_type == "live":
@@ -108,10 +102,10 @@ def getGameUrl(video_id, video_type, video_ishomefeed, start_time, duration):
             livecookies = "nlqptid=%s" % (querystring)
             livecookiesencoded = urllib.quote(livecookies)
 
-            log("live cookie: %s %s" % (querystring, livecookies), xbmc.LOGDEBUG)
+            utils.log("live cookie: %s %s" % (querystring, livecookies), xbmc.LOGDEBUG)
 
             url = "%s://%s/%s?%s" % (protocol, domain, arguments, querystring)
-            url = getGameUrlWithBitrate(url, video_type)
+            url = common.getGameUrlWithBitrate(url, video_type)
 
             selected_video_url = "%s&Cookie=%s" % (url, livecookiesencoded)
     else:
@@ -120,11 +114,11 @@ def getGameUrl(video_id, video_type, video_ishomefeed, start_time, duration):
         if '.mpd' in url:
             selected_video_url = url
         else:
-            selected_video_url = getGameUrlWithBitrate(url, video_type)
+            selected_video_url = common.getGameUrlWithBitrate(url, video_type)
         
         
     if selected_video_url:
-        log("the url of video %s is %s" % (video_id, selected_video_url), xbmc.LOGDEBUG)
+        utils.log("the url of video %s is %s" % (video_id, selected_video_url), xbmc.LOGDEBUG)
 
     return {'url':selected_video_url, 'drm':drm}
 
@@ -143,14 +137,14 @@ def getHighlightGameUrl(video_id):
         'bitrate': "1600"
     })
 
-    log("the body of publishpoint request is: %s" % body, xbmc.LOGDEBUG)
+    utils.log("the body of publishpoint request is: %s" % body, xbmc.LOGDEBUG)
 
     try:
         request = urllib2.Request(url, body, headers)
         response = urllib2.urlopen(request)
         content = response.read()
     except urllib2.HTTPError as ex:
-        log("Highlight url not found. Error: %s - body: %s" % (str(ex), ex.read()), xbmc.LOGERROR)
+        utils.log("Highlight url not found. Error: %s - body: %s" % (str(ex), ex.read()), xbmc.LOGERROR)
         return ''
 
     xml = parseString(str(content))
@@ -159,26 +153,26 @@ def getHighlightGameUrl(video_id):
     # Remove everything after ? otherwise XBMC fails to read the rtpm stream
     url, _,_ = url.partition("?")
 
-    log("highlight video url: %s" % url, xbmc.LOGDEBUG)
+    utils.log("highlight video url: %s" % url, xbmc.LOGDEBUG)
     
     return url
 
 def addGamesLinks(date = '', video_type = "archive"):
     try:
-        now_datetime_est = nowEST()
+        now_datetime_est = utils.nowEST()
 
         #example: http://smb.cdnak.neulion.com/fs/nba/feeds_s2012/schedule/2013/10_7.js?t=1381054350000
         schedule = 'http://smb.cdnak.neulion.com/fs/nba/feeds_s2012/schedule/%04d/%d_%d.js?t=%d' % \
             (date.year, date.month, date.day, time.time())
-        log('Requesting %s' % schedule, xbmc.LOGDEBUG)
+        utils.log('Requesting %s' % schedule, xbmc.LOGDEBUG)
 
-        schedule_request = urllib2.Request(schedule, None);
+        schedule_request = urllib2.Request(schedule, None)
         schedule_response = str(urllib2.urlopen(schedule_request).read())
         schedule_json = json.loads(schedule_response[schedule_response.find("{"):])
 
         unknown_teams = {}
         for index, daily_games in enumerate(schedule_json['games']):
-            log("daily games for day %d are %s" % (index, daily_games), xbmc.LOGDEBUG)
+            utils.log("daily games for day %d are %s" % (index, daily_games), xbmc.LOGDEBUG)
 
             for game in daily_games:
                 h = game.get('h', '')
@@ -236,7 +230,7 @@ def addGamesLinks(date = '', video_type = "archive"):
                     if host_name and visitor_name:
                         name = game_start_datetime_est.strftime("%Y-%m-%d")
                         if video_type == "live":
-                            name = toLocalTimezone(game_start_datetime_est).strftime("%Y-%m-%d (at %I:%M %p)")
+                            name = utils.toLocalTimezone(game_start_datetime_est).strftime("%Y-%m-%d (at %I:%M %p)")
 
                         # Add the teams' names and the scores if needed
                         name += ' %s vs %s' % (visitor_name, host_name)
@@ -248,7 +242,7 @@ def addGamesLinks(date = '', video_type = "archive"):
                             if playoff_status:
                                 name += " (series: %s)" % playoff_status
 
-                        thumbnail_url = generateCombinedThumbnail(v, h)
+                        thumbnail_url = utils.generateCombinedThumbnail(v, h)
                     elif image:
                         thumbnail_url = "https://neulionmdnyc-a.akamaihd.net/u/nba/nba/thumbs/%s" % image
 
@@ -291,21 +285,21 @@ def addGamesLinks(date = '', video_type = "archive"):
                                 params['duration'] = end_time - start_time
 
                         # Add a directory item that contains home/away/condensed items
-                        addListItem(name, url="", mode="gamechoosevideo",
+                        common.addListItem(name, url="", mode="gamechoosevideo",
                             iconimage=thumbnail_url, isfolder=True, customparams=params)
 
         if unknown_teams:
-            log("Unknown teams: %s" % str(unknown_teams), xbmc.LOGWARNING)
+            utils.log("Unknown teams: %s" % str(unknown_teams), xbmc.LOGWARNING)
 
     except Exception, e:
-        littleErrorPopup("Error: %s" % str(e))
-        log(traceback.format_exc(), xbmc.LOGDEBUG)
+        utils.littleErrorPopup("Error: %s" % str(e))
+        utils.log(traceback.format_exc(), xbmc.LOGDEBUG)
         pass
 
 def playGame():
     # Authenticate
     if vars.cookies == '':
-        vars.cookies = login()
+        vars.cookies = common.login()
     if not vars.cookies:
         return
 
@@ -376,7 +370,7 @@ def chooseGameVideoMenu():
                 'start_time': start_time,
                 'duration': duration,
             }
-            addListItem(listitemname, url="", mode="playgame", iconimage="", customparams=params)
+            common.addListItem(listitemname, url="", mode="playgame", iconimage="", customparams=params)
     else:
         #Add a "Home" list item
         params = {
@@ -386,7 +380,7 @@ def chooseGameVideoMenu():
             'start_time': start_time,
             'duration': duration,
         }
-        addListItem("Full game", url="", mode="playgame", iconimage="", customparams=params)
+        common.addListItem("Full game", url="", mode="playgame", iconimage="", customparams=params)
 
     if vars.show_cameras:
     
@@ -407,7 +401,7 @@ def chooseGameVideoMenu():
             }
 
             name = "Camera %d: %s" % (camera_number, nba_cameras[camera_number])
-            addListItem(name
+            common.addListItem(name
                 , url="", mode="playgame", iconimage="", customparams=params)
 
     #Live games have no condensed or highlight link
@@ -419,24 +413,24 @@ def chooseGameVideoMenu():
                 'video_type': 'condensed',
                 'game_state': game_state
             }
-            addListItem("Condensed game", url="", mode="playgame", iconimage="", customparams=params)
+            common.addListItem("Condensed game", url="", mode="playgame", iconimage="", customparams=params)
 
         # Get the highlights video if available
         highlights_url = getHighlightGameUrl(video_id)
         if highlights_url:
-            addVideoListItem("Highlights", highlights_url, iconimage="")
+            common.addVideoListItem("Highlights", highlights_url, iconimage="")
 
     xbmcplugin.endOfDirectory(handle = int(sys.argv[1]) )
 
 def chooseGameMenu(mode, video_type, date2Use = None):
     try:
         if mode == "selectdate":
-            date = getDate()
+            date = common.getDate()
         elif mode == "oldseason":
             date = date2Use
         else:
-            date = nowEST()
-            log("current date (america timezone) is %s" % str(date), xbmc.LOGDEBUG)
+            date = utils.nowEST()
+            utils.log("current date (america timezone) is %s" % str(date), xbmc.LOGDEBUG)
         
         # starts on mondays
         day = date.isoweekday()
