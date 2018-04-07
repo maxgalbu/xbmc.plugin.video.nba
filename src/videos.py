@@ -22,24 +22,24 @@ def videoDateMenu():
 
     for date in dates:
         params = {'date': date, 'video_tag': video_tag}
-        addListItem(name=str(date), url='', mode='videolist', iconimage='', 
+        addListItem(name=str(date), url='', mode='videolist', iconimage='',
             isfolder=True, customparams=params)
     xbmcplugin.endOfDirectory(handle = int(sys.argv[1]))
 
 def videoMenu():
     addListItem('Top Plays', '', 'videodate', '', True, customparams={'video_tag':'top_plays'})
     addListItem('Shaqtin\' a fool', '', 'videolist', '', True, customparams={
-        'video_tag': 'shaqtin', 
+        'video_tag': 'shaqtin',
         'video_query': "shaqtin",
         'pagination': True
     })
     addListItem('The starters', '', 'videolist', '', True, customparams={
-        'video_tag': 'starters', 
+        'video_tag': 'starters',
         'video_query': "starters",
         'pagination': True
     })
     addListItem('Highlights', '', 'videolist', '', True, customparams={
-        'video_tag': 'recap', 
+        'video_tag': 'recap',
         'pagination': True
     })
     addListItem('Smitty\'s top plays under the rim', '', 'videolist', '', True, customparams={
@@ -76,7 +76,7 @@ def videoListMenu():
     #Add the date if passed from the menu
     if date:
         query += " AND releaseDate:[%s TO %s]" % (
-            selected_date.strftime('%Y-%m-%dT00:00:00.000Z'), 
+            selected_date.strftime('%Y-%m-%dT00:00:00.000Z'),
             selected_date.strftime('%Y-%m-%dT23:59:59.000Z')
         )
 
@@ -140,7 +140,7 @@ def videoListMenu():
 
         #Add "next page" link
         custom_params={
-            'video_tag': video_tag, 
+            'video_tag': video_tag,
             'video_query': video_query,
             'page': page + 1,
             'pagination': True
@@ -156,13 +156,13 @@ def videoPlay():
     video_id = vars.params.get("url")
 
     url = vars.config['publish_endpoint']
-    headers = { 
-        'Cookie': vars.cookies, 
+    headers = {
+        'Cookie': vars.cookies,
         'Content-type': 'application/x-www-form-urlencoded',
         'User-Agent': "Mozilla/5.0 (X11; Linux x86_64; rv:12.0) Gecko/20100101 Firefox/12.0",
     }
     body = urllib.urlencode({
-        'id': str(video_id), 
+        'id': str(video_id),
         'bitrate': 800,
         'type': 'video',
         'plid': vars.player_id,
@@ -184,7 +184,7 @@ def videoPlay():
     log("videoPlay: video url is %s" % video_url, xbmc.LOGDEBUG)
 
     #remove query string
-    video_url = re.sub("\?[^?]+$", "", video_url)
+    #video_url = re.sub("\?[^?]+$", "", video_url)
 
     item = xbmcgui.ListItem(path=video_url)
     xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, item)
