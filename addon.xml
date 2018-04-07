@@ -10,6 +10,7 @@
     <import addon="script.module.six" version="1.9.0"/>
     <import addon="script.module.dateutil" version="2.4.0"/>
     <import addon="script.module.pil"/> <!-- TODO? specify version -->
+    <import addon="script.module.inputstreamhelper" version="0.3.3"/>
   </requires>
   <extension point="xbmc.python.pluginsource" library="main.py">
     <provides>video</provides>

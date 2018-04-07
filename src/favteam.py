@@ -3,9 +3,10 @@ import datetime, time
 from datetime import timedelta
 import xbmc,xbmcgui
 import traceback
+import calendar
 
 from utils import *
-from common import * 
+from common import *
 import vars
 
 def addFavTeamGameLinks(fromDate, favTeamAbbrs, video_type = 'archive'):
@@ -96,9 +97,24 @@ def addFavTeamGameLinks(fromDate, favTeamAbbrs, video_type = 'archive'):
                         params = {
                             'video_id': game_id,
                             'video_type': video_type,
-                            'video_ishomefeed': 0 if awayFeed else 1
+                            'video_ishomefeed': 0 if awayFeed else 1,
+                            'game_state': gs
                         }
                         name = name + (' (away)' if awayFeed else ' (home)')
+
+                        if 'st' in details:
+                            start_time = calendar.timegm(time.strptime(details['st'], '%Y-%m-%dT%H:%M:%S.%f')) * 1000
+                            params['start_time'] = start_time
+                            if 'et' in details:
+                                end_time = calendar.timegm(time.strptime(details['et'], '%Y-%m-%dT%H:%M:%S.%f')) * 1000
+                                params['end_time'] = end_time
+                                params['duration'] = end_time - start_time
+                            else:
+                                # create my own et for game (now)
+                                end_time = str(datetime.datetime.now()).replace(' ', 'T')
+                                end_time = calendar.timegm(time.strptime(end_time, '%Y-%m-%dT%H:%M:%S.%f')) * 1000
+                                params['end_time'] = end_time
+                                params['duration'] = end_time - start_time
                                 
                         addListItem(name, url="", mode="playgame", iconimage=thumbnail_url, customparams=params)
 
