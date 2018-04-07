@@ -151,7 +151,7 @@ def getHighlightGameUrl(video_id):
     url = xml.getElementsByTagName("path")[0].childNodes[0].nodeValue
 
     # Remove everything after ? otherwise XBMC fails to read the rtpm stream
-    url, _,_ = url.partition("?")
+    #url, _,_ = url.partition("?")
 
     utils.log("highlight video url: %s" % url, xbmc.LOGDEBUG)
     
