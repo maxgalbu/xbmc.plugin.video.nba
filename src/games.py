@@ -323,6 +323,7 @@ def playGame():
                 item.setProperty('inputstreamaddon', 'inputstream.adaptive')
                 item.setProperty('inputstream.adaptive.manifest_type', 'mpd')
                 item.setProperty('inputstream.adaptive.license_type', 'com.widevine.alpha')
+                item.setProperty('inputstream.adaptive.manifest_update_parameter', 'full')
                 item.setContentLookup(False)
                 #TODO: get license url from config
                 licUrl = 'https://prod-lic2widevine.sd-ngp.net/proxy|authorization=bearer ' + currentvideo['drm'] + '|R{SSM}|';
